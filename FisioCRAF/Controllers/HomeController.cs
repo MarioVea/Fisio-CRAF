@@ -1,4 +1,5 @@
 ﻿using FisioCRAF.Models;
+using FisioCRAF.Models.Services;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
@@ -12,7 +13,10 @@ namespace FisioCRAF.Controllers
     {
         public ActionResult Index()
         {
-            return View();
+            PacienteService ps = new PacienteService();
+            Paciente paciente = ps.obtenerPaciente(1);
+            int id = paciente.id_Pac;
+            return View(paciente);
         }
 
         public ActionResult About()
