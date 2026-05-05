@@ -1,0 +1,125 @@
+.encabezado{
+    width:50%;
+    margin:auto;
+    display:flex;
+    align-items:center;
+    padding:10px;
+}
+
+.encabezado .buscador{
+    display:flex;
+    height:20px;
+    margin-left:20px;
+    width:100%;
+    padding:10px; 
+    position:relative;
+}
+
+.encabezado .buscador input{
+    width:85%;
+}
+
+.encabezado .buscador button{
+    margin-left:auto;
+}
+
+.resultados{
+    position:absolute;
+    top:calc(50%);
+    left:20px;
+    right:80px;
+    border-radius:5px;
+    padding:0px;
+    list-style: none;
+}
+.oculto{
+    display:none;
+}
+
+.resultados li{
+    border-bottom:1px black solid;
+    padding:5px;
+    &:last-child{
+        border-bottom:none;
+    }   
+    &:hover{
+        background-color: gray;
+    }
+}
+main{
+    display:flex;
+    flex-direction: column;
+}
+
+
+.datos1{
+    display:flex;
+    justify-content: space-between;
+}
+
+form{
+    background-color: rgb(250, 170, 170);
+    width:80%;
+    margin:auto;
+    padding:20px;
+    border-radius:10px;
+}
+
+
+#motivo{
+    resize: none;
+}
+.datos2 .dato{
+    display: flex;
+    flex-direction:column;
+    text-align: center;
+}
+.datos-horario{
+    display: flex;
+    justify-content: space-between;
+    padding-top:20px;
+}
+
+.datos-horario .dato{
+    display: flex;
+    flex-direction: unset;
+    align-items: center;
+}
+
+.datos-horario .dato input{
+    height:20px;
+}
+
+.opciones{
+    display: flex;
+
+}
+
+.opciones .opcion{
+    padding:10px;
+
+}
+
+.estado-opciones{
+    text-align: center;
+}
+
+.tabla{
+    width:90%;
+    margin:auto;
+    margin-top:20px;
+    border-collapse: separate;
+    border-radius: 10px;
+    border:2px black solid;
+}
+
+
+th{
+    background-color: rgb(111, 111, 220);
+}
+
+.tabla,th,tr,td{
+    border-collapse:collapse;
+    border:2px black solid;
+}
+

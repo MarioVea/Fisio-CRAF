@@ -1,0 +1,67 @@
+
+body{
+display: flex;
+justify-content: center;
+align-items: center;
+height: 100vh;
+overflow-y: hidden;
+background-color: #9e9e94;
+font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+}
+
+
+.form-login{
+    height:auto;
+    width:30%;
+    text-align: center;
+    margin:auto;
+    background-color: rgb(177, 228, 160);
+    border-radius:20px;
+    padding:2rem;
+}
+
+
+.dato, .acciones{
+    display:flex;
+    margin:auto;
+    flex-direction: column;
+    width:70%;
+    margin-top:20px;
+}
+
+
+.lbl-usuario{
+    transform: translateY(30px) translateX(-55px);
+}
+.lbl-password{
+    transform: translateY(30px) translateX(-85px);
+
+}
+
+
+
+
+
+.acciones{
+    width:40%;
+}
+
+button{
+    background-color: rgb(129, 192, 181);
+    padding:8px;
+    border-radius: 10px;
+    border:none;
+    &:hover{
+        background-color: rgb(130, 221, 206);
+        transform: translateY(-10px);
+        transition: ease;
+        transition-duration: .5s;
+    }
+}
+
+input{
+    padding:8px;
+    outline:none;
+    border:1px solid black;
+    border-radius:10px;
+}

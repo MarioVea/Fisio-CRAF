@@ -13,10 +13,7 @@ namespace FisioCRAF.Controllers
     {
         public ActionResult Index()
         {
-            PacienteService ps = new PacienteService();
-            Paciente paciente = ps.obtenerPaciente(1);
-            int id = paciente.id_Pac;
-            return View(paciente);
+            return View();
         }
 
         public ActionResult About()

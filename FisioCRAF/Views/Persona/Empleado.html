@@ -1,0 +1,147 @@
+﻿<!--@{
+    ViewBag.Title = "Empleado";
+}
+-->
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="/FisioCRAF/Content/empleados.css">
+</head>
+<body>
+    <main class="vista-empleado">
+    <div class="encabezado">
+        <h2>Empleado</h2>
+        <div class="buscador-wrap">
+            <input type="text" placeholder="Búsqueda por clave o nombre">
+            <ul class="resultados-busqueda">
+                <li>a</li>
+                <li>b</li>
+                <li>c</li>
+            </ul>
+        </div>
+    </div>
+
+    <form class="form-empleado">           
+        <div class="datos-generales">
+            <div class="datos-1">
+                <div class="busqueda">
+                    <input type="text" placeholder="XXXX0000"/>
+                    <button>Buscar cabron</button>
+                </div>
+
+                <div class="estado">
+                    <div class="datos">
+                        <label>Estado del empleado</label>
+                        <div class="opciones">
+                            <div class="estado-opcion">
+                                <label for="activo">Activo</label>
+                                <input id="activo" name="Estatus_Emp" type="radio" value="M" required>
+                            </div>
+                            <div class="estado-opcion">
+                                <label for="inactivo">Inactivo</label>
+                                <input id="inactivo" name="Estatus_Emp" type="radio" value="F" required>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="datos-2">
+                
+                <div class="datos">
+                    <label for="nombre">Nombre/s</label>
+                    <input id="nombre" type="text">
+                </div>
+
+                <div class="datos">
+                    <label for="paterno">Apellido Paterno</label>
+                    <input id="paterno" type="text">
+                </div>
+
+                <div class="datos">
+                    <label for="materno">Apellido Materno</label>
+                    <input id="materno" type="text">
+                </div>
+
+            </div>
+
+            <div class="datos-3">
+                <div class="datos">
+                    <label>Tipo de empleado</label>
+                    <div class="empleado">
+                        <div class="empleado-opcion">
+                            <input id="fisio" name="Genero" type="radio" value="M" required>
+                            <label for="fisio">Fisioterapeuta</label>
+                        </div>
+                        <div class="empleado-opcion">
+                            <input id="prestador" name="Genero" type="radio" value="F" required>
+                            <label for="prestador">Prestador del Servicio Social</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="datos">
+                    <label for="clave">Clave/contraseña</label>
+                    <input id="clave" type="text">
+                </div>
+                
+
+                <div class="datos">
+                    <label for="numero">Num.Teléfono</label>
+                    <input id="numero" type="text">
+                </div>
+
+            </div>
+        </div>
+        <div class="datos-fisioterapeuta">
+            <div class="datos">
+                <label for="cedula">Cédula</label>
+                <input id="cedula" type="text" name="" id="">
+            </div>
+
+            <div class="datos">
+                <label for="especialidad">Especialidad</label>
+                <select class="especialidades" name="" id="">
+                    <option value=""></option>
+                </select>
+            </div>
+
+        </div>
+
+        <div class="acciones">
+            <button type="submit" formaction="@Url.Action("guardarEmpleado","Persona")">Guardar Empleado</button>
+            <button type="submit">Eliminar Empleado</button>
+            <button type="reset">Limpiar datos</button>
+        </div>
+
+    </form>
+
+    <form action="" class="modal-busqueda">
+        <div class="buscador">
+            <label for="buscador-modal">Buscador</label>
+            <input id="buscador-modal" type="text" class="buscador-modal" placeholder="introduce el nombre del empleado">
+        </div>
+        <div class="contenedor-modal ">
+            <table>
+                <thead>
+                    <th>Clave empleado</th>
+                    <th>Apellido paterno</th>
+                    <th>Apellido materno</th>
+                </thead>
+                <tbody id="resultados-modal"></tbody>
+            </table>
+        </div>
+    </form>
+
+
+
+
+</main>
+</body>
+</html>

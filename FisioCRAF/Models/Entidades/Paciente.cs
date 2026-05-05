@@ -7,7 +7,7 @@ namespace FisioCRAF.Models
 {
     public class Paciente
     {
-        public int id_Pac { get; set; }
+        public int id_Pac { get; set; } 
         public string Nombre_Pac { get; set; }
         public string ApellidoP_Pac { get; set; }
         public string ApellidoM_Pac { get; set; }

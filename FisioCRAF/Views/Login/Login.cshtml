@@ -1,0 +1,105 @@
+﻿@{ 
+    Layout = "";
+
+}
+<link rel="stylesheet" href="~/Content/login.css">
+    
+
+    <form action="" class="form-login">
+        <h2>Inicio de sesion</h2>
+        <div class="dato">
+            <label id="lbl-usuario" class="lbl-usuario" for="usuario">Nombre de usuario</label>
+            <input id="usuario" type="text" name="usuario" required>
+        </div>
+        <div class="dato">
+            <label id="lbl-password" class="lbl-password" for="password">Contraseña</label>
+            <input id="password" type="text" name="password" required>
+        </div>
+        <div class="acciones">
+            <button id="iniciar">Iniciar Sesion</button>
+        </div>
+    </form>
+
+
+
+
+    <script>
+        const inputUsuario = document.getElementById("usuario");
+        const inputPassword = document.getElementById("password");
+        const lblUsuario = document.getElementById("lbl-usuario");
+        const lblPassword = document.getElementById("lbl-password");
+        const btnLogin = document.getElementById("iniciar");
+
+
+        btnLogin.addEventListener("click", async function (e) {
+            e.preventDefault();
+            const usuario = inputUsuario.value;
+            const password = inputPassword.value;
+
+            try {
+                const response = await fetch(`/Login/iniciar`, {
+                    "method": "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ usuario, password })
+
+                })
+                if (!response.ok) {
+                    alert("Error al iniciar sesión");
+                }
+
+                const data = await response.json();
+                alert(data.message || "");
+                window.location.href = "/Persona/Paciente";
+            }
+            catch (error) {
+                alert(error.message);
+            }
+
+        })
+
+
+        inputUsuario.addEventListener("input", moverLabelUsuario);
+        inputUsuario.addEventListener("blur", function () {
+            const contenido = inputUsuario.value;
+            if (contenido === "" || contenido == null) {
+                regresarLabelUsuario();
+            }
+        });
+
+
+        inputPassword.addEventListener("input", function () {
+            moverLabelPassword();
+        });
+
+        inputPassword.addEventListener("blur", function () {
+            const contenido = inputPassword.value;
+            if (contenido === "" || contenido == null) {
+                regresarLabelPassword();
+            }
+        });
+
+        function moverLabelUsuario() {
+            lblUsuario.style.translate = "10px -30px";
+            lblUsuario.style.transitionDuration = ".5s";
+
+        }
+        function regresarLabelUsuario() {
+            lblUsuario.style.translate = "unset";
+            lblUsuario.style.transitionDuration = ".5s";
+
+        }
+        function regresarLabelPassword() {
+            lblPassword.style.translate = "unset";
+            lblPassword.style.transitionDuration = ".5s";
+
+        }
+        function moverLabelPassword() {
+            lblPassword.style.translate = "10px -30px";
+            lblPassword.style.transitionDuration = ".5s";
+
+        }
+
+    </script>
+</html>
