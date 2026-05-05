@@ -1,0 +1,466 @@
+﻿
+@{
+    Layout = "~/Views/Shared/_menu.cshtml";
+    string mensaje = TempData["mensaje"] as string;
+}
+
+<link rel="stylesheet" href="~/Content/estilos.css">
+<main class="vista-paciente">
+    <div class="encabezado">
+        <h2>Paciente</h2>
+        <div class="buscador-wrap">
+            <input id="buscador" type="text" placeholder="Introduzca el nombre del paciente">
+            <ul id="listaResultados" class="resultados-busqueda oculta"></ul>
+        </div>
+        <button type="button" id="abrirModal" class="btn-buscar">Buscar</button>
+    </div>
+
+    <form class="form-paciente" method="post">
+        <div class="datos-principales">
+            <div class="dato">
+                <input type="hidden" id="id_Pac">
+                <label for="nombre">Nombre</label>
+                <input id="nombre" name="Nombre_Pac" maxLength="20" type="text" pattern="[A-Za-zÁÉÍÓÚÜÑáéíóúüñ\s]+" required>
+            </div>
+
+            <div class="dato">
+                <label for="paterno">Apellido Paterno</label>
+                <input id="paterno" name="ApellidoP_Pac" maxLength="20" type="text" pattern="[A-Za-zÁÉÍÓÚÜÑáéíóúüñ\s]+" required>
+            </div>
+
+            <div class="dato">
+                <label for="materno">Apellido Materno</label>
+                <input id="materno" name="ApellidoM_Pac" maxLength="20" pattern="[A-Za-zÁÉÍÓÚÜÑáéíóúüñ\s]+" type="text">
+            </div>
+
+            <div class="dato">
+                <label for="telefono">Num.Teléfono</label>
+                <input id="telefono" name="Telefono_Pac" type="tel" maxlength="10" pattern="[0-9]{10}" required>
+            </div>
+
+        </div>
+        <div class="datos-secundarios">
+            <div class="dato">
+                <label for="fecha">Fecha de nacimiento</label>
+                <input id="fecha" name="Fecha_Nacimiento" type="date" required>
+            </div>
+
+            <div class="dato">
+                <label for="">Genero</label>
+                <div class="genero">
+                    <div class="genero-opcion">
+                        <label for="generoM">Masculino</label>
+                        <input id="generoM" name="Genero" type="radio" value="M" required>
+                    </div>
+                    <div class="genero-opcion">
+                        <label for="generoF">Femenino</label>
+                        <input id="generoF" name="Genero" type="radio" value="F" required>
+                    </div>
+                    <div class="genero-opcion">
+                        <label for="generoO">Otro</label>
+                        <input id="generoO" name="Genero" type="radio" value="O" required>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="acciones">
+            <button id="btnGuardar" type="button">Guardar Paciente</button>
+            <button type="button" id="btn-actualizar">Actualizar Paciente</button>
+            <button id="btn-Eliminar">Eliminar paciente</button>
+            <button type="reset" id="btn-limpiar">Limpiar Datos</button>
+        </div>
+
+    </form>
+
+    <div id="modalBusqueda" class="modal modal-oculto" role="dialog" aria-modal="true" aria-labelledby="tituloModal">
+        <div class="modal-contenido">
+            <div class="modal-encabezado">
+                <h3 id="tituloModal">Buscar paciente</h3>
+                <button type="button" id="cerrarModal" class="btn-cerrar" aria-label="Cerrar">&times;</button>
+            </div>
+            <div class="modal-cuerpo">
+                <input id="modalBuscador" type="text" placeholder="Buscar por nombre" class="modal-input">
+                <div class="tabla-scroll">
+					<table class="tabla-resultados">
+						<thead>
+							<tr>
+								<th>Nombre</th>
+								<th>Apellido Paterno</th>
+								<th>Apellido Materno</th>
+								<th>Telefono</th>
+								<th>Fecha Nacimiento</th>
+								<th>Genero</th>
+							</tr>
+						</thead>
+						<tbody id="modalResultados"></tbody>
+					</table>
+				</div>
+            </div>
+            <div class="modal-acciones">
+                <button type="button" id="btnAceptar" class="btn-primario">Aceptar</button>
+                <button type="button" id="btnCancelar" class="btn-secundario">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+</main>
+
+<script>
+    let elemento = document.getElementById("buscador");
+    let timerId;
+    let modalTimerId;
+    let pacienteSeleccionado = null;
+
+    const modal = document.getElementById("modalBusqueda");
+    const abrirModal = document.getElementById("abrirModal");
+    const cerrarModal = document.getElementById("cerrarModal");
+    const btnCancelar = document.getElementById("btnCancelar");
+    const btnAceptar = document.getElementById("btnAceptar");
+    const modalBuscador = document.getElementById("modalBuscador");
+    const modalResultados = document.getElementById("modalResultados");
+    const btnActualizar = document.getElementById("btn-actualizar");
+    const btnGuardar = document.getElementById("btnGuardar");
+    const btnEliminar = document.getElementById("btn-Eliminar");
+  const btnLimpiar = document.getElementById("btn-limpiar");
+	const inputNombre = document.getElementById("nombre");
+	const inputPaterno = document.getElementById("paterno");
+	const inputMaterno = document.getElementById("materno");
+	const inputTelefono = document.getElementById("telefono");
+
+	function limpiarTexto(input) {
+		if (!input) {
+			return;
+		}
+		input.value = input.value.replace(/[^A-Za-zÁÉÍÓÚÜÑáéíóúüñ\s]/g, "").slice(0, 20);
+	}
+
+	function limpiarTelefono(input) {
+		if (!input) {
+			return;
+		}
+		input.value = input.value.replace(/\D/g, "").slice(0, 10);
+	}
+
+	inputNombre.addEventListener("input", () => limpiarTexto(inputNombre));
+	inputPaterno.addEventListener("input", () => limpiarTexto(inputPaterno));
+	inputMaterno.addEventListener("input", () => limpiarTexto(inputMaterno));
+	inputTelefono.addEventListener("input", () => limpiarTelefono(inputTelefono));
+
+	btnLimpiar.addEventListener("click", limpiarPaciente);
+
+
+    btnEliminar.addEventListener("click",function(e){
+        e.preventDefault();
+        eliminarPaciente();
+        limpiarPaciente();
+    });
+
+
+    async function eliminarPaciente(){
+        const id_Pac = document.getElementById("id_Pac").value;
+        if(!id_Pac){
+            alert("No se han proporcionado los datos del paciente a eliminar");
+        }
+        try{
+            const response = await fetch(`/Persona/eliminarPaciente`,{
+                method : "POST",
+                headers:{
+                    "Content-Type" : "application/json"
+                },
+                body:JSON.stringify({id_Pac})
+            });
+            const data = await response.json();
+            if(!response.ok){
+                alert("Ocurrió un error al eliminar los datos del paciente");
+            }
+            alert (data.message);
+            limpiarPaciente();
+        }
+        catch(error){
+            alert("Ocurrió un error al eliminar el paciente. Por favor, inténtelo de nuevo.");
+        }
+    }
+
+
+    btnGuardar.addEventListener("click", function () {
+        guardarPaciente();
+        limpiarPaciente();
+    });
+
+    async function guardarPaciente() {
+        const datosPaciente = obtenerDatos();
+        try {
+            const response = await fetch(`/Persona/guardarPaciente`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(datosPaciente)
+            });
+
+            const data = await response.json();
+            if (!response.ok) {
+                throw new Error(data.message || response.statusText);
+            }
+            alert(data.message || "");
+        }
+        catch (error) {
+            alert(error.message || "Ocurrió un error al procesar los datos del paciente. Por favor, inténtelo de nuevo.");
+        }
+    }
+
+    function obtenerDatos() {
+        const genero = document.querySelector('input[name="Genero"]:checked')?.value || null;
+
+        return {
+			id_Pac: document.getElementById("id_Pac").value,
+			Nombre_Pac: document.getElementById("nombre").value,
+            ApellidoP_Pac: document.getElementById("paterno").value,
+            ApellidoM_Pac: document.getElementById("materno").value,
+            Telefono_Pac: document.getElementById("telefono").value,
+            Fecha_Nacimiento: document.getElementById("fecha").value,
+            Genero: genero
+        };
+    }
+
+
+
+
+
+    elemento.addEventListener("input", function () {
+        clearTimeout(timerId);
+        timerId = setTimeout(() => {
+            const valor = this.value.trim();
+            if (!valor) {
+                mostrarResultados([]);
+                return;
+            }
+            let nombre = encodeURIComponent(valor);
+            fetch(`/Persona/buscarPacientes?nombre=${nombre}`)
+                .then(response => response.json())
+                .then(data => {
+                    mostrarResultados(data);
+                });
+        }, 300);
+    });
+    abrirModal.addEventListener("click", function () {
+        abrirModalBusqueda();
+    });
+
+    cerrarModal.addEventListener("click", function () {
+        cerrarModalBusqueda();
+    });
+
+    btnCancelar.addEventListener("click", function () {
+        cerrarModalBusqueda();
+    });
+
+    btnAceptar.addEventListener("click", function () {
+        if (pacienteSeleccionado) {
+            rellenarFormulario(pacienteSeleccionado);
+            btnGuardar.disabled = true;
+        }
+        cerrarModalBusqueda();
+    });
+
+    modalBuscador.addEventListener("input", function () {
+        clearTimeout(modalTimerId);
+        modalTimerId = setTimeout(() => {
+            const valor = this.value.trim();
+            if (!valor) {
+                limpiarResultadosModal();
+                return;
+            }
+            let nombre = encodeURIComponent(valor);
+            fetch(`/Persona/buscarPacientes?nombre=${nombre}`)
+                .then(response => response.json())
+                .then(data => {
+                    mostrarResultadosModal(data);
+                });
+        }, 300);
+    });
+
+    function mostrarResultados(pacientes) {
+        const lista = document.getElementById("listaResultados");
+        lista.innerHTML = ""; // Limpiar resultados previos
+
+        pacientes.forEach(p => {
+            let item = document.createElement("li");
+            item.textContent = `${p.Nombre_Pac} ${p.ApellidoP_Pac}`;
+            item.addEventListener("click", function () {
+                rellenarFormulario(p);
+                lista.classList.add("oculta");
+                btnGuardar.disabled = true;
+            });
+
+            lista.appendChild(item);
+        });
+
+        if (lista.children.length === 0) {
+            lista.classList.add("oculta");
+        } else {
+            lista.classList.remove("oculta");
+        }
+    }
+
+
+    btnActualizar.addEventListener("click", function(){
+        actualizarPaciente();
+        limpiarPaciente();
+    })
+
+    function actualizarPaciente() {
+        const paciente = {
+            id_Pac: document.getElementById("id_Pac").value,
+            Nombre_Pac: document.getElementById("nombre").value,
+            ApellidoP_Pac: document.getElementById("paterno").value,
+            ApellidoM_Pac: document.getElementById("materno").value,
+            Telefono_Pac: document.getElementById("telefono").value,
+            Fecha_Nacimiento: document.getElementById("fecha").value,
+            Genero: document.querySelector('input[name="Genero"]:checked')?.value
+        };
+
+        fetch(`/Persona/actualizarPaciente`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(paciente)
+        })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message)
+            });
+        limpiarPaciente();
+    }
+
+    function limpiarPaciente() {
+        document.getElementById("id_Pac").value = "";
+        document.getElementById("nombre").value = "";
+        document.getElementById("paterno").value = "";
+        document.getElementById("materno").value = "";
+        document.getElementById("telefono").value = "";
+        document.getElementById("fecha").value = "";
+
+        const generoSeleccionado = document.querySelector('input[name="Genero"]:checked');
+        if (generoSeleccionado) {
+            generoSeleccionado.checked = false;
+        }
+
+        btnGuardar.disabled = false;
+    }
+
+    function abrirModalBusqueda() {
+        modal.classList.remove("modal-oculto");
+        modalBuscador.value = "";
+        limpiarResultadosModal();
+        pacienteSeleccionado = null;
+        modalBuscador.focus();
+    }
+
+    function cerrarModalBusqueda() {
+        modal.classList.add("modal-oculto");
+    }
+
+    function limpiarResultadosModal() {
+        modalResultados.innerHTML = "";
+        pacienteSeleccionado = null;
+    }
+
+    function mostrarResultadosModal(pacientes) {
+        modalResultados.innerHTML = "";
+        pacienteSeleccionado = null;
+
+        pacientes.forEach(p => {
+            const fila = document.createElement("tr");
+            const celdaNombre = document.createElement("td");
+            celdaNombre.textContent = p.Nombre_Pac || "";
+            const celdaPaterno = document.createElement("td");
+            celdaPaterno.textContent = p.ApellidoP_Pac || "";
+            const celdaMaterno = document.createElement("td");
+            celdaMaterno.textContent = p.ApellidoM_Pac || "";
+            const celdaTelefono = document.createElement("td");
+            celdaTelefono.textContent = p.Telefono_Pac || "";
+            const celdaFecha = document.createElement("td");
+            celdaFecha.textContent = formatearFecha(p.Fecha_Nacimiento);
+            const celdaGenero = document.createElement("td");
+            celdaGenero.textContent = p.Genero || "";
+
+            fila.appendChild(celdaNombre);
+            fila.appendChild(celdaPaterno);
+            fila.appendChild(celdaMaterno);
+            fila.appendChild(celdaTelefono);
+            fila.appendChild(celdaFecha);
+            fila.appendChild(celdaGenero);
+
+            fila.addEventListener("click", function () {
+                Array.from(modalResultados.querySelectorAll("tr")).forEach(r => r.classList.remove("seleccionado"));
+                fila.classList.add("seleccionado");
+                pacienteSeleccionado = p;
+            });
+
+            modalResultados.appendChild(fila);
+        });
+    }
+
+    function rellenarFormulario(paciente) {
+
+        document.getElementById("id_Pac").value = paciente.id_Pac || "";
+        document.getElementById("nombre").value = paciente.Nombre_Pac || "";
+        document.getElementById("paterno").value = paciente.ApellidoP_Pac || "";
+        document.getElementById("materno").value = paciente.ApellidoM_Pac || "";
+        document.getElementById("telefono").value = paciente.Telefono_Pac || "";
+        document.getElementById("fecha").value = formatearFechaInput(paciente.Fecha_Nacimiento);
+
+        if (paciente.Genero) {
+            const radio = document.querySelector(`input[name="Genero"][value="${paciente.Genero}"]`);
+            if (radio) {
+                radio.checked = true;
+            }
+        }
+    }
+
+    function extraerTimestamp(valorFecha) {
+        if (!valorFecha) {
+            return null;
+        }
+        const match = /\/Date\((\d+)\)\//.exec(valorFecha);
+        if (!match) {
+            return null;
+        }
+        const ms = Number(match[1]);
+        return Number.isFinite(ms) ? ms : null;
+    }
+
+    function formatearFecha(valorFecha) {
+        const ms = extraerTimestamp(valorFecha);
+        if (!ms) {
+            return "";
+        }
+        const fecha = new Date(ms);
+        const dia = String(fecha.getDate()).padStart(2, "0");
+        const mes = String(fecha.getMonth() + 1).padStart(2, "0");
+        const anio = fecha.getFullYear();
+        return `${dia}/${mes}/${anio}`;
+    }
+
+    function formatearFechaInput(valorFecha) {
+        const ms = extraerTimestamp(valorFecha);
+        if (!ms) {
+            return "";
+        }
+        const fecha = new Date(ms);
+        const dia = String(fecha.getDate()).padStart(2, "0");
+        const mes = String(fecha.getMonth() + 1).padStart(2, "0");
+        const anio = fecha.getFullYear();
+        return `${anio}-${mes}-${dia}`;
+    }
+</script>
+
+@if (!string.IsNullOrEmpty(mensaje))
+{
+    <script>
+        alert('@HttpUtility.JavaScriptStringEncode(mensaje)');
+    </script>
+}

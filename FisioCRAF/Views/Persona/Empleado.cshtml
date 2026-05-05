@@ -1,0 +1,490 @@
+﻿@{
+
+	Layout = "~/Views/Shared/_menu.cshtml";
+}
+
+    <link rel="stylesheet" href="~/Content/estilos.css">
+	<link rel="stylesheet" href="~/Content/empleados.css">
+    <main class="vista-empleado">
+    <div class="encabezado">
+        <h2>Empleado</h2>
+        <div class="buscador-wrap">
+            <input id="buscador" type="text" placeholder="Introduzca el nombre del empleado">
+			<ul id="listaResultados" class="resultados-busqueda oculta"></ul>
+        </div>
+        <button type="button" id="abrirModal" class="btn-buscar">Buscar</button>
+    </div>
+
+    <form class="form-empleado">            
+        <div class="datos-generales">
+            <div class="datos-1">
+                <div class="busqueda">
+                    <input id="clave" type="text" placeholder="XXXX0000"/>
+                    <button>Buscar cabron</button>
+                </div>
+
+                <div class="estado">
+                    <div class="datos">
+                        <label>Estado del empleado</label>
+                        <div class="opciones">
+                            <div class="estado-opcion">
+                                <label for="activo">Activo</label>
+                                <input id="activo" name="Estatus_Emp" type="radio" value="1" required>
+                            </div>
+                            <div class="estado-opcion">
+                                <label for="inactivo">Inactivo</label>
+                                <input id="inactivo" name="Estatus_Emp" type="radio" value="0" required>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="datos-2">
+                
+                <div class="datos">
+                    <input type="hidden" name="id_Emp" id="id_Emp" />
+                    <label for="nombre">Nombre/s</label>
+					<input id="nombre" type="text" name="Nombre_Emp" maxlength="50" pattern="[A-Za-zÁÉÍÓÚÜÑáéíóúüñ\s]+">
+                </div>
+
+                <div class="datos">
+                    <label for="paterno">Apellido Paterno</label>
+					<input id="paterno" type="text" name="ApellidoP_Emp" maxlength="50" pattern="[A-Za-zÁÉÍÓÚÜÑáéíóúüñ\s]+"> 
+                </div>
+
+                <div class="datos">
+                    <label for="materno">Apellido Materno</label>
+					<input id="materno" type="text" name="ApellidoM_Emp" maxlength="50" pattern="[A-Za-zÁÉÍÓÚÜÑáéíóúüñ\s]+">
+                </div>
+
+            </div>
+
+            <div class="datos-3">
+                <div class="datos">
+                    <label>Tipo de empleado</label>
+                    <div class="empleado">
+                        <div class="empleado-opcion">
+                            <input id="fisio" name="Tipo_Emp" type="radio" value="0" required>
+                            <label for="fisio">Fisioterapeuta</label>
+                        </div>
+                        <div class="empleado-opcion">
+                            <input id="prestador" name="Tipo_Emp" type="radio" value="1" required>
+                            <label for="prestador">Prestador del Servicio Social</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="datos">
+                    <label for="password">Clave/contraseña</label>
+					<input id="password" type="password" name="Contraseña" maxlength="15">
+					<label>
+						<input type="checkbox" id="toggle-password"> Mostrar
+					</label>
+                </div>
+                
+
+                <div class="datos">
+                    <label for="numero">Num.Teléfono</label>
+					<input id="numero" type="text" name="Telefono_Emp" inputmode="numeric" pattern="\d{10}" minlength="10" maxlength="10">
+                </div>
+
+            </div>
+        </div>
+        <div class="datos-fisioterapeuta">
+            <div class="datos">
+                <label for="cedula">Cédula</label>
+				<input id="cedula" type="text" name="CedulaProfesional" maxlength="10">
+            </div>
+
+            <div class="datos">
+                <label for="especialidad">Especialidad</label>
+                <select class="especialidades" name="id_Esp" id="especialidades">
+                    <option value=""></option>
+                </select>
+            </div>
+
+        </div>
+
+        <div class="acciones">
+            <button type="button" id="guardar">Guardar Empleado</button>
+            <button type="button" id="actualizar">Actualizar Empleado</button>
+            <button type="submit" id="eliminar">Eliminar Empleado</button>
+			<button type="reset" id="limpiar">Limpiar datos</button>
+        </div>
+
+    </form>
+    
+    <div id="modalBusqueda" class="modal modal-oculto" role="dialog" aria-modal="true" aria-labelledby="tituloModal">
+		<div class="modal-contenido modal-empleado">
+			<div class="modal-encabezado">
+				<h3 id="tituloModal">Buscar empleado</h3>
+				<button type="button" id="cerrarModal" class="btn-cerrar" aria-label="Cerrar">&times;</button>
+			</div>
+			<div class="modal-cuerpo">
+				<input id="modalBuscador" type="text" placeholder="Buscar por nombre" class="modal-input">
+                <div class="tabla-scroll">
+					<table class="tabla-resultados">
+						<thead>
+							<tr>
+								<th>Clave</th>
+								<th>Nombre</th>
+								<th>Apellido Paterno</th>
+								<th>Apellido Materno</th>
+								<th>Tipo</th>
+								<th>Teléfono</th>
+								<th>Cédula</th>
+								<th>Especialidad</th>
+								<th>Estatus</th>
+							</tr>
+						</thead>
+						<tbody id="modalResultados"></tbody>
+					</table>
+				</div>
+			</div>
+			<div class="modal-acciones">
+				<button type="button" id="btnAceptar" class="btn-primario">Aceptar</button>
+				<button type="button" id="btnCancelar" class="btn-secundario">Cancelar</button>
+			</div>
+		</div>
+	</div>
+
+
+</main>
+
+
+
+
+    <script>
+
+		let timerId;
+		let modalTimerId;
+		let empleadoSeleccionado = null;
+
+		const buscador = document.getElementById("buscador");
+		const listaResultados = document.getElementById("listaResultados");
+		const abrirModal = document.getElementById("abrirModal");
+		const modal = document.getElementById("modalBusqueda");
+		const cerrarModal = document.getElementById("cerrarModal");
+		const btnCancelar = document.getElementById("btnCancelar");
+		const btnAceptar = document.getElementById("btnAceptar");
+		const modalBuscador = document.getElementById("modalBuscador");
+		const modalResultados = document.getElementById("modalResultados");
+		const nombreInput = document.getElementById("nombre");
+		const paternoInput = document.getElementById("paterno");
+		const maternoInput = document.getElementById("materno");
+		const telefonoInput = document.getElementById("numero");
+		const cedulaInput = document.getElementById("cedula");
+		const passwordInput = document.getElementById("password");
+		const togglePassword = document.getElementById("toggle-password");
+
+		function limpiarTexto(input) {
+			if (!input) {
+				return;
+			}
+			input.value = input.value.replace(/[^A-Za-zÁÉÍÓÚÜÑáéíóúüñ\s]/g, "").slice(0, 50);
+		}
+
+		function limpiarNumeros(input, maxLength) {
+			if (!input) {
+				return;
+			}
+			input.value = input.value.replace(/\D/g, "").slice(0, maxLength);
+		}
+
+		if (nombreInput) {
+			nombreInput.addEventListener("input", () => limpiarTexto(nombreInput));
+		}
+		if (paternoInput) {
+			paternoInput.addEventListener("input", () => limpiarTexto(paternoInput));
+		}
+		if (maternoInput) {
+			maternoInput.addEventListener("input", () => limpiarTexto(maternoInput));
+		}
+		if (telefonoInput) {
+			telefonoInput.addEventListener("input", () => limpiarNumeros(telefonoInput, 10));
+		}
+		if (cedulaInput) {
+			cedulaInput.addEventListener("input", () => cedulaInput.value = cedulaInput.value.slice(0, 10));
+		}
+		if (togglePassword && passwordInput) {
+			togglePassword.addEventListener("change", () => {
+				passwordInput.type = togglePassword.checked ? "text" : "password";
+			});
+		}
+
+		document.addEventListener("DOMContentLoaded", function () {
+			obtenerEspecialidades();
+
+			const btnGuardar = document.getElementById("guardar");
+			if (btnGuardar) {
+				btnGuardar.addEventListener("click", function (e) {
+					e.preventDefault();
+					guardarEmpleado();
+				});
+			}
+
+			const btnActualizar = document.getElementById("actualizar");
+			if (btnActualizar) {
+				btnActualizar.addEventListener("click", function (e) {
+					e.preventDefault();
+					actualizarEmpleado();
+				});
+			}
+		});
+        function obtenerEspecialidades() {
+            fetch(`/Persona/obtenerEspecialidades`)
+                .then(response => response.json())
+                .then(data => mostrarEspecialidades(data))
+        };
+        function mostrarEspecialidades(especialidades) {
+            let comboEspecialidades = document.getElementById("especialidades");
+            comboEspecialidades.innerHTML = "<option value=''></option>";
+            especialidades.forEach(
+                p => {
+                    let opcion = document.createElement("option");
+                    opcion.value = p.id_Esp;
+                    opcion.text = p.Nombre_Esp;
+                    comboEspecialidades.appendChild(opcion);
+                }
+            );
+        }
+        function guardarEmpleado() {
+			let empleado = {
+				Clave_Emp: document.getElementById("clave").value,
+				Nombre_Emp: document.getElementById("nombre").value,
+				ApellidoP_Emp: document.getElementById("paterno").value,
+				ApellidoM_Emp: document.getElementById("materno").value,
+                tipo_Emp: parseInt(document.querySelector('input[name="Tipo_Emp"]:checked')?.value || "0", 10),
+				Contraseña: document.getElementById("password").value,
+				Telefono_Emp: document.getElementById("numero").value,
+				CedulaProfesional: document.getElementById("cedula").value,
+                id_Esp: parseInt(document.getElementById("especialidades").value || "0", 10),
+				estatus_Emp: parseInt(document.querySelector('input[name="Estatus_Emp"]:checked')?.value || "0", 10)
+			};
+         fetch('@Url.Action("guardarEmpleado", "Persona")', {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json"
+				},
+				body: JSON.stringify(empleado)
+			})
+              .then(async response => {
+					const contentType = response.headers.get("content-type") || "";
+					const data = contentType.includes("application/json")
+						? await response.json()
+						: { message: await response.text() };
+					if (!response.ok) {
+						throw new Error(data.message || response.statusText);
+					}
+					return data;
+				})
+				.then(data => alert(data.message || ""))
+				.catch(error => alert(error.message));
+		}
+
+		function actualizarEmpleado() {
+			let empleado = {
+				id_Emp: parseInt(document.getElementById("id_Emp").value || "0", 10),
+				Clave_Emp: document.getElementById("clave").value,
+				Nombre_Emp: document.getElementById("nombre").value,
+				ApellidoP_Emp: document.getElementById("paterno").value,
+				ApellidoM_Emp: document.getElementById("materno").value,
+				tipo_Emp: parseInt(document.querySelector('input[name="Tipo_Emp"]:checked')?.value || "0", 10),
+				Contraseña: document.getElementById("password").value,
+				Telefono_Emp: document.getElementById("numero").value,
+				CedulaProfesional: document.getElementById("cedula").value,
+				id_Esp: parseInt(document.getElementById("especialidades").value || "0", 10),
+				estatus_Emp: parseInt(document.querySelector('input[name="Estatus_Emp"]:checked')?.value || "0", 10)
+			};
+
+			fetch('@Url.Action("actualizarEmpleado", "Persona")', {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json"
+				},
+				body: JSON.stringify(empleado)
+			})
+				.then(async response => {
+					const contentType = response.headers.get("content-type") || "";
+					const data = contentType.includes("application/json")
+						? await response.json()
+						: { message: await response.text() };
+					if (!response.ok) {
+						throw new Error(data.message || response.statusText);
+					}
+					return data;
+				})
+				.then(data => alert(data.message || ""))
+				.catch(error => alert(error.message));
+		}
+        buscador.addEventListener("input", function () {
+			clearTimeout(timerId);
+			timerId = setTimeout(() => {
+				const valor = this.value.trim();
+				if (!valor) {
+					mostrarResultados([]);
+					return;
+				}
+				const nombre = encodeURIComponent(valor);
+				fetch(`/Persona/obtenerEmpleados?nombre=${nombre}&busqueda=${0}`)
+					.then(response => response.json())
+					.then(data => {
+						mostrarResultados(data);
+					});
+			}, 300);
+		});
+
+		abrirModal.addEventListener("click", function () {
+			abrirModalBusqueda();
+		});
+
+		cerrarModal.addEventListener("click", function () {
+			cerrarModalBusqueda();
+		});
+
+		btnCancelar.addEventListener("click", function () {
+			cerrarModalBusqueda();
+		});
+
+		btnAceptar.addEventListener("click", function () {
+			if (empleadoSeleccionado) {
+				rellenarFormulario(empleadoSeleccionado);
+			}
+			cerrarModalBusqueda();
+		});
+
+		modalBuscador.addEventListener("input", function () {
+			clearTimeout(modalTimerId);
+			modalTimerId = setTimeout(() => {
+				const valor = this.value.trim();
+				if (!valor) {
+					limpiarResultadosModal();
+					return;
+				}
+				const nombre = encodeURIComponent(valor);
+				fetch(`/Persona/obtenerEmpleados?nombre=${nombre}&busqueda=${1}`)
+					.then(response => response.json())
+					.then(data => {
+						mostrarResultadosModal(data);
+					});
+			}, 300);
+		});
+
+		function mostrarResultados(empleados) {
+			listaResultados.innerHTML = "";
+
+			empleados.forEach(e => {
+				const item = document.createElement("li");
+				item.textContent = `${e.Nombre_Emp} ${e.ApellidoP_Emp} ${e.ApellidoM_Emp}`;
+				item.addEventListener("click", function () {
+					rellenarFormulario(e);
+					listaResultados.classList.add("oculta");
+				});
+				listaResultados.appendChild(item);
+			});
+
+			if (listaResultados.children.length === 0) {
+				listaResultados.classList.add("oculta");
+			} else {
+				listaResultados.classList.remove("oculta");
+			}
+		}
+
+		function abrirModalBusqueda() {
+			modal.classList.remove("modal-oculto");
+			modalBuscador.value = "";
+			limpiarResultadosModal();
+			empleadoSeleccionado = null;
+			modalBuscador.focus();
+		}
+
+		function cerrarModalBusqueda() {
+			modal.classList.add("modal-oculto");
+		}
+
+		function limpiarResultadosModal() {
+			modalResultados.innerHTML = "";
+			empleadoSeleccionado = null;
+		}
+
+
+		function mostrarResultadosModal(empleados) {
+			modalResultados.innerHTML = "";
+			empleadoSeleccionado = null;
+
+			empleados.forEach(e => {
+				const fila = document.createElement("tr");
+				const clave = document.createElement("td");
+				const nombre = document.createElement("td");
+				const apellidoP = document.createElement("td");
+				const apellidoM = document.createElement("td");
+				const tipo = document.createElement("td");
+				const telefono = document.createElement("td");
+				const cedula = document.createElement("td");
+				const especialidad = document.createElement("td");
+				const estatus = document.createElement("td");
+
+				clave.textContent = e.Clave_Emp || "";
+				nombre.textContent = e.Nombre_Emp || "";
+				apellidoP.textContent = e.ApellidoP_Emp || "";
+				apellidoM.textContent = e.ApellidoM_Emp || "";
+				tipo.textContent = e.Tipo_Emp || "";
+				telefono.textContent = e.Telefono_Emp || "";
+				cedula.textContent = e.CedulaProfesional || "";
+				especialidad.textContent = e.nombre_Esp || "";
+				estatus.textContent = e.Estatus_Emp || "";
+
+				fila.appendChild(clave);
+				fila.appendChild(nombre);
+				fila.appendChild(apellidoP);
+				fila.appendChild(apellidoM);
+				fila.appendChild(tipo);
+				fila.appendChild(telefono);
+				fila.appendChild(cedula);
+				fila.appendChild(especialidad);
+				fila.appendChild(estatus);
+
+				fila.addEventListener("click", function () {
+					Array.from(modalResultados.querySelectorAll("tr")).forEach(r => r.classList.remove("seleccionado"));
+					fila.classList.add("seleccionado");
+					empleadoSeleccionado = e;
+				});
+
+				modalResultados.appendChild(fila);
+			});
+		}
+
+		function rellenarFormulario(empleado) {
+			document.getElementById("id_Emp").value = empleado.id_Emp || "";
+			document.getElementById("clave").value = empleado.Clave_Emp || "";
+			document.getElementById("nombre").value = empleado.Nombre_Emp || "";
+			document.getElementById("paterno").value = empleado.ApellidoP_Emp || "";
+			document.getElementById("materno").value = empleado.ApellidoM_Emp || "";
+			document.getElementById("password").value = empleado.Contraseña || "";
+			document.getElementById("numero").value = empleado.Telefono_Emp || "";
+			document.getElementById("cedula").value = empleado.CedulaProfesional || "";
+			document.getElementById("especialidades").value = empleado.id_Esp || "";
+
+			const tipoValor = Number.isFinite(empleado.tipo_Emp)
+				? empleado.tipo_Emp
+				: empleado.Tipo_Emp === "Fisioterapeuta" ? 0 : 1;
+			const estatusValor = Number.isFinite(empleado.estatus_Emp)
+				? empleado.estatus_Emp
+				: empleado.Estatus_Emp === "Activo" ? 1 : 0;
+
+			const tipoRadio = document.querySelector(`input[name="Tipo_Emp"][value="${tipoValor}"]`);
+			if (tipoRadio) {
+				tipoRadio.checked = true;
+			}
+
+			const estatusRadio = document.querySelector(`input[name="Estatus_Emp"][value="${estatusValor}"]`);
+			if (estatusRadio) {
+				estatusRadio.checked = true;
+			}
+		}
+
+
+
+    </script>

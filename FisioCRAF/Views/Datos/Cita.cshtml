@@ -1,0 +1,106 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="/FisioCRAF/Content/cita.css">
+</head>
+<body>
+    <main>
+        <div class="encabezado">
+            <h2>Cita</h2>
+            <div class="buscador" id="buscador-wrap">
+                <input type="text" placeholder="Ingrese el folio de la cita">
+                <ul class="resultados oculto">
+                    <li>Lorem ipsum dolor sit amet.</li>
+                    <li>Lorem ipsum dolor sit amet.</li>
+                </ul>
+                <button id="btn-buscar">Buscar</button>
+            </div>
+        </div>    
+        <form action="" class="form-Cita">
+                <div class="datos1">
+                    <div class="dato">
+                        <label for="buscar-Paciente">Paciente</label>
+                        <input type="text">
+                        <button id="buscar-Paciente">Buscar</button>
+                    </div>
+                    <div class="dato">
+                        <label for="fisio">Fisioterapeuta</label>
+                        <input id="fisio" type="text">
+                    </div>
+                </div>
+                <div class="datos2">
+                    <div class="dato">
+                        <label for="motivo">Motivo de la cita</label>
+                        <textarea name="motivo" id="motivo"></textarea>
+                    </div>
+                    <div class="datos-horario">
+                        <div class="dato">
+                            <label for="fecha">Fecha</label>
+                            <input type="date">
+                        </div>
+                        <div class="dato">
+                            <label for="hora">Hora</label>
+                            <input type="time">
+                        </div>
+                        <div class="estado-opciones">
+                            <label for="estado">Estado</label>
+                            <div class="opciones">  
+                                <div class="opcion">
+                                    <label for="atendido">Atendida</label>
+                                    <input id="atendido" name="Estatus_Cita" type="radio">
+                                </div>
+                                
+                                <div class="opcion">
+                                    <label for="pendiente">Pendiente</label>
+                                    <input type="radio" name="Estatus_Cita" id="pendiente">
+                                </div>
+                                <div class="opcion">
+                                    <label for="cancelada">Cancelada</label>
+                                    <input type="radio" name="Estatus_Cita" id="cancelada">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+        </form>    
+        <table class="tabla">
+            <thead>
+                <th>Lorem ipsum dolor sit amet.</th>
+                <th>Lorem ipsum dolor sit amet.</th>
+                <th>Lorem ipsum dolor sit amet.</th>
+                <th>Lorem ipsum dolor sit amet.</th>
+                <th>Lorem ipsum dolor sit amet.</th>
+                <th>Lorem ipsum dolor sit amet.</th>
+                <th>Lorem ipsum dolor sit amet.</th>
+                <th>Lorem ipsum dolor sit amet.</th>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Lorem ipsum dolor sit.</td>
+                    <td>Lorem ipsum dolor sit.</td>
+                    <td>Lorem ipsum dolor sit.</td>
+                    <td>Lorem ipsum dolor sit.</td>
+                    <td>Lorem ipsum dolor sit.</td>
+                    <td>Lorem ipsum dolor sit.</td>
+                    <td>Lorem ipsum dolor sit.</td>
+                    <td>Lorem ipsum dolor sit.</td>
+                </tr>
+                <tr>
+                    <td>Lorem ipsum dolor sit.</td>
+                    <td>Lorem ipsum dolor sit.</td>
+                    <td>Lorem ipsum dolor sit.</td>
+                    <td>Lorem ipsum dolor sit.</td>
+                    <td>Lorem ipsum dolor sit.</td>
+                    <td>Lorem ipsum dolor sit.</td>
+                    <td>Lorem ipsum dolor sit.</td>
+                    <td>Lorem ipsum dolor sit.</td>
+                </tr>
+            </tbody>
+        </table>
+    </main>
+</body>
+</html>
+

@@ -1,0 +1,51 @@
+body {
+    margin: 0px;
+    padding: 0px;
+    display: flex;
+
+}
+
+
+.menu{
+    background-color:white;
+    width:auto;
+    height:100vh;
+    display:flex;
+    flex-direction: column;
+}
+
+.logo{
+    text-align:center;
+    width:100%;
+    background-color: white;
+}
+
+.logo img{
+    width:80%;
+}
+
+
+.opciones {
+    background-color: white;
+    display: flex;
+    flex-direction: column;
+    overflow-y:auto;
+}
+
+
+.opcion{
+    height:50px;
+    margin: 10px 20px;
+}
+
+.opcion button{
+    height:100%;
+    width:100%;
+    border-radius:30px;
+    outline:none;
+    border:none;
+    background-color:white;
+    &:hover{
+        background-color:lawngreen;
+    }
+}

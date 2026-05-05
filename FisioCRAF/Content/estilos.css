@@ -1,0 +1,346 @@
+main {
+    padding-top: 20px;
+    width: 100%;
+    height:auto;
+    background-color: #f0f0f0;
+}
+
+
+/*Vista de paciente*/
+.tabla-resultados{
+    width:100%;
+    border-collapse:collapse;
+    background:#f8fafc;
+    border:1px solid #d7dde5;
+    border-radius:12px;
+    overflow:hidden;
+    table-layout:fixed;
+}
+/*Parte Superior*/
+.encabezado{
+    display:flex;
+    align-items:center;
+    max-width: 60%;
+    margin:auto;
+}
+
+.encabezado input{
+    height:2rem;
+    border-radius:20px;
+    outline:none;
+    border:2px gray solid;
+    padding:5px;
+    width:100%;
+    margin-left:20px;
+    font-family:Arial, Helvetica, sans-serif;
+}
+
+.buscador-wrap{
+    position:relative;
+    width:100%;
+    margin-left:20px;
+}
+
+.buscador-wrap input{
+    margin-left:0;
+}
+
+.btn-buscar{
+    margin-left:50px;
+    padding:6px 14px;
+    border-radius:8px;
+    border:1px solid #c9c9c9;
+    background:#ffffff;
+    cursor:pointer;
+    font-family:Arial, Helvetica, sans-serif;
+}
+
+.btn-buscar:hover{
+    background:#f5f7fb;
+}
+
+.resultados-busqueda{
+    position:absolute;
+    top:calc(100% + 6px);
+    left:0;
+    right:0;
+    background:#f8fafc;
+    border:1px solid #d7dde5;
+    border-radius:12px;
+    list-style:none;
+    margin:0;
+    padding:6px 0;
+    max-height:240px;
+    overflow-y:auto;
+    z-index:20;
+    box-shadow:0 8px 18px rgba(0, 0, 0, 0.12);
+}
+
+.resultados-busqueda li{
+    padding:10px 14px;
+    cursor:pointer;
+    font-family:Arial, Helvetica, sans-serif;
+    font-size:0.95rem;
+    color:#2c2c2c;
+    border-bottom:1px solid #e7ebf0;
+}
+
+.resultados-busqueda li:last-child{
+    border-bottom:none;
+}
+
+.resultados-busqueda li:hover{
+    background:#e6f0ff;
+}
+
+.resultados-busqueda.oculta{
+    display:none;
+}
+
+.modal{
+    position:fixed;
+    inset:0;
+    background:rgba(0, 0, 0, 0.4);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    z-index:50;
+}
+
+.modal-oculto{
+    display:none;
+}
+
+.modal-contenido{
+    width:min(720px, 90%);
+    background:#ffffff;
+    border-radius:14px;
+    box-shadow:0 14px 30px rgba(0, 0, 0, 0.2);
+    overflow:hidden;
+    font-family:Arial, Helvetica, sans-serif;
+}
+
+.modal-encabezado{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:16px 20px;
+    border-bottom:1px solid #e5e7eb;
+    background:#f8fafc;
+}
+
+.modal-encabezado h3{
+    margin:0;
+    font-size:1.1rem;
+}
+
+.btn-cerrar{
+    border:none;
+    background:transparent;
+    font-size:1.5rem;
+    cursor:pointer;
+    line-height:1;
+}
+
+.modal-cuerpo{
+    padding:16px 20px 10px;
+}
+
+.modal-input{
+    width:100%;
+    padding:8px 12px;
+    border-radius:10px;
+    border:1px solid #c9c9c9;
+    outline:none;
+    margin-bottom:12px;
+}
+
+.tabla-resultados{
+    width:100%;
+    border-collapse:collapse;
+    background:#f8fafc;
+    border:1px solid #d7dde5;
+    border-radius:12px;
+    overflow:hidden;
+    table-layout:fixed;
+}
+
+.tabla-scroll{
+    border-radius:12px;
+}
+
+.tabla-scroll .tabla-resultados{
+    width:100%;
+    border-collapse:collapse;
+    table-layout:fixed;
+}
+
+.tabla-scroll .tabla-resultados thead,
+.tabla-scroll .tabla-resultados tbody tr{
+    display:table;
+    width:100%;
+    table-layout:fixed;
+}
+
+.tabla-scroll .tabla-resultados tbody{
+    display:block;
+    max-height:240px;
+    overflow-y:auto;
+    overflow-x:hidden;
+}
+
+.tabla-resultados thead th{
+    text-align:left;
+    padding:10px 12px;
+    background:#eef2f7;
+    font-weight:600;
+    font-size:0.95rem;
+}
+
+.tabla-resultados tbody tr{
+    cursor:pointer;
+    border-top:1px solid #e7ebf0;
+}
+
+.tabla-resultados tbody td{
+    padding:10px 12px;
+    font-size:0.95rem;
+    color:#2c2c2c;
+}
+
+.tabla-resultados tbody tr:hover{
+    background:#e6f0ff;
+}
+
+.tabla-resultados tbody tr.seleccionado{
+    background:#d8e7ff;
+}
+
+.modal-acciones{
+    display:flex;
+    justify-content:flex-end;
+    gap:10px;
+    padding:14px 20px 18px;
+    border-top:1px solid #e5e7eb;
+    background:#ffffff;
+}
+
+.btn-primario,
+.btn-secundario{
+    padding:8px 16px;
+    border-radius:8px;
+    border:1px solid #c9c9c9;
+    cursor:pointer;
+    font-family:Arial, Helvetica, sans-serif;
+}
+
+.btn-primario{
+    background:#e6f0ff;
+    border-color:#b9d0ff;
+}
+
+.btn-secundario{
+    background:#ffffff;
+}
+
+.btn-primario:hover{
+    background:#d8e7ff;
+}
+
+.btn-secundario:hover{
+    background:#f5f7fb;
+}
+
+/*Formulario*/
+
+.form-paciente {
+    width: 100%;
+    margin: auto;
+    padding-bottom: 20px;
+    border-radius: 20px;
+}
+
+.form-paciente .datos-principales{
+    display: flex;
+    margin:auto;
+    width:70%;
+    margin-bottom:20px;
+}
+.form-paciente .datos-principales .dato{
+    display: flex;
+    flex-direction:column;
+    margin:20px 10px;
+}
+
+.form-paciente .datos-principales .dato label{
+    margin-bottom: 10px;
+}
+.form-paciente .datos-principales .dato input{
+    outline:1px;
+    padding:5px;
+    border-radius: 10px;
+    border:1px black solid;
+}
+
+.form-paciente .datos-secundarios{
+    display: flex;
+    margin:auto;
+    width:50%;
+    margin-bottom:20px;
+}
+
+.form-paciente .datos-secundarios .dato{
+    display: flex;
+    flex-direction:column;
+    margin:20px 50px;
+    text-align:center;
+}
+.form-paciente .datos-secundarios .dato input{
+    outline: 1px;
+}
+
+.form-paciente .datos-secundarios .dato label{
+    margin-bottom: 10px;
+}
+
+
+.form-paciente .datos-secundarios .dato .genero{
+    display: flex;
+}
+
+.form-paciente .datos-secundarios .dato .genero .genero-opcion{
+    margin:0px 10px;
+}
+
+
+.form-paciente .acciones{
+    width:42%;
+    display:flex;
+    margin:auto;
+}
+.form-paciente .acciones :nth-child(1){
+    background-color: rgb(161, 231, 162);
+}
+.form-paciente .acciones :nth-child(2){
+    background-color: rgb(152, 227, 225);
+}
+.form-paciente .acciones :nth-child(3){
+    background-color: rgb(237, 102, 87);
+}
+
+.form-paciente .acciones button{
+    margin:0px 20px;
+    border-radius:5px;
+    padding:5px;
+    border:1px black solid;
+}
+
+#Genero{
+    accent-color:rgb(116, 235, 239);
+}
+#fecha{
+    padding:5px;
+    border-radius:10px;
+    outline:1px;
+    border:1px black solid;
+}

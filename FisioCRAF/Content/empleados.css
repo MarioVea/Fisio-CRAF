@@ -1,0 +1,143 @@
+main {
+    padding:50px;
+    padding-top: 20px;
+    width: 100%;
+    height: auto;
+    background-color: #f0f0f0;
+}
+.encabezado{
+    display:flex;
+    align-items:center;
+    max-width: 60%;
+    margin:auto;
+}
+
+.modal-contenido.modal-empleado{
+    width:min(1100px, 95%);
+}
+
+.modal-contenido.modal-empleado{
+    width:min(1100px, 95%);
+}
+
+.encabezado input{
+    height:2rem;
+    border-radius:20px;
+    outline:none;
+    border:2px gray solid;
+    padding:5px;
+    width:100%;
+    margin-left:20px;
+    font-family:Arial, Helvetica, sans-serif;
+}
+
+
+/*Formulario*/
+
+.form-empleado {
+    padding: 2rem;
+    border-radius: 20px;
+}
+.form-empleado .datos-generales .datos-1{
+    margin:auto;
+    margin-top:20px;
+    margin-bottom:20px;
+    display: flex;
+    width:90%;
+}
+
+.estado .datos .estado-opcion{
+    display:inline;
+}
+
+.estado .datos .estado-opcion input{
+    accent-color:rgb(116, 235, 239);
+}
+
+
+.estado .datos{
+    display: flex;
+    align-items:center;
+}
+
+.estado .datos .opciones{
+    margin-left:20px;
+}
+
+
+.form-empleado .datos-generales .datos-1 .busqueda{
+    width:70%;
+}
+
+
+.form-empleado .datos-generales .datos-2{
+    display: flex;
+    width:100%;
+    justify-content: space-between;
+    margin-bottom:20px;
+    margin-top:20px;
+}
+
+.form-empleado .datos-generales .datos-3{
+    display: flex;
+    width:100%;
+    justify-content: space-between;
+    margin-bottom:20px;
+    margin-top:20px;
+
+}
+
+
+
+.form-empleado .datos-generales .datos-3 .datos .empleado{
+    display: flex;
+    flex-direction: column;
+}
+.form-empleado .datos-generales .datos-3 .datos .empleado .empleado-opcion{
+    margin:5px 0px;
+
+}
+
+.datos-fisioterapeuta{
+    margin:auto;
+    width:80%;
+    display: flex;
+    margin-bottom:20px;
+}
+
+.datos-fisioterapeuta .datos{
+    margin:0px 20px;
+}
+
+.form-empleado .acciones #guardar{
+    background-color: rgb(161, 231, 162);
+}
+.form-empleado .acciones #actualizar{
+    background-color: rgb(152, 227, 225);
+}
+.form-empleado .acciones #eliminar{
+    background-color: rgb(237, 102, 87);
+}
+
+
+.form-empleado .acciones {
+    width:80%;
+    margin: auto;
+}
+
+.form-empleado .acciones button{
+    margin:0px 20px;
+    border-radius:5px;
+    padding:5px;
+    border:1px black solid;
+}
+
+.especialidades{
+    width:200px;
+}
+
+
+
+ .modal-contenido.modal-empleado{
+    width:min(1100px, 95%);
+}
