@@ -1,4 +1,4 @@
-﻿using FisioCRAF.Models.Services;
+using FisioCRAF.Models.Services;
 using FisioCRAF.Models.Entidades;
 using System;
 using System.Collections.Generic;
@@ -12,7 +12,8 @@ namespace FisioCRAF.Controllers
 {
     public class LoginController : Controller
     {
-        loginService ls = new loginService();
+        // TODO: Descomentar cuando tengas el archivo de conexión
+        // loginService ls = new loginService();
 
 
 
@@ -28,7 +29,9 @@ namespace FisioCRAF.Controllers
 
             try
             {
-                var respuesta = ls.iniciarSesion(login.usuario,login.password);
+                // TODO: Descomentar cuando tengas el archivo de conexión
+                // var respuesta = ls.iniciarSesion(login.usuario,login.password);
+                var respuesta = "Inicio de sesión exitoso (modo prueba)";
                 return Json(new { message = respuesta});
             }
             catch (Exception ex)
