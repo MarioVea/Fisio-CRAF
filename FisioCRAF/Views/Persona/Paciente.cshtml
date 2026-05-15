@@ -5,14 +5,16 @@
 }
 
 <link rel="stylesheet" href="~/Content/estilos.css">
-<main class="vista-paciente">
-    <div class="encabezado">
-        <h2>Paciente</h2>
-        <div class="buscador-wrap">
-            <input id="buscador" type="text" placeholder="Introduzca el nombre del paciente">
-            <ul id="listaResultados" class="resultados-busqueda oculta"></ul>
+    <div class="enc">
+        <div class="encabezado" id="encabezado">
+            <h1>Paciente</h1>
+            <div class="buscador-wrap">
+                <input id="buscador" type="text" placeholder="Introduzca el nombre del paciente">
+                <ul id="listaResultados" class="resultados-busqueda oculta"></ul>
+            </div>
+            <button type="button" id="abrirModal" class="btn-buscar">Buscar</button>
         </div>
-        <button type="button" id="abrirModal" class="btn-buscar">Buscar</button>
+
     </div>
 
     <form class="form-paciente" method="post">
@@ -104,8 +106,6 @@
         </div>
     </div>
 
-</main>
-
 <script>
     let elemento = document.getElementById("buscador");
     let timerId;
@@ -122,7 +122,7 @@
     const btnActualizar = document.getElementById("btn-actualizar");
     const btnGuardar = document.getElementById("btnGuardar");
     const btnEliminar = document.getElementById("btn-Eliminar");
-  const btnLimpiar = document.getElementById("btn-limpiar");
+    const btnLimpiar = document.getElementById("btn-limpiar");
 	const inputNombre = document.getElementById("nombre");
 	const inputPaterno = document.getElementById("paterno");
 	const inputMaterno = document.getElementById("materno");
@@ -174,7 +174,13 @@
             if(!response.ok){
                 alert("Ocurrió un error al eliminar los datos del paciente");
             }
-            alert (data.message);
+
+            if(!data.respuesta){
+                alert("Ocurrió un error al eliminar el paciente");
+                return;
+            }
+
+            alert("Paciente eliminado correctamente");
             limpiarPaciente();
         }
         catch(error){
@@ -189,7 +195,7 @@
     });
 
     async function guardarPaciente() {
-        const datosPaciente = obtenerDatos();
+        const datosPaciente = obtenerDatos();   
         try {
             const response = await fetch(`/Persona/guardarPaciente`, {
                 method: "POST",
@@ -287,7 +293,7 @@
 
         pacientes.forEach(p => {
             let item = document.createElement("li");
-            item.textContent = `${p.Nombre_Pac} ${p.ApellidoP_Pac}`;
+            item.textContent = `${p.Nombre_Pac} ${p.ApellidoP_Pac} ${p.ApellidoM_Pac}`;
             item.addEventListener("click", function () {
                 rellenarFormulario(p);
                 lista.classList.add("oculta");

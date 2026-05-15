@@ -19,15 +19,15 @@ namespace FisioCRAF.Models.Services
         {
             con.ConnectionString = conexion.conexion();
         }
-        public string guardarCita(Cita c)
+        public bool guardarCita(Cita c)
         {
             int id = obtenerId();
-            string mensaje = "Ocurrió un error";
+            bool respuesta = false;
             string query = $"insert into {tabla} (id_Cita, Folio, id_Pac, Motivo_Cita, Fecha_Cita, Hora_Cita, id_Emp, Estatus_Cita) values (@id_Cita, @Folio, @id_Pac, @Motivo_Cita, @Fecha_Cita, @Hora_Cita, @id_Emp, @Estatus_Cita)";
             cmd.CommandText = query;
             cmd.Connection = con;
             cmd.Parameters.AddWithValue("@id_Cita", id);
-            cmd.Parameters.AddWithValue("@Folio", c.Folio);
+            cmd.Parameters.AddWithValue("@Folio", id);
             cmd.Parameters.AddWithValue("@id_Pac", c.id_Pac);
             cmd.Parameters.AddWithValue("@Motivo_Cita", c.Motivo_Cita);
             cmd.Parameters.AddWithValue("@Fecha_Cita", c.Fecha_Cita);
@@ -39,19 +39,19 @@ namespace FisioCRAF.Models.Services
                 con.Open();
                 if (cmd.ExecuteNonQuery() > 0)
                 {
-                    mensaje = "Cita guardada correctamente";
+                    respuesta = true;
                 }
 
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                return mensaje;
+                return respuesta;
             }
             finally
             {
                 con.Close();
             }
-            return mensaje;
+            return respuesta;
         }
 
         public int obtenerId()
@@ -70,7 +70,81 @@ namespace FisioCRAF.Models.Services
             return id;
         }
 
+        public List<Empleado> obtenerFisios()
+        {
+            var fisios = new List<Empleado>();
+
+            string query = $"select id_Emp, Nombre_Emp, ApellidoP_Emp, ApellidoM_Emp from Persona.Empleados where Tipo_Emp = 1 and Estatus_Emp = 1";
+            cmd.CommandText = query;
+            cmd.Connection = con;
+            SqlDataReader reader;
+
+            try
+            {
+                con.Open();
+                reader = cmd.ExecuteReader();
+                while (reader.Read())
+                {
+                    fisios.Add(new Empleado
+                    {
+                        id_Emp = int.Parse(reader["id_Emp"].ToString()),
+                        Nombre_Emp = reader["Nombre_Emp"].ToString(),
+                        ApellidoP_Emp = reader["ApellidoP_Emp"].ToString(),
+                        ApellidoM_Emp = reader["ApellidoM_Emp"].ToString()
+                    });
+                }
+                return fisios;
+            }
+            catch (Exception ex)
+            {
+                return fisios;
+            }
+            finally
+            {
+                con.Close();
+            }
+
+        }
+
+        public List<Cita> obtenerCitas(int folio)
+        {
+            var citas = new List<Cita>();
+            string query = $"select c.id_Cita,c.Folio,c.id_Pac,concat(p.Nombre_Pac,' ',p.ApellidoP_Pac,' ',p.ApellidoM_Pac) as Nombre,c.Motivo_Cita,c.Fecha_Cita,c.Hora_Cita,c.id_Emp,c.Estatus_Cita from Datos.Cita c inner join Persona.Pacientes p on p.id_Pac = c.id_Pac where c.Folio = @folio";
+            cmd.CommandText = query;
+            cmd.Connection = con;
+            cmd.Parameters.AddWithValue("@folio", folio);
+            SqlDataReader reader;
+            try
+            {
+                con.Open();
+                reader = cmd.ExecuteReader();
+                while (reader.Read())
+                {
+                    citas.Add(new Cita
+                    {
+                        id_Cita = int.Parse(reader["id_Cita"].ToString()),
+                        Folio = int.Parse(reader["Folio"].ToString()),
+                        id_Pac = int.Parse(reader["id_Pac"].ToString()),
+                        Motivo_Cita = reader["Motivo_Cita"].ToString(),
+                        Fecha_Cita = DateTime.Parse(reader["Fecha_Cita"].ToString()),
+                        Hora_Cita = TimeSpan.Parse(reader["Hora_Cita"].ToString()),
+                        id_Emp = int.Parse(reader["id_Emp"].ToString()),
+                        Estatus_Cita = int.Parse(reader["Estatus_Cita"].ToString()),
+                        Nombre = reader["Nombre"].ToString()
+                    });
+                }
+                return citas;
+            }
+            catch (Exception ex)
+            {
+                return citas;
+            }
+            finally
+            {
+                con.Close();
+            }
 
 
+        }
     }
 }

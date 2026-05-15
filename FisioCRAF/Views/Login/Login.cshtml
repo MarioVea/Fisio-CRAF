@@ -50,10 +50,15 @@
                 alert("Error al iniciar sesión");
                 return;
             }
-
             const data = await response.json();
-            alert(data.message || "");
-            window.location.href = "/Persona/Paciente";
+
+            if (data.respuesta) {
+                alert("Inicio de sesion exitoso we");
+                window.location.href = "/Persona/Paciente";
+            }
+            else {
+                alert("Valió madres");
+            }
         }
         catch (error) {
             alert(error.message);

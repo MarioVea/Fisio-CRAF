@@ -92,6 +92,33 @@ namespace FisioCRAF.Models.Services
             return mensaje;
         }
 
+
+        public bool eliminarEmpleado(int id)
+        {
+            bool eliminado = false;
+            string query = $"delete from {tabla} where id_Emp = @id_Emp";
+            SqlCommand cmd = new SqlCommand(query, con);
+            cmd.Parameters.AddWithValue("@id_Emp", id);
+            try
+            {
+                con.Open();
+                if (cmd.ExecuteNonQuery() > 0)
+                {
+                    eliminado = true;
+                }
+            }
+            catch (Exception ex)    
+            {
+                eliminado = false;
+            }
+            finally
+            {
+                con.Close();
+            }
+            return eliminado;
+        }
+
+
         public int obtenerId()
         {
             int id = 0;
@@ -147,9 +174,9 @@ namespace FisioCRAF.Models.Services
             List<Empleado> empleados = new List<Empleado>();
             string query = "";
             if(busqueda == 0)
-                query = $"SELECT  top 5 E.id_Emp, E.Clave_Emp, E.Nombre_Emp, E.ApellidoP_Emp,\r\n\t\tE.ApellidoM_Emp,E.Tipo_Emp,\r\n\t\t\r\n\t\t\tCASE E.Tipo_Emp\r\n\t\t\t\t\tWHEN 0 THEN 'Fisioterapeuta'\r\n\t\t\t\t\tWHEN 1 THEN 'Prestador de Servicios'\r\n\t\t\tEND AS Tipo,\r\n\r\n\t\t\tE.Contraseña,\r\n\t\t\tE.Telefono_Emp,\r\n\t\t\tE.CedulaProfesional,\r\n\t\t\tpe.id_Esp,\r\n\t\t\tpe.Nombre_Esp,\r\n\t\t\tE.Estatus_Emp,\r\n\r\n\t\t\tCASE E.Estatus_Emp\r\n\t\t\t\t\tWHEN 0 THEN 'Inactivo'\r\n\t\t\t\t\tWHEN 1 THEN 'Activo'\r\n\t\t\tEND AS Estatus\r\n\r\n\t\tFROM Persona.Empleados AS E\r\n\t\tINNER JOIN Persona.Especialidad AS pe ON E.id_Esp = pe.id_Esp\r\n\t\twhere concat (E.Nombre_Emp, ' ',E.ApellidoP_Emp,' ',E.ApellidoM_Emp) like '%{nombre}%'";
+                query = $"SELECT top 5 E.id_Emp, E.Clave_Emp, E.Nombre_Emp, E.ApellidoP_Emp,\r\n\t\tE.ApellidoM_Emp,E.Tipo_Emp,\r\n\t\t\r\n\t\t\tCASE E.Tipo_Emp\r\n\t\t\t\t\tWHEN 0 THEN 'Fisioterapeuta'\r\n\t\t\t\t\tWHEN 1 THEN 'Prestador de Servicios'\r\n\t\t\tEND AS Tipo,\r\n\r\n\t\t\tE.Contraseña,\r\n\t\t\tE.Telefono_Emp,\r\n\t\t\tE.CedulaProfesional,\r\n\t\t\tpe.id_Esp,\r\n\t\t\tpe.Nombre_Esp,\r\n\t\t\tE.Estatus_Emp,\r\n\r\n\t\t\tCASE E.Estatus_Emp\r\n\t\t\t\t\tWHEN 0 THEN 'Inactivo'\r\n\t\t\t\t\tWHEN 1 THEN 'Activo'\r\n\t\t\tEND AS Estatus\r\n\r\n\t\tFROM Persona.Empleados AS E\r\n\t\tINNER JOIN Persona.Especialidad AS pe ON E.id_Esp = pe.id_Esp\r\n\t\twhere concat (E.Nombre_Emp, ' ',E.ApellidoP_Emp,' ',E.ApellidoM_Emp) like '%{nombre}%' or E.Clave_Emp = '{nombre}'";
             else
-                query = $"SELECT E.id_Emp, E.Clave_Emp, E.Nombre_Emp, E.ApellidoP_Emp,\r\n\t\tE.ApellidoM_Emp,E.Tipo_Emp,\r\n\t\t\r\n\t\t\tCASE E.Tipo_Emp\r\n\t\t\t\t\tWHEN 0 THEN 'Fisioterapeuta'\r\n\t\t\t\t\tWHEN 1 THEN 'Prestador de Servicios'\r\n\t\t\tEND AS Tipo,\r\n\r\n\t\t\tE.Contraseña,\r\n\t\t\tE.Telefono_Emp,\r\n\t\t\tE.CedulaProfesional,\r\n\t\t\tpe.id_Esp,\r\n\t\t\tpe.Nombre_Esp,\r\n\t\t\tE.Estatus_Emp,\r\n\r\n\t\t\tCASE E.Estatus_Emp\r\n\t\t\t\t\tWHEN 0 THEN 'Inactivo'\r\n\t\t\t\t\tWHEN 1 THEN 'Activo'\r\n\t\t\tEND AS Estatus\r\n\r\n\t\tFROM Persona.Empleados AS E\r\n\t\tINNER JOIN Persona.Especialidad AS pe ON E.id_Esp = pe.id_Esp\r\n\t\twhere concat (E.Nombre_Emp, ' ',E.ApellidoP_Emp,' ',E.ApellidoM_Emp) like '%{nombre}%'";
+                query = $"SELECT E.id_Emp, E.Clave_Emp, E.Nombre_Emp, E.ApellidoP_Emp,\r\n\t\tE.ApellidoM_Emp,E.Tipo_Emp,\r\n\t\t\r\n\t\t\tCASE E.Tipo_Emp\r\n\t\t\t\t\tWHEN 0 THEN 'Fisioterapeuta'\r\n\t\t\t\t\tWHEN 1 THEN 'Prestador de Servicios'\r\n\t\t\tEND AS Tipo,\r\n\r\n\t\t\tE.Contraseña,\r\n\t\t\tE.Telefono_Emp,\r\n\t\t\tE.CedulaProfesional,\r\n\t\t\tpe.id_Esp,\r\n\t\t\tpe.Nombre_Esp,\r\n\t\t\tE.Estatus_Emp,\r\n\r\n\t\t\tCASE E.Estatus_Emp\r\n\t\t\t\t\tWHEN 0 THEN 'Inactivo'\r\n\t\t\t\t\tWHEN 1 THEN 'Activo'\r\n\t\t\tEND AS Estatus\r\n\r\n\t\tFROM Persona.Empleados AS E\r\n\t\tINNER JOIN Persona.Especialidad AS pe ON E.id_Esp = pe.id_Esp\r\n\t\twhere concat (E.Nombre_Emp, ' ',E.ApellidoP_Emp,' ',E.ApellidoM_Emp) like '%{nombre}%' or E.Clave_Emp = '{nombre}'";
             SqlCommand cmd = new SqlCommand(query, con);
             SqlDataAdapter da = new SqlDataAdapter(cmd);
             DataTable dt = new DataTable();

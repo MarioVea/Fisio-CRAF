@@ -12,8 +12,7 @@ namespace FisioCRAF.Controllers
 {
     public class LoginController : Controller
     {
-        // TODO: Descomentar cuando tengas el archivo de conexión
-        // loginService ls = new loginService();
+        loginService ls = new loginService();
 
 
 
@@ -29,10 +28,8 @@ namespace FisioCRAF.Controllers
 
             try
             {
-                // TODO: Descomentar cuando tengas el archivo de conexión
-                // var respuesta = ls.iniciarSesion(login.usuario,login.password);
-                var respuesta = "Inicio de sesión exitoso (modo prueba)";
-                return Json(new { message = respuesta});
+                var respuesta = ls.iniciarSesion(login.usuario,login.password);
+                return Json(new { respuesta = respuesta});
             }
             catch (Exception ex)
             {

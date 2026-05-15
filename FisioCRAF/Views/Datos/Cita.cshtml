@@ -1,14 +1,9 @@
-﻿<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <link rel="stylesheet" href="/FisioCRAF/Content/cita.css">
-</head>
-<body>
-    <main>
-        <div class="encabezado">
+﻿@{ 
+    Layout = "~/Views/Shared/_menu.cshtml";
+}
+    <link rel="stylesheet" href="~/Content/cita.css">
+    <link rel="stylesheet" href="~/Content/estilos.css">
+        <div class="encabezado" id="encabezado">
             <h2>Cita</h2>
             <div class="buscador" id="buscador-wrap">
                 <input type="text" placeholder="Ingrese el folio de la cita">
@@ -16,91 +11,493 @@
                     <li>Lorem ipsum dolor sit amet.</li>
                     <li>Lorem ipsum dolor sit amet.</li>
                 </ul>
-                <button id="btn-buscar">Buscar</button>
+                <button id="abrirModal">Buscar</button>
             </div>
-        </div>    
+        </div>
         <form action="" class="form-Cita">
-                <div class="datos1">
-                    <div class="dato">
-                        <label for="buscar-Paciente">Paciente</label>
-                        <input type="text">
-                        <button id="buscar-Paciente">Buscar</button>
-                    </div>
-                    <div class="dato">
-                        <label for="fisio">Fisioterapeuta</label>
-                        <input id="fisio" type="text">
-                    </div>
+            <div class="datos1">
+                <div class="dato">
+                    <label for="nombrePaciente">Paciente</label>
+                    <input type="hidden" id="id_Pac">
+                    <input type="hidden" id="id_Cita">
+                    <input type="hidden" id="Folio">
+                    <input id="nombrePaciente" type="text" disabled>
+                    <button id="buscar-Paciente">Buscar</button>
                 </div>
-                <div class="datos2">
+                <div class="dato">
+                    <label for="fisio">Fisioterapeuta</label>
+                    <select id="id_Emp" required>
+                        <option value="">Seleccione un fisio</option>
+                    </select>
+                </div>
+            </div>
+            <div class="datos2">
+                <div class="dato">
+                    <label for="Motivo_Cita">Motivo de la cita</label>
+                    <textarea name="motivo" id="Motivo_Cita" required></textarea>
+                </div>
+                <div class="datos-horario">
                     <div class="dato">
-                        <label for="motivo">Motivo de la cita</label>
-                        <textarea name="motivo" id="motivo"></textarea>
+                        <label for="Fecha_Cita">Fecha</label>
+                        <input id="Fecha_Cita" type="date">
                     </div>
-                    <div class="datos-horario">
-                        <div class="dato">
-                            <label for="fecha">Fecha</label>
-                            <input type="date">
-                        </div>
-                        <div class="dato">
-                            <label for="hora">Hora</label>
-                            <input type="time">
-                        </div>
-                        <div class="estado-opciones">
-                            <label for="estado">Estado</label>
-                            <div class="opciones">  
-                                <div class="opcion">
-                                    <label for="atendido">Atendida</label>
-                                    <input id="atendido" name="Estatus_Cita" type="radio">
-                                </div>
-                                
-                                <div class="opcion">
-                                    <label for="pendiente">Pendiente</label>
-                                    <input type="radio" name="Estatus_Cita" id="pendiente">
-                                </div>
-                                <div class="opcion">
-                                    <label for="cancelada">Cancelada</label>
-                                    <input type="radio" name="Estatus_Cita" id="cancelada">
-                                </div>
+                    <div class="dato">
+                        <label for="Hora_Cita">Hora</label>
+                        <input id="Hora_Cita" type="time">
+                    </div>
+                    <div class="estado-opciones">
+                        <label for="estado">Estado</label>
+                        <div class="opciones-estado">
+                            <div class="opcion">
+                                <label for="atendido">Atendida</label>
+                                <input id="atendido" name="Estatus_Cita" type="radio" value"1">
+                            </div>
+
+                            <div class="opcion">
+                                <label for="pendiente">Pendiente</label>
+                                <input type="radio" name="Estatus_Cita" id="pendiente" value"0">
+                            </div>
+                            <div class="opcion">
+                                <label for="cancelada">Cancelada</label>
+                                <input type="radio" name="Estatus_Cita" id="cancelada" value"2">
                             </div>
                         </div>
                     </div>
-                </div>
-        </form>    
-        <table class="tabla">
-            <thead>
-                <th>Lorem ipsum dolor sit amet.</th>
-                <th>Lorem ipsum dolor sit amet.</th>
-                <th>Lorem ipsum dolor sit amet.</th>
-                <th>Lorem ipsum dolor sit amet.</th>
-                <th>Lorem ipsum dolor sit amet.</th>
-                <th>Lorem ipsum dolor sit amet.</th>
-                <th>Lorem ipsum dolor sit amet.</th>
-                <th>Lorem ipsum dolor sit amet.</th>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>Lorem ipsum dolor sit.</td>
-                    <td>Lorem ipsum dolor sit.</td>
-                    <td>Lorem ipsum dolor sit.</td>
-                    <td>Lorem ipsum dolor sit.</td>
-                    <td>Lorem ipsum dolor sit.</td>
-                    <td>Lorem ipsum dolor sit.</td>
-                    <td>Lorem ipsum dolor sit.</td>
-                    <td>Lorem ipsum dolor sit.</td>
-                </tr>
-                <tr>
-                    <td>Lorem ipsum dolor sit.</td>
-                    <td>Lorem ipsum dolor sit.</td>
-                    <td>Lorem ipsum dolor sit.</td>
-                    <td>Lorem ipsum dolor sit.</td>
-                    <td>Lorem ipsum dolor sit.</td>
-                    <td>Lorem ipsum dolor sit.</td>
-                    <td>Lorem ipsum dolor sit.</td>
-                    <td>Lorem ipsum dolor sit.</td>
-                </tr>
-            </tbody>
-        </table>
-    </main>
-</body>
-</html>
 
+                </div>
+            </div>
+            <div class="acciones">
+                <button id="btnGuardar" type="button">Guardar Cita</button>
+                <button type="button" id="btn-actualizar">Actualizar Cita</button>
+                <button id="btn-Eliminar">Eliminar Cita</button>
+                <button type="reset" id="btn-limpiar">Limpiar Datos</button>
+            </div>
+        </form>
+
+        <div id="modalBusqueda" class="modal modal-oculto" role="dialog" aria-modal="true" aria-labelledby="tituloModal">
+            <div class="modal-contenido">
+                <div class="modal-encabezado">
+                    <h3 id="tituloModal">Buscar Cita</h3>
+                    <button type="button" id="cerrarModal" class="btn-cerrar" aria-label="Cerrar">&times;</button>
+                </div>
+                <div class="modal-cuerpo">
+                    <input id="modalBuscador" type="text" placeholder="Buscar por nombre" class="modal-input">
+                    <div class="tabla-scroll">
+                        <table class="tabla-resultados">
+                            <thead>
+                                <tr>
+                                    <th>Folio</th>
+                                    <th>Nombre</th>
+                                    <th>Fecha</th>
+                                    <th>Hora</th>
+                                </tr>
+                            </thead>
+                            <tbody id="modalResultados"></tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-acciones">
+                    <button type="button" id="btnAceptar" class="btn-primario">Aceptar</button>
+                    <button type="button" id="btnCancelar" class="btn-secundario">Cancelar</button>
+                </div>
+            </div>
+        </div>
+
+
+        <div id="modalBusquedaPaciente" class="modal modal-oculto" role="dialog" aria-modal="true" aria-labelledby="tituloModal">
+            <div class="modal-contenido">
+                <div class="modal-encabezado">
+                    <h3 id="tituloModal">Buscar paciente</h3>
+                    <button type="button" id="cerrarModalPaciente" class="btn-cerrar" aria-label="Cerrar">&times;</button>
+                </div>
+                <div class="modal-cuerpo">
+                    <input id="modalBuscadorPaciente" type="text" placeholder="Buscar por nombre" class="modal-input">
+                    <div class="tabla-scroll">
+                        <table class="tabla-resultados">
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Apellido Paterno</th>
+                                    <th>Apellido Materno</th>
+                                    <th>Telefono</th>
+                                    <th>Fecha Nacimiento</th>
+                                    <th>Genero</th>
+                                </tr>
+                            </thead>
+                            <tbody id="modalResultadosPaciente"></tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-acciones">
+                    <button type="button" id="btnAceptarPaciente" class="btn-primario">Aceptar</button>
+                    <button type="button" id="btnCancelarPaciente" class="btn-secundario">Cancelar</button>
+                </div>
+            </div>
+        </div>
+
+
+
+
+
+    <script>
+
+        const cerrarModalPaciente = document.getElementById("cerrarModalPaciente");
+        const btnCancelarPaciente = document.getElementById("btnCancelarPaciente");
+        const btnAceptarPaciente = document.getElementById("btnAceptarPaciente");
+        const btnBuscarPaciente = document.getElementById("buscar-Paciente");
+        const modalResultadosPaciente = document.getElementById("modalResultadosPaciente");
+        const modalBuscadorPaciente = document.getElementById("modalBuscadorPaciente");
+        let modalTimerIdPaciente;
+        let pacienteSeleccionado = null;
+
+
+        const modalBuscador = document.getElementById("modalBuscador");
+        let modalTimerId;
+        const btnGuardar = document.getElementById("btnGuardar");
+        const modal = document.getElementById("modalBusqueda");
+        const modalPaciente = document.getElementById("modalBusquedaPaciente");
+        const cerrarModal = document.getElementById("cerrarModal");
+        const btnAceptar = document.getElementById("btnAceptar");
+        const btnCancelar = document.getElementById("btnCancelar");
+        const inputCita = document.getElementById("id_Cita");
+        const inputFolio = document.getElementById("Folio");
+        const inputPaciente = document.getElementById("id_Pac");
+        const inputMotivo = document.getElementById("Motivo_Cita");
+        const inputFecha = document.getElementById("Fecha_Cita");
+        const inputHora = document.getElementById("Hora_Cita");
+        const comboFisio = document.getElementById("id_Emp");
+        const nombrePaciente = document.getElementById("nombrePaciente");
+        const modalResultados = document.getElementById("modalResultados");
+        const radioAtendido = document.getElementById("atendido");
+        const radioPendiente = document.getElementById("pendiente");
+        const radioCancelada = document.getElementById("cancelada");
+        let citaSeleccionada = null;
+
+
+        document.addEventListener("DOMContentLoaded",obtenerFisios);
+
+        btnGuardar.addEventListener("click",async function(e){
+            e.preventDefault();
+
+            try {
+                const response = await fetch(`/Datos/guardarCita`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(obtenerDatos())
+                })
+
+                if (!response.ok) {
+                    alert("Ocurrió un error con el servidor");
+                    return;
+                }
+
+                const data = await response.json();
+
+                if (data.respuesta == false) {
+                    alert("Ocurrió un error al registrar la cita");
+                }
+                else if (data.respuesta == true) {
+                    alert("Cita guardada exitosamente");
+                }
+            }
+            catch (error) {
+                alert(error.message);
+            }
+        
+        });
+
+
+        modalBuscador.addEventListener("input", function () {
+            clearTimeout(modalTimerId);
+            modalTimerId = setTimeout(() => {
+                const valor = this.value.trim();
+                if (!valor) {
+                    limpiarResultadosModal();
+                    return;
+                }
+                let folio = encodeURIComponent(valor);
+                fetch(`/Datos/obtenerCitas?Folio=${folio}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        mostrarResultadosModal(data);
+                    });
+            }, 300);
+        });
+
+
+        function mostrarResultadosModal(citas) {
+            modalResultadosPaciente.innerHTML = "";
+            pacienteSeleccionado = null;
+
+            citas.forEach(c => {
+                const fila = document.createElement("tr");
+                const celdaFolio = document.createElement("td");
+                celdaFolio.textContent = c.Folio || "";
+                const celdaNombre = document.createElement("td");
+                celdaNombre.textContent = c.Nombre || "";
+                const celdaFecha = document.createElement("td");
+                celdaFecha.textContent = formatearFecha(c.Fecha_Cita);
+                const celdaHora = document.createElement("td");
+                celdaHora.textContent = `${c.Hora_Cita.Hours}:${c.Hora_Cita.Minutes}`|| "";
+
+                fila.appendChild(celdaFolio);
+                fila.appendChild(celdaNombre);
+                fila.appendChild(celdaFecha);
+                fila.appendChild(celdaHora);
+
+                fila.addEventListener("click", function () {
+                    Array.from(modalResultados.querySelectorAll("tr")).forEach(r => r.classList.remove("seleccionado"));
+                    fila.classList.add("seleccionado");
+                    citaSeleccionada = c;
+                });
+
+                modalResultados.appendChild(fila);
+            });
+        }
+
+
+
+
+        function limpiarResultadosModal() {
+            modalResultados.innerHTML = "";
+            pacienteSeleccionado = null;
+        }
+
+
+        btnAceptarPaciente.addEventListener("click", function () {
+            if (pacienteSeleccionado) {
+                asignarPaciente(pacienteSeleccionado);
+            }
+            cerrarModalBusquedaPaciente();
+        })
+
+        btnAceptar.addEventListener("click", function () {
+            if (citaSeleccionada) {
+                asignarCita(citaSeleccionada);
+            }
+            cerrarModalBusqueda();
+        })
+
+        function obtenerDatos(){
+                  
+            const datos = {
+                id_Cita : inputCita.value, 
+                Folio : inputFolio.value, 
+                id_Pac : inputPaciente.value, 
+                Motivo_Cita : inputMotivo.value, 
+                Fecha_Cita : inputFecha.value, 
+                Hora_Cita : inputHora.value, 
+                id_Emp : comboFisio.value, 
+                Estatus_Cita : document.querySelector('input[name="Genero"]:checked')?.value
+            }
+
+
+            return datos;
+        }
+
+        modalBuscadorPaciente.addEventListener("input", function () {
+            clearTimeout(modalTimerIdPaciente);
+            modalTimerIdPaciente = setTimeout(() => {
+                const valor = this.value.trim();
+                if (!valor) {
+                    //limpiarResultadosModal();
+                    return;
+                }
+                let nombre = encodeURIComponent(valor);
+                fetch(`/Persona/buscarPacientes?nombre=${nombre}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        mostrarResultadosModalPaciente(data);
+                    });
+            }, 300);
+        });
+
+        function formatearFecha(valorFecha) {
+            const ms = extraerTimestamp(valorFecha);
+            if (!ms) {
+                return "";
+            }
+            const fecha = new Date(ms);
+            const dia = String(fecha.getDate()).padStart(2, "0");
+            const mes = String(fecha.getMonth() + 1).padStart(2, "0");
+            const anio = fecha.getFullYear();
+            return `${dia}/${mes}/${anio}`;
+        }
+
+
+        function extraerTimestamp(valorFecha) {
+            if (!valorFecha) {
+                return null;
+            }
+            const match = /\/Date\((\d+)\)\//.exec(valorFecha);
+            if (!match) {
+                return null;
+            }
+            const ms = Number(match[1]);
+            return Number.isFinite(ms) ? ms : null;
+        }
+
+        function formatearFechaInput(valorFecha) {
+            const ms = extraerTimestamp(valorFecha);
+            if (!ms) {
+                return "";
+            }
+            const fecha = new Date(ms);
+            const dia = String(fecha.getDate()).padStart(2, "0");
+            const mes = String(fecha.getMonth() + 1).padStart(2, "0");
+            const anio = fecha.getFullYear();
+            return `${anio}-${mes}-${dia}`;
+        }
+
+        function formatearHora(valorHora) {
+            if (!valorHora) {
+                return "";
+            }
+            if (typeof valorHora === "string") {
+                return valorHora.slice(0, 5);
+            }
+            const horas = String(valorHora.Hours ?? valorHora.hours ?? 0).padStart(2, "0");
+            const minutos = String(valorHora.Minutes ?? valorHora.minutes ?? 0).padStart(2, "0");
+            return `${horas}:${minutos}`;
+        }
+
+
+ 
+        async function obtenerFisios(){
+            try{
+                const response = await fetch(`/Datos/obtenerFisios`,{
+                    method : "GET",
+                    headers: {
+                        "Content-Type" : "application/json"
+                    }
+                });
+
+                if(!response.ok){
+                    alert('Algo salio mal');
+                    return;
+                }
+                const fisios = await response.json();
+                fisios.forEach(fisio => {
+                    const opcion = document.createElement('option');
+                    opcion.value = fisio.id_Emp;
+                    opcion.text = `${fisio.Nombre_Emp} ${fisio.ApellidoP_Emp} ${fisio.ApellidoM_Emp}`;
+                    comboFisio.appendChild(opcion);
+                }) 
+
+            }
+            catch(error){
+                alert(error.message);
+            }
+            
+        }
+
+
+        abrirModal.addEventListener("click", function () {
+        abrirModalBusqueda();
+        });
+
+        btnBuscarPaciente.addEventListener("click", function (e) {
+            e.preventDefault();
+            abrirModalBusquedaPaciente();
+        });
+
+        function abrirModalBusqueda() {
+            modal.classList.remove("modal-oculto");
+            modalBuscador.value = "";
+            /*limpiarResultadosModal();*/
+            pacienteSeleccionado = null;
+            modalBuscador.focus();
+        };
+        function abrirModalBusquedaPaciente() {
+            modalPaciente.classList.remove("modal-oculto");
+            modalBuscador.value = "";
+            //limpiarResultadosModal();
+            pacienteSeleccionado = null;
+            modalBuscador.focus();
+        };
+        
+        btnCancelar.addEventListener("click", function () {
+            cerrarModalBusqueda();
+        });
+        cerrarModal.addEventListener("click", function () {
+            cerrarModalBusqueda();
+        });
+        btnCancelarPaciente.addEventListener("click", function () {
+            cerrarModalBusquedaPaciente();
+        });
+        cerrarModalPaciente.addEventListener("click", function () {
+            cerrarModalBusquedaPaciente();
+        });
+
+        function cerrarModalBusqueda() {
+            modal.classList.add("modal-oculto");
+        }
+        function cerrarModalBusquedaPaciente() {
+            modalPaciente.classList.add("modal-oculto");
+        }
+
+
+
+        function asignarPaciente(paciente) {
+            inputPaciente.value = paciente.id_Pac || "";
+            nombrePaciente.value = `${paciente.Nombre_Pac} ${paciente.ApellidoP_Pac} ${paciente.ApellidoM_Pac}`;
+
+        }
+
+        function asignarCita(cita) {
+            inputCita.value = cita.id_Cita || "";
+            inputFolio.value = cita.Folio || "";
+            inputPaciente.value = cita.id_Pac || "";
+            nombrePaciente.value = cita.Nombre || "";
+            inputMotivo.value = cita.Motivo_Cita || "";
+            inputFecha.value = formatearFechaInput(cita.Fecha_Cita);
+            inputHora.value = formatearHora(cita.Hora_Cita);
+            comboFisio.value = cita.id_Emp || "";
+
+            const estatus = cita.Estatus_Cita;
+            radioAtendido.checked = estatus === 1;
+            radioPendiente.checked = estatus === 0;
+            radioCancelada.checked = estatus === 2;
+        }
+
+
+
+        function mostrarResultadosModalPaciente(pacientes) {
+        modalResultados.innerHTML = "";
+        pacienteSeleccionado = null;
+
+        pacientes.forEach(p => {
+            const fila = document.createElement("tr");
+            const celdaNombre = document.createElement("td");
+            celdaNombre.textContent = p.Nombre_Pac || "";
+            const celdaPaterno = document.createElement("td");
+            celdaPaterno.textContent = p.ApellidoP_Pac || "";
+            const celdaMaterno = document.createElement("td");
+            celdaMaterno.textContent = p.ApellidoM_Pac || "";
+            const celdaTelefono = document.createElement("td");
+            celdaTelefono.textContent = p.Telefono_Pac || "";
+            const celdaFecha = document.createElement("td");
+            celdaFecha.textContent = formatearFecha(p.Fecha_Nacimiento);
+            const celdaGenero = document.createElement("td");
+            celdaGenero.textContent = p.Genero || "";
+
+            fila.appendChild(celdaNombre);
+            fila.appendChild(celdaPaterno);
+            fila.appendChild(celdaMaterno);
+            fila.appendChild(celdaTelefono);
+            fila.appendChild(celdaFecha);
+            fila.appendChild(celdaGenero);
+
+            fila.addEventListener("click", function () {
+                Array.from(modalResultados.querySelectorAll("tr")).forEach(r => r.classList.remove("seleccionado"));
+                fila.classList.add("seleccionado");
+                pacienteSeleccionado = p;
+            });
+
+            modalResultadosPaciente.appendChild(fila);
+        });
+    }
+
+    </script>

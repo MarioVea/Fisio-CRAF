@@ -72,7 +72,7 @@ namespace FisioCRAF.Controllers
                     var serializer = new JavaScriptSerializer();
                     var request = serializer.Deserialize<EliminarPacienteRequest>(body);
                     var respuesta = ps.EliminarPaciente(request.id_Pac);
-                    return Json(new { message = respuesta });
+                    return Json(new { respuesta = respuesta });
                 }
             }
             catch (Exception ex)
@@ -159,6 +159,30 @@ namespace FisioCRAF.Controllers
                 return Json(new { message = $"Ocurrió un error: {ex.Message}" });
             }
         }
+        [HttpPost]
+        public async Task<ActionResult> eliminarEmpleado()
+        {
+            try
+            {
+                using (var reader = new StreamReader(Request.InputStream))
+                {
+                    var body = reader.ReadToEnd();
+                    var serializer = new JavaScriptSerializer();
+                    var request = serializer.Deserialize<EliminarEmpleadoRequest>(body);
+                    var empleado = new Empleado
+                    {
+                        id_Emp = request.id_Emp
+                    };
+                    var respuesta = es.eliminarEmpleado(empleado.id_Emp);
+                    return Json(new { respuesta = respuesta });
+                }
+            }
+            catch (Exception ex)
+            {
+                Response.StatusCode = 500;
+                return Json(new { message = $"Ocurrió un error: {ex.Message}" });
+            }
+        }
 
         private class EmpleadoRequest
         {
@@ -178,6 +202,10 @@ namespace FisioCRAF.Controllers
         private class EliminarPacienteRequest
         {
             public int id_Pac { get; set; }
+        }
+        private class EliminarEmpleadoRequest
+        {
+            public int id_Emp { get; set; }
         }
 
         [HttpGet]

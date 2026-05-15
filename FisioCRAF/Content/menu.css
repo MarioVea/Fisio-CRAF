@@ -25,27 +25,131 @@ body {
 }
 
 
-.opciones {
+.cambiarLetra{
+    background-color: black;
+    color: white;
+}
+
+.options {
     background-color: white;
     display: flex;
     flex-direction: column;
     overflow-y:auto;
+    padding:20px 10px ;
 }
 
 
-.opcion{
+.option{
     height:50px;
-    margin: 10px 20px;
+    margin: 10px 0px;
+    margin:auto;
+    width:100%;
 }
 
-.opcion button{
+.opc{
     height:100%;
     width:100%;
-    border-radius:30px;
+    border-radius:15px;
     outline:none;
     border:none;
-    background-color:white;
+    background-color:unset;
+    transition: all 2s ease;
     &:hover{
         background-color:lawngreen;
+        font-weight: 600;
     }
+}
+
+
+.option button{
+    height:100%;
+    width:100%;
+    border-radius:15px;
+    outline:none;
+    border:none;
+    background-color:unset;
+    &:hover{
+        transition:background-Color 0.2s ease;
+        transform:scale(1.08);
+        /*transform:translateY(-20px);*/
+        background-color:lawngreen;
+        font-weight: 600;
+    }
+}
+
+.transicion{
+    background-color: rgb(33, 33, 33);
+    transition:all 0.5s ease;
+}
+
+.volver{
+    background-color: white;
+    color:black;
+    transition: background-Color 0.5s ease;
+    
+}
+
+
+.opc-cuerpo-oscuro{
+    background-color: rgb(25, 28, 49) !important;
+    transition:background-Color 0.5s ease;
+    color: white;
+}
+
+.opc-cuerpo-claro{
+    background-color: #f0f0f0;
+    transition:background-Color 0.5s ease;
+    color:black;
+
+}
+
+.opc-oscuro{
+    color:white;
+}
+
+
+.opcion-claro{
+    color:black;
+}
+
+
+.opc-encabezado-claro{
+    width: 100%;
+    height:auto;
+    background-color: #b4f6d6;
+}
+
+#vista{
+    overflow:hidden;
+}
+
+#check{
+    display: none;
+}
+
+
+#cambiar{
+    margin:auto;
+    height:50px;
+    width:50px;
+    background-repeat: no-repeat;
+    background-size:contain;
+    background-position-x:center;
+    background-position-y:center;
+    background-image: url(Images/dom.png);
+    border:none;
+    background-color:unset;
+    background-size: 50px;
+    border-radius: 50%;
+    &:hover{
+        background-color: rgba(37, 37, 244, 0.486);
+    }
+}
+
+
+.modo-oscuro{
+    background-image: url(Images/dom.png);
+}
+.modo-claro{
+    background-image: url(Images/luna-creciente.png);
 }

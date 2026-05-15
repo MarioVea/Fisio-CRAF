@@ -18,9 +18,9 @@ namespace FisioCRAF.Models.Services
             con.ConnectionString = conexion.conexion();
         }
 
-        public string iniciarSesion(string usuario,string password)
+        public bool iniciarSesion(string usuario,string password)
         {
-            string mensaje = "Ocurrió un error";
+            bool inicio = false;
 
             string query = "select * from Persona.Empleados where Contraseña = @password and Nombre_Emp = @usuario";
             cmd.CommandText= query;
@@ -36,15 +36,14 @@ namespace FisioCRAF.Models.Services
                 reader = cmd.ExecuteReader();
                 if (reader.Read())
                 {
-                    mensaje = "Inicio de sesión exitoso";
+                    inicio = true;
                 }
-                return mensaje;
+                return inicio;
 
             }
             catch (Exception ex)
             {
-                mensaje = $"Ocurrió un error: {ex.Message}";
-                return mensaje;
+                return inicio;
             }
             finally
             {

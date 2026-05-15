@@ -7,41 +7,144 @@
     <link rel="stylesheet" href="~/Content/menu.css">
     </head>
 <body>
-    <aside class="menu">
+    <aside class="menu" id="menu">
         <div class="logo">
             <img src="~/Content/Images/FisioCRAF.png" alt="Logo del sistema" />
         </div>
-        <div class="opciones">
-            <a href="@Url.Action("Empleado","Persona")" class="opcion">
-                <button>Empleados</button>
+        <div class="options" id="options">
+            <a href="@Url.Action("Paciente","Persona")" class="option">
+                <button class="opcion">Paciente</button>
             </a>
-            <a href="" class="opcion">
-                <button>OPCION 2</button>
+            <a href="@Url.Action("Empleado","Persona")" class="option">
+                <button class="opcion">Empleados</button>
             </a>
-            <a href="" class="opcion">
-                <button>OPCION 3</button>
+            <a href="@Url.Action("Cita","Datos")" class="option">
+                <button class="opcion">Cita</button>
             </a>
-            <a href="" class="opcion">
-                <button>OPCION 4</button>
+            <a href="" class="option">
+                <button class="opcion">OPCION 4</button>
             </a>
-            <a href="" class="opcion">
-                <button>OPCION 5</button>
-            </a>
-            <a href="" class="opcion">
-                <button>OPCION 4</button>
-            </a>
-            <a href="" class="opcion">
-                <button>OPCION 5</button>
-            </a>
-            <a href="" class="opcion">
-                <button>OPCION 4</button>
-            </a>
-            <a href="" class="opcion">
-                <button>OPCION 5</button>
+            <a href="" class="option">
+                <button class="opcion">OPCION 5</button>
             </a>
         </div>
+
+
+        <button id="cambiar"></button>
+
+        <input type="checkbox" id="check">
     </aside>
-    @RenderBody()
+    <main id="vista">
+        @RenderBody()
+    </main>
 </body>
+
+<script>
+
+
+
+
+
+    const boton = document.getElementById("cambiar");
+    const botonClaro = document.getElementById("cambiar-claro");
+    const menu = document.getElementById("menu");
+    const opciones = document.getElementById("options");
+    const listaOpciones = document.querySelectorAll('.opcion');
+    const cuerpoVista = document.getElementById("vista");
+    const encabezado = document.getElementById("encabezado");
+    const estado = document.getElementById("check");
+
+
+
+
+
+
+    boton.addEventListener("click",function(){
+        if(estado.checked){
+            modoClaro();
+            estado.checked = false;
+            return;
+        }
+        modoOscuro();
+        estado.checked = true;
+    });
+
+
+    function modoOscuro(){
+        menu.classList.add("transicion");
+        opciones.classList.add("transicion");
+        menu.classList.remove("volver");
+        opciones.classList.remove("volver");
+        encabezado.classList.add("transicion");
+        encabezado.classList.remove("opc-cuerpo-claro");
+        boton.style.backgroundImage = "url('@Url.Content("~/Content/Images/dom.png")')";
+
+
+        boton.classList.add("modo-claro");
+
+        const form = document.querySelector('form');
+        if (form){
+            form.classList.add("opc-cuerpo-oscuro");
+            form.classList.add("opc-oscuro");
+
+        }
+
+
+        cuerpoVista.classList.remove("opc-cuerpo-claro");
+        cuerpoVista.classList.add("opc-cuerpo-oscuro");
+        listaOpciones.forEach(o => {
+            o.classList.remove("opcion-claro");
+            o.classList.add("opc-oscuro");
+        });
+
+
+
+    }
+    function modoClaro(){
+
+        boton.style.backgroundImage = "url('@Url.Content("~/Content/Images/luna-creciente.png")')";
+
+        menu.classList.add("volver");
+        opciones.classList.add("volver");
+        menu.classList.remove("transicion");
+        opciones.classList.remove("transicion");
+
+        encabezado.classList.remove("transicion");
+
+        boton.classList.add("modo-oscuro");
+
+        const form = document.querySelector('form');
+        if (form){
+
+            form.classList.remove("opc-cuerpo-oscuro");
+            form.classList.remove("opc-oscuro");
+            form.classList.add("opc-cuerpo-claro");
+        }
+        cuerpoVista.classList.remove("opc-cuerpo-oscuro");
+        listaOpciones.forEach(o => {
+            o.classList.remove("opc-oscuro");
+            o.classList.add("opcion-claro");
+        });
+
+
+        @* menu.classList.remove("transicion");
+
+        opciones.classList.remove("transicion");
+        menu.classList.add("volver");
+
+        opciones.classList.add("volver");
+
+
+        listaOpciones.forEach(o => {
+
+            o.classList.remove("opc-oscuro");
+            o.classList.add("opcion-claro");
+        }); *@
+
+    }
+
+
+</script>
+
 </html>
 

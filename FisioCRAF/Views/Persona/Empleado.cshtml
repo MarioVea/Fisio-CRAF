@@ -5,22 +5,24 @@
 
     <link rel="stylesheet" href="~/Content/estilos.css">
 	<link rel="stylesheet" href="~/Content/empleados.css">
-    <main class="vista-empleado">
-    <div class="encabezado">
-        <h2>Empleado</h2>
-        <div class="buscador-wrap">
-            <input id="buscador" type="text" placeholder="Introduzca el nombre del empleado">
-			<ul id="listaResultados" class="resultados-busqueda oculta"></ul>
-        </div>
-        <button type="button" id="abrirModal" class="btn-buscar">Buscar</button>
-    </div>
+        <div class="enc">
+			<div class="encabezado-empleado" id="encabezado">
+				<h1 class="encabezado-titulo">Empleado</h1>
+				<div class="buscador-wrap">
+					<input id="buscador" type="text" placeholder="Introduzca el nombre del empleado">
+					<ul id="listaResultados" class="resultados-busqueda oculta"></ul>
+				</div>
+				<button type="button" id="abrirModal" class="btn-buscar">Buscar</button>
+			</div>
+
+		</div>
 
     <form class="form-empleado">            
         <div class="datos-generales">
             <div class="datos-1">
                 <div class="busqueda">
                     <input id="clave" type="text" placeholder="XXXX0000"/>
-                    <button>Buscar cabron</button>
+                    <button>Buscar empleado</button>
                 </div>
 
                 <div class="estado">
@@ -151,7 +153,7 @@
 	</div>
 
 
-</main>
+
 
 
 
@@ -178,6 +180,9 @@
 		const cedulaInput = document.getElementById("cedula");
 		const passwordInput = document.getElementById("password");
 		const togglePassword = document.getElementById("toggle-password");
+		const idEmpleado = document.getElementById("id_Emp");
+		
+		const btnEliminar = document.getElementById("eliminar");
 
 		function limpiarTexto(input) {
 			if (!input) {
@@ -185,6 +190,42 @@
 			}
 			input.value = input.value.replace(/[^A-Za-zÁÉÍÓÚÜÑáéíóúüñ\s]/g, "").slice(0, 50);
 		}
+
+
+		btnEliminar.addEventListener("click",eliminarEmpleado);
+
+		async function eliminarEmpleado(e){
+			e.preventDefault();
+			const empleado = {
+				"id_Emp" : parseInt(idEmpleado.value)
+			}
+			try{
+				const response = await fetch(`/Persona/eliminarEmpleado`,{
+					method : "POST",
+					headers : {
+						"Content-Type" : "application/json"
+					},body : JSON.stringify(empleado)
+				});
+
+				if(!response.ok){
+					alert("Ocurrió un error al conectarse al servidor");
+				}
+
+				const data = await response.json();
+
+
+				if(data.respuesta){
+					alert("Empleado eliminado correctamente");
+				}
+				else if(!data.respuesta){
+					alert("Ocurrio un error al eliminar el empleado");
+				}
+			}
+			catch(error){
+				alert("Ocurrió un error al conectarse al servidor");
+			}
+		}
+
 
 		function limpiarNumeros(input, maxLength) {
 			if (!input) {

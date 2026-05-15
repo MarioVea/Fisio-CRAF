@@ -128,9 +128,9 @@ namespace FisioCRAF.Models.Services
 
 
         }
-        public string EliminarPaciente(int id)
+        public bool EliminarPaciente(int id)
         {
-            string mensaje = "Ocurrió un error";
+            bool eliminado = false;
             string query = $"delete from {tabla} where id_Pac = @id_Pac";
             SqlCommand cmd = new SqlCommand(query, con);
             cmd.Parameters.AddWithValue("@id_Pac", id);
@@ -140,14 +140,14 @@ namespace FisioCRAF.Models.Services
                 con.Open();
                 if (cmd.ExecuteNonQuery() > 0)
                 {
-                    mensaje = "Paciente eliminado correctamente";
+                    eliminado = true;
                 }
-                return mensaje;
+                return eliminado;
 
             }
             catch(Exception ex)
             {
-             return $"{mensaje} : {ex.Message}";   
+             return eliminado;   
             }
             finally
             {

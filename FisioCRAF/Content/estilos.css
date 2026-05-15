@@ -1,5 +1,4 @@
 main {
-    padding-top: 20px;
     width: 100%;
     height:auto;
     background-color: #f0f0f0;
@@ -18,35 +17,35 @@ main {
 }
 /*Parte Superior*/
 .encabezado{
-    display:flex;
-    align-items:center;
-    max-width: 60%;
-    margin:auto;
+    padding:20px;
+    display: flex;
+    align-items: center;
+    margin-top: 0px;
 }
 
 .encabezado input{
-    height:2rem;
-    border-radius:20px;
-    outline:none;
-    border:2px gray solid;
-    padding:5px;
-    width:100%;
-    margin-left:20px;
-    font-family:Arial, Helvetica, sans-serif;
+    height: 2rem;
+    border-radius: 20px;
+    outline: none;
+    border: 2px gray solid;
+    padding: 5px;
+    width: 100%;
+    margin-left: 20px;
+    font-family: Arial, Helvetica, sans-serif;
 }
 
 .buscador-wrap{
     position:relative;
-    width:100%;
+    width:70%;
     margin-left:20px;
 }
 
 .buscador-wrap input{
     margin-left:0;
+    width:90%;
 }
 
 .btn-buscar{
-    margin-left:50px;
     padding:6px 14px;
     border-radius:8px;
     border:1px solid #c9c9c9;
@@ -147,7 +146,7 @@ main {
 }
 
 .modal-input{
-    width:100%;
+    width:90%;
     padding:8px 12px;
     border-radius:10px;
     border:1px solid #c9c9c9;
@@ -256,8 +255,8 @@ main {
 .form-paciente {
     width: 100%;
     margin: auto;
-    padding-bottom: 20px;
-    border-radius: 20px;
+    margin-bottom:auto;
+    overflow:hidden;
 }
 
 .form-paciente .datos-principales{
@@ -287,6 +286,7 @@ main {
     margin:auto;
     width:50%;
     margin-bottom:20px;
+    margin-top:100px;
 }
 
 .form-paciente .datos-secundarios .dato{
@@ -312,9 +312,12 @@ main {
     margin:0px 10px;
 }
 
+.opciones{
+    background-color: f0f0f0;
+}
 
 .form-paciente .acciones{
-    width:42%;
+    width:60%;
     display:flex;
     margin:auto;
 }
@@ -343,4 +346,15 @@ main {
     border-radius:10px;
     outline:1px;
     border:1px black solid;
+}
+
+
+h1{
+    text-align: left;
+    font-size:2em;
+}
+
+.enc {
+    background-color: #b4f6d6;;
+    border-bottom: 1px solid black;   
 }

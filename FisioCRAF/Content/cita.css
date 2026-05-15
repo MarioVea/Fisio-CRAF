@@ -1,9 +1,15 @@
+input{
+    outline:none;
+    border:1px solid black;
+}
+
 .encabezado{
-    width:50%;
-    margin:auto;
+    width:100%;
     display:flex;
     align-items:center;
     padding:10px;
+    background-color:#b4f6d6;
+    border-bottom:1px solid black;
 }
 
 .encabezado .buscador{
@@ -13,14 +19,21 @@
     width:100%;
     padding:10px; 
     position:relative;
+
 }
 
 .encabezado .buscador input{
     width:85%;
+    padding:5px;
+    border-radius:10px;
+    height:15px;
 }
 
 .encabezado .buscador button{
     margin-left:auto;
+    height:30px;
+    border-radius:10px;
+    border:1px solid black;
 }
 
 .resultados{
@@ -28,27 +41,35 @@
     top:calc(50%);
     left:20px;
     right:80px;
-    border-radius:5px;
+    border-radius:12px;
     padding:0px;
     list-style: none;
+    background:#f8fafc;
+    border:1px solid #d7dde5;
 }
 .oculto{
     display:none;
 }
 
 .resultados li{
-    border-bottom:1px black solid;
-    padding:5px;
+    padding:10px 14px;
+    cursor:pointer;
+    font-family:Arial, Helvetica, sans-serif;
+    font-size:0.95rem;
+    color:#2c2c2c;
+    border-bottom:1px solid #e7ebf0;
     &:last-child{
         border-bottom:none;
     }   
     &:hover{
-        background-color: gray;
+        background:#e6f0ff;
     }
 }
 main{
-    display:flex;
-    flex-direction: column;
+
+    width: 100%;
+    height:auto;
+    background-color: #f0f0f0;
 }
 
 
@@ -57,17 +78,41 @@ main{
     justify-content: space-between;
 }
 
-form{
-    background-color: rgb(250, 170, 170);
-    width:80%;
-    margin:auto;
-    padding:20px;
+.datos1 input,select{
+    margin-left:10px;
+    height:20px;
     border-radius:10px;
+    padding:5px;
 }
 
 
-#motivo{
+.datos1 select{
+    height:auto;
+}
+
+.datos1 button{
+    border-radius:.8rem;
+    padding:5px;
+    width:80px;
+    outline:none;
+    border:1px solid black;
+}
+
+
+form{
+    padding: 2rem;
+    background-color: #f0f0f0;
+    margin-bottom:auto;
+}
+
+
+#Motivo_Cita{
+    margin-top:20px;
     resize: none;
+    height:100px;
+    border-radius:20px;
+    padding:10px;
+    outline:none;
 }
 .datos2 .dato{
     display: flex;
@@ -88,20 +133,25 @@ form{
 
 .datos-horario .dato input{
     height:20px;
+    margin-left:10px;
+    border-radius:10px;
+    padding:5px;
 }
 
-.opciones{
+.opciones-estado{
     display: flex;
-
 }
 
 .opciones .opcion{
-    padding:10px;
+    padding:5px;
+    height:20px;
+    margin:0;
 
 }
 
 .estado-opciones{
     text-align: center;
+    width:40%;
 }
 
 .tabla{
@@ -118,8 +168,36 @@ th{
     background-color: rgb(111, 111, 220);
 }
 
-.tabla,th,tr,td{
-    border-collapse:collapse;
-    border:2px black solid;
+
+
+
+.form-Cita .acciones{
+    width:90%;
+    display:flex;
+    margin:auto;
+    margin-top:20px;
 }
 
+.form-Cita .acciones button{
+    margin:0px 20px;
+    border-radius:5px;
+    padding:5px;
+    border:1px black solid;
+    width:200px;
+}
+
+.form-Cita .acciones :nth-child(1){
+    background-color: rgb(161, 231, 162);
+}
+.form-Cita .acciones :nth-child(2){
+    background-color: rgb(152, 227, 225);
+}
+.form-Cita .acciones :nth-child(3){
+    background-color: rgb(237, 102, 87);
+}
+
+
+
+#abrirModal{
+    margin-left:20px;
+}

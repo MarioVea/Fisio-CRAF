@@ -160,8 +160,10 @@
     <Content Include="Content\empleados.css" />
     <Content Include="Content\estilos.css" />
     <Content Include="Content\estilosLogin.css" />
+    <Content Include="Content\Images\dom.png" />
     <Content Include="Content\Images\FisioCRAF.png" />
     <Content Include="Content\Images\fondo.png" />
+    <Content Include="Content\Images\luna-creciente.png" />
     <Content Include="Content\login.css" />
     <Content Include="Content\menu.css" />
     <Content Include="favicon.ico" />
@@ -206,6 +208,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
+    <Folder Include="Models\DTOs\Cita\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\bootstrap.rtl.min.css.map" />
