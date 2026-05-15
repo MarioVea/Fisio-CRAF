@@ -1,0 +1,362 @@
+@{
+    Layout = "~/Views/Shared/_menu.cshtml";
+}
+<link rel="stylesheet" href="~/Content/ejercicio.css">
+<link rel="stylesheet" href="~/Content/estilos.css">
+
+<div class="encabezado" id="encabezado">
+    <h2>Ejercicio</h2>
+    <div class="buscador" id="buscador-wrap">
+        <input type="text" placeholder="Ingrese el nombre del ejercicico" id="modalBuscador">
+        <button id="abrirModal">Buscar</button>
+    </div>
+</div>
+
+<form action="formEjercicio" class="form-Ejercicio">
+    <div class="datos1">
+        <div class="dato">
+            <label for="id_CatEjer">Categoria de Ejercicio</label>
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <select id="id_CatEjer" name="id_CatEjer" required>
+                    <option value="">Seleccione una categoria</option>
+                    
+                    @if(ViewBag.Categorias != null)
+                     {
+                        foreach(var cat in ViewBag.Categorias)
+                        {
+                            <option value="@cat.id_CatEjer">@cat.Nombre_CatEjer</option>
+                        }
+                     }
+
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div class="datos2">
+        <div class="dato" style="flex: 1;">
+            <label for="Descrip_Ejer">Nombre del ejercicio a registrar</label>
+            <input type="text" id="Nombre_Ejer" required>
+            <label for="Descrip_Ejer" style="margin-top: 15px;">Descripción del ejercicio</label>
+            <textarea id="Descrip_Ejer" rows="5" required></textarea>
+        </div>
+
+        <div class="datos-imagen">
+            <div class="panel-imagen">
+                <div class="etiqueta-azul">
+                    Imagen de referencia
+                </div>
+                <div id="imagenPreview">
+                    <img id="previewImg" src="#" alt="Previsualización" />
+                </div>
+            </div>
+            <label class="btn-cargar-imagen">
+                Cargar Imagen
+                <input type="file" name="ImagenReferencia" id="ImagenReferencia" accept="image/*" style="display: none;" />
+            </label>
+        </div>
+    </div>
+
+    <div class="acciones">
+        <button id="btnGuardar" type="button">Guardar Ejercicio</button>
+        <button type="button" id="btn-actualizar">Actualizar Ejercicio</button>
+        <button id="btn-Eliminar" type="button">Eliminar Ejercicio</button>
+        <button type="reset" id="btn-limpiar">Limpiar Datos</button>
+    </div>
+</form>
+
+<div id="modalBusqueda" class="modal modal-oculto" role="dialog" aria-modal="true" aria-labelledby="tituloModal">
+    <div class="modal-contenido">
+        <div class="modal-encabezado">
+            <h3 id="tituloModal">Buscar Ejercicio</h3>
+            <button type="button" id="cerrarModal" class="btn-cerrar" aria-label="Cerrar">&times;</button>
+        </div>
+        <div class="modal-cuerpo">
+            <input id="modalBuscador" type="text" placeholder="Buscar por nombre" class="modal-input">
+            <div class="tabla-scroll">
+                <table class="tabla-resultados">
+                    <thead>
+                        <tr>
+                            <th>Clave</th>
+                            <th>Nombre del Ejercicio</th>
+                            <th>Descripción</th>
+                        </tr>
+                    </thead>
+                    <tbody id="modalResultados"></tbody>
+                </table>
+            </div>
+        </div>
+        <div class="modal-acciones">
+            <button type="button" id="btnAceptar" class="btn-primario">Aceptar</button>
+            <button type="button" id="btnCancelar" class="btn-secundario">Cancelar</button>
+        </div>
+    </div>
+</div>
+
+<script>
+
+    const modal = document.getElementById("modalBusqueda");
+    const btnAbrirModal = document.getElementById("abrirModal");
+    const btnCerrarModal = document.getElementById("cerrarModal");
+    const btnCancelar = document.getElementById("btnCancelar");
+    const btnAceptar = document.getElementById("btnAceptar");
+    const modalInputBuscador = document.querySelector("#modalBusqueda .modal-input");
+    const modalResultados = document.getElementById("modalResultados");
+    const previewImg = document.getElementById("previewImg");
+    const inputImagen = document.getElementById("ImagenReferencia");
+    let modalTimerId;
+    let ejercicioSeleccionado = null;
+
+    // previsualización de la imagen 
+    inputImagen.addEventListener("change", function () {
+        const archivo = this.files[0];
+        if (archivo) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                previewImg.src = e.target.result;
+                previewImg.style.display = 'block';
+            };
+            reader.readAsDataURL(archivo);
+        } else {
+            previewImg.src = '#';
+            previewImg.style.display = 'none';
+        }
+    });
+
+    //abiri modal 
+    btnAbrirModal.addEventListener("click", function (e) {
+        e.preventDefault();
+        modal.classList.remove("modal-oculto");
+        modalInputBuscador.value = "";
+        modalResultados.innerHTML = "";
+        ejercicioSeleccionado = null;
+        modalInputBuscador.focus();
+    });
+
+    // cerrar modal 
+    function cerrarModalBusqueda() {
+        modal.classList.add("modal-oculto");
+    }
+
+    btnCerrarModal.addEventListener("click", cerrarModalBusqueda);
+    btnCancelar.addEventListener("click", cerrarModalBusqueda);
+
+    // buscar mientras escribes 
+    modalInputBuscador.addEventListener("input", function () {
+        clearTimeout(modalTimerId);
+        const self = this;
+        modalTimerId = setTimeout(function () {
+            const valor = self.value.trim();
+            if (!valor) {
+                modalResultados.innerHTML = "";
+                return;
+            }
+
+            let busqueda = encodeURIComponent(valor);
+
+            // se le llama al controlador
+            fetch('/Ejercicio/BusquedaEjercicios?busqueda=' + busqueda)
+                .then(function (response) { return response.json(); })
+                .then(function (data) { mostrarResultadosModal(data); })
+                .catch(function (error) { console.error("Error:", error); });
+
+        }, 300);
+    });
+
+    // Pinta la tabla
+    function mostrarResultadosModal(ejercicios) {
+        modalResultados.innerHTML = "";
+        ejercicioSeleccionado = null;
+
+        ejercicios.forEach(function (e) {
+            const fila = document.createElement("tr");
+
+            const celdaClave = document.createElement("td");
+            celdaClave.textContent = e.id_Ejercicio || "";
+
+            const celdaNombre = document.createElement("td");
+            celdaNombre.textContent = e.Nombre_Ejer || "";
+
+            const celdaDescripcion = document.createElement("td");
+            celdaDescripcion.textContent = e.Descrip_Ejer || "";
+
+            fila.appendChild(celdaClave);
+            fila.appendChild(celdaNombre);
+            fila.appendChild(celdaDescripcion);
+
+            // Seleccionar fila
+            fila.addEventListener("click", function () {
+                Array.from(modalResultados.querySelectorAll("tr")).forEach(function (r) { r.classList.remove("seleccionado"); });
+                fila.classList.add("seleccionado");
+                ejercicioSeleccionado = e;
+            });
+
+            modalResultados.appendChild(fila);
+        });
+    }
+
+    // boton aceptar para para pasar los datos 
+    btnAceptar.addEventListener("click", function () {
+        if (ejercicioSeleccionado) {
+            // le manda los valores a los campos del la vista 
+            document.getElementById("Nombre_Ejer").value = ejercicioSeleccionado.Nombre_Ejer || "";
+            document.getElementById("Descrip_Ejer").value = ejercicioSeleccionado.Descrip_Ejer || "";
+            document.getElementById("id_CatEjer").value = ejercicioSeleccionado.id_CatEjer || "";
+
+            // muestra la imagen si existe
+            if (ejercicioSeleccionado.Imag_Ejer) {
+                previewImg.src = ejercicioSeleccionado.Imag_Ejer;
+                previewImg.style.display = 'block';
+            } else {
+                previewImg.src = '#';
+                previewImg.style.display = 'none';
+            }
+        }
+        cerrarModalBusqueda();
+    });
+
+    // guardar ejercicio 
+    document.getElementById("btnGuardar").addEventListener("click", function () {
+        const nombre = document.getElementById("Nombre_Ejer").value.trim();
+        const descripcion = document.getElementById("Descrip_Ejer").value.trim();
+        const categoria = document.getElementById("id_CatEjer").value;
+        const imagen = document.getElementById("ImagenReferencia").files[0];
+
+        if (!nombre || !descripcion || !categoria) {
+            alert("Por favor llene todos los campos requeridos.");
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append("Nombre_Ejer", nombre);
+        formData.append("Descrip_Ejer", descripcion);
+        formData.append("id_CatEjer", categoria);
+        if (imagen) {
+            formData.append("ImagenReferencia", imagen);
+        }
+
+        fetch('/Ejercicio/GuardarEjercicio', {
+            method: 'POST',
+            body: formData
+        })
+        .then(function (response) {
+            return response.text().then(function (text) {
+                try {
+                    return JSON.parse(text);
+                } catch (e) {
+                    throw new Error("El servidor respondió con un error: " + response.status + " - " + text.substring(0, 200));
+                }
+            });
+        })
+        .then(function (data) {
+            if (data.respuesta) {
+                alert("Ejercicio guardado exitosamente.");
+                document.querySelector(".form-Ejercicio").reset();
+                previewImg.src = '#';
+                previewImg.style.display = 'none';
+            } else {
+                alert("Error: " + (data.mensaje || "No se pudo guardar."));
+            }
+        })
+        .catch(function (error) {
+            console.error("Error:", error);
+            alert(error.message || "Ocurrió un error al guardar el ejercicio.");
+        });
+    });
+
+    // actualizar 
+    document.getElementById("btn-actualizar").addEventListener("click", function () {
+        if (!ejercicioSeleccionado || !ejercicioSeleccionado.id_Ejercicio) {
+            alert("Primero busque y seleccione un ejercicio para actualizar.");
+            return;
+        }
+
+        const nombre = document.getElementById("Nombre_Ejer").value.trim();
+        const descripcion = document.getElementById("Descrip_Ejer").value.trim();
+        const categoria = document.getElementById("id_CatEjer").value;
+        const imagen = document.getElementById("ImagenReferencia").files[0];
+
+        if (!nombre || !descripcion || !categoria) {
+            alert("Por favor llene todos los campos requeridos.");
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append("id_Ejercicio", ejercicioSeleccionado.id_Ejercicio);
+        formData.append("Nombre_Ejer", nombre);
+        formData.append("Descrip_Ejer", descripcion);
+        formData.append("id_CatEjer", categoria);
+        formData.append("ImagenActual", ejercicioSeleccionado.Imag_Ejer || "");
+        if (imagen) {
+            formData.append("ImagenReferencia", imagen);
+        }
+
+        fetch('/Ejercicio/ActualizarEjercicio', {
+            method: 'POST',
+            body: formData
+        })
+        .then(function (response) {
+            return response.text().then(function (text) {
+                try { return JSON.parse(text); }
+                catch (e) { throw new Error("Error del servidor: " + response.status); }
+            });
+        })
+        .then(function (data) {
+            if (data.respuesta) {
+                alert("Ejercicio actualizado exitosamente.");
+                document.querySelector(".form-Ejercicio").reset();
+                previewImg.src = '#';
+                previewImg.style.display = 'none';
+                ejercicioSeleccionado = null;
+            } else {
+                alert("Error: " + (data.mensaje || "No se pudo actualizar."));
+            }
+        })
+        .catch(function (error) {
+            console.error("Error:", error);
+            alert(error.message || "Ocurrió un error al actualizar.");
+        });
+    });
+
+    //eliminar 
+    document.getElementById("btn-Eliminar").addEventListener("click", function () {
+        if (!ejercicioSeleccionado || !ejercicioSeleccionado.id_Ejercicio) {
+            alert("Primero busque y seleccione un ejercicio para eliminar.");
+            return;
+        }
+
+        if (!confirm("¿Está seguro de eliminar el ejercicio '" + ejercicioSeleccionado.Nombre_Ejer + "'?")) {
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append("id_Ejercicio", ejercicioSeleccionado.id_Ejercicio);
+
+        fetch('/Ejercicio/EliminarEjercicio', {
+            method: 'POST',
+            body: formData
+        })
+        .then(function (response) {
+            return response.text().then(function (text) {
+                try { return JSON.parse(text); }
+                catch (e) { throw new Error("Error del servidor: " + response.status); }
+            });
+        })
+        .then(function (data) {
+            if (data.respuesta) {
+                alert("Ejercicio eliminado exitosamente.");
+                document.querySelector(".form-Ejercicio").reset();
+                previewImg.src = '#';
+                previewImg.style.display = 'none';
+                ejercicioSeleccionado = null;
+            } else {
+                alert("Error: " + (data.mensaje || "No se pudo eliminar."));
+            }
+        })
+        .catch(function (error) {
+            console.error("Error:", error);
+            alert(error.message || "Ocurrió un error al eliminar.");
+        });
+    });
+
+</script>
