@@ -1,0 +1,293 @@
+@model FisioCRAF.Models.Entidades.Tratamiento
+
+@{
+    ViewBag.Title = "Tratamientos";
+    Layout = "~/Views/Shared/_menu.cshtml";
+}
+
+<link rel="stylesheet" href="~/Content/estilos.css">
+
+<style>
+    .tratamiento-container {
+        padding: 20px;
+        max-width: 900px;
+        margin: 0 auto;
+    }
+    .header-tratamiento {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+    .buscador-wrap {
+        position: relative;
+    }
+    .form-group-trata {
+        margin-bottom: 15px;
+    }
+    .form-group-trata label {
+        display: block;
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+    .form-group-trata input[type='text'], .form-group-trata textarea {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box; /* Asegura que el padding no desborde el contenedor */
+    }
+    .form-group-trata textarea {
+        height: 120px;
+        resize: none;
+    }
+
+    .acciones-trata {
+        display: flex;
+        gap: 15px;
+        margin-top: 20px;
+        align-items: center;
+    }
+
+    .btn-trata {
+        padding: 10px 15px;
+        border: 1px solid #333;
+        border-radius: 5px;
+        cursor: pointer;
+        font-weight: bold;
+        text-align: center;
+    }
+    .btn-guardar { background-color: #90ee90; color: #000; }
+    .btn-eliminar { background-color: #cd5c5c; color: white; }
+    .btn-limpiar { background-color: #20b2aa; color: white; width: max-content; }
+
+    .layout-dos-columnas {
+        display: flex;
+        gap: 20px;
+    }
+
+    .columna-datos {
+        flex: 1;
+    }
+    .columna-botones {
+        width: 150px;
+    }
+
+    #tablaTratamientos {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+    #tablaTratamientos th, #tablaTratamientos td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+    }
+    #tablaTratamientos th {
+        background-color: #f2f2f2;
+    }
+    #tablaTratamientos tr:hover {
+        background-color: #f5f5f5;
+        cursor: pointer;
+    }
+</style>
+
+<div class="tratamiento-container">
+    <div class="header-tratamiento">
+        <h1>Tratamientos</h1>
+        <div style="display:flex; align-items:center;">
+            <div class="buscador-wrap" style="background:#fff; border-radius:20px; padding:5px 15px; box-shadow: 0 0 5px rgba(0,0,0,0.1); border: 1px solid #ccc;">
+                <input id="txtBuscar" type="text" placeholder="BUSQUEDA POR CLAVE O NOMBRE" style="border:none; outline:none; width:250px;">
+            </div>
+            <button type="button" id="btnBuscarIcon" class="btn-buscar" style="background:#ddd; border:1px solid #aaa; border-radius:10px; padding:8px 15px; cursor:pointer; font-weight:bold; margin-left:10px;">Buscar</button>
+        </div>
+    </div>
+
+    <div class="layout-dos-columnas">
+        <div class="columna-datos">
+            <input id="txtId" type="hidden" value="@ViewBag.NuevoId" />
+
+            <div class="form-group-trata">
+                <label>Nombre del Tratamiento</label>
+                <input id="txtNombre" type="text" maxlength="50" />
+            </div>
+
+            <div class="form-group-trata">
+                <label style="background:skyblue; padding:5px; border:1px solid #ccc; margin-bottom: 0;">Descripcion del Tratamiento</label>
+                <textarea id="txtDescrip" style="border-top:none;" maxlength="300"></textarea>
+            </div>
+
+            <div class="acciones-trata">
+                <button type="button" class="btn-trata btn-limpiar" id="btnLimpiar">Limpiar Campos</button>
+                <button type="button" class="btn-trata btn-guardar" id="btnGuardar">Guardar Datos</button>
+                <button type="button" class="btn-trata btn-eliminar" id="btnEliminar">Eliminar Datos</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pestaña Emergente de Búsqueda -->
+    <div id="modalBusqueda" class="modal modal-oculto" role="dialog" aria-modal="true" aria-labelledby="tituloModal">
+        <div class="modal-contenido">
+            <div class="modal-encabezado">
+                <h3 id="tituloModal">Buscar Tratamiento</h3>
+                <button type="button" id="cerrarModal" class="btn-cerrar" aria-label="Cerrar">&times;</button>
+            </div>
+            <div class="modal-cuerpo">
+                <input id="modalBuscador" type="text" placeholder="Buscar por clave o nombre" class="modal-input" style="width: 100%; padding: 8px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box;">
+                <div class="tabla-scroll">
+                    <table class="tabla-resultados">
+                        <thead>
+                            <tr>
+                                <th>Nombre</th>
+                            </tr>
+                        </thead>
+                        <tbody id="modalResultados"></tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-acciones">
+                <button type="button" id="btnAceptar" class="btn-primario">Aceptar</button>
+                <button type="button" id="btnCancelar" class="btn-secundario">Cancelar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+	$(document).ready(function () {
+		let tratSeleccionado = null;
+		let timerId;
+
+		// --- Abrir Modal ---
+		$('#btnBuscarIcon').click(function () {
+			$('#modalBusqueda').removeClass('modal-oculto');
+			$('#modalBuscador').val('');
+			$('#modalResultados').empty();
+			tratSeleccionado = null;
+			setTimeout(() => $('#modalBuscador').focus(), 100);
+		});
+
+		// --- Cerrar Modal ---
+		$('#cerrarModal, #btnCancelar').click(function () {
+			$('#modalBusqueda').addClass('modal-oculto');
+		});
+
+		// --- Buscar en el Modal ---
+		$('#modalBuscador').on('input', function () {
+			clearTimeout(timerId);
+			let filtro = $(this).val().trim();
+			timerId = setTimeout(() => {
+				if (filtro === "") {
+					$('#modalResultados').empty();
+					tratSeleccionado = null;
+					return;
+				}
+
+				$.ajax({
+					url: '/Tratamiento/CargarDg',
+					type: 'GET',
+					data: { filtro: filtro },
+					success: function (data) {
+						let tbody = $('#modalResultados');
+						tbody.empty();
+						tratSeleccionado = null;
+
+                        $.each(data, function (i, item) {
+                            let tr = $('<tr>').css('cursor', 'pointer');
+                            tr.append($('<td>').text(item.Nombre_Trata));
+                            tr.data('item', item);
+
+                            tr.click(function () {
+                                $('#modalResultados tr').removeClass('seleccionado');
+                                $(this).addClass('seleccionado');
+                                tratSeleccionado = $(this).data('item');
+                            });
+
+                            tbody.append(tr);
+                        });
+					}
+				});
+			}, 300);
+		});
+
+		// --- Aceptar y Rellenar Formulario ---
+		$('#btnAceptar').click(function () {
+			if (tratSeleccionado) {
+				$('#txtId').val(tratSeleccionado.id_Trata);
+				$('#txtNombre').val(tratSeleccionado.Nombre_Trata);
+				$('#txtDescrip').val(tratSeleccionado.Descrip_Trata);
+				$('#modalBusqueda').addClass('modal-oculto');
+			} else {
+				alert("Seleccione un tratamiento de la lista.");
+			}
+		});
+
+		// --- Guardar ---
+        $('#btnGuardar').click(function () {
+            let t = {
+                id_Trata: $('#txtId').val(),
+                Nombre_Trata: $('#txtNombre').val(),
+                Descrip_Trata: $('#txtDescrip').val()
+            };
+
+            $.ajax({
+                url: '/Tratamiento/Guardar',
+                type: 'POST',
+                data: t,
+                success: function (response) {
+                    alert(response.message);
+                    if (response.success) {
+                        limpiar(response.nuevoId);
+                    }
+                },
+                error: function () {
+                    alert("Ocurrió un error en el servidor");
+                }
+            });
+        });
+
+        // --- Eliminar ---
+        $('#btnEliminar').click(function () {
+            let id = $('#txtId').val();
+            if (!id || id <= 0) return;
+
+            if (confirm("¿Seguro que desea eliminar el tratamiento?")) {
+                $.ajax({
+                    url: '/Tratamiento/Eliminar',
+                    type: 'POST',
+                    data: { id: id },
+                    success: function (response) {
+                        alert(response.message);
+                        if (response.success) {
+                            limpiar(response.nuevoId);
+                        }
+                    },
+                    error: function () {
+                        alert("Ocurrió un error al eliminar");
+                    }
+                });
+            }
+        });
+
+        // --- Limpiar ---
+        $('#btnLimpiar').click(function () {
+            $.ajax({
+                url: '/Tratamiento/ObtenerNuevoId',
+                type: 'GET',
+                success: function (res) {
+                    limpiar(res.nuevoId);
+                }
+            });
+        });
+
+        function limpiar(nuevoId) {
+            $('#txtNombre').val('');
+            $('#txtDescrip').val('');
+            $('#txtId').val(nuevoId);
+            $('#txtBuscar').val('');
+            $('#tablaTratamientos').hide();
+            $('#txtNombre').focus();
+        }
+    });
+</script>
