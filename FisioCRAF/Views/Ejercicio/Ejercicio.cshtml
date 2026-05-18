@@ -2,7 +2,7 @@
     Layout = "~/Views/Shared/_menu.cshtml";
 }
 <link rel="stylesheet" href="~/Content/ejercicio.css">
-<link rel="stylesheet" href="~/Content/estilos.css">
+<link rel="stylesheet" href="~/content/estilos.css">
 
 <div class="encabezado" id="encabezado">
     <h2>Ejercicio</h2>
@@ -18,7 +18,7 @@
             <label for="id_CatEjer">Categoria de Ejercicio</label>
             <div style="display: flex; gap: 10px; align-items: center;">
                 <select id="id_CatEjer" name="id_CatEjer" required>
-                    <option value="">Seleccione una categoria</option>
+                    <option value="">Seleccione una categoría</option>
                     
                     @if(ViewBag.Categorias != null)
                      {
@@ -30,15 +30,18 @@
 
                 </select>
             </div>
+            <span class="error-campo" id="error-categoria"></span>
         </div>
     </div>
 
     <div class="datos2">
         <div class="dato" style="flex: 1;">
-            <label for="Descrip_Ejer">Nombre del ejercicio a registrar</label>
-            <input type="text" id="Nombre_Ejer" required>
+            <label for="Nombre_Ejer">Nombre del ejercicio a registrar</label>
+            <input type="text" id="Nombre_Ejer" maxlength="60" required>
+            <span class="error-campo" id="error-nombre"></span>
             <label for="Descrip_Ejer" style="margin-top: 15px;">Descripción del ejercicio</label>
-            <textarea id="Descrip_Ejer" rows="5" required></textarea>
+            <textarea id="Descrip_Ejer" rows="5" maxlength="300" required></textarea>
+            <span class="error-campo" id="error-descripcion"></span>
         </div>
 
         <div class="datos-imagen">
@@ -54,6 +57,7 @@
                 Cargar Imagen
                 <input type="file" name="ImagenReferencia" id="ImagenReferencia" accept="image/*" style="display: none;" />
             </label>
+            <span class="error-campo" id="error-imagen"></span>
         </div>
     </div>
 
@@ -107,7 +111,61 @@
     let modalTimerId;
     let ejercicioSeleccionado = null;
 
-    // previsualización de la imagen 
+    // Validaciones
+    const regexSoloLetras = /^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s.,;:()\-]+$/;
+
+    // bloquear numeros al escribir en nombre
+    document.getElementById("Nombre_Ejer").addEventListener("input", function () {
+        this.value = this.value.replace(/[0-9]/g, "");
+        limpiarError("error-nombre");
+    });
+
+    // bloquear numeros al escribir en descripción
+    document.getElementById("Descrip_Ejer").addEventListener("input", function () {
+        this.value = this.value.replace(/[0-9]/g, "");
+        limpiarError("error-descripcion");
+    });
+
+    // Validar formulario que no este nulo antes de enviar
+    function validarFormulario(requiereImagen) {
+
+        const nombre = document.getElementById("Nombre_Ejer").value.trim();
+        const descripcion = document.getElementById("Descrip_Ejer").value.trim();
+        const categoria = document.getElementById("id_CatEjer").value;
+        const imagen = document.getElementById("ImagenReferencia").files[0];
+        const errores = [];
+
+        if (!categoria) {
+            errores.push("- Seleccione una categoria de ejercicios. ")
+        }
+
+        if (!nombre) {
+            errores.push("- El nombre del ejercicio es obligatorio. ")
+        }
+        else if (nombre.length > 60) {
+            errores.push("- El nombre del ejercicio no puede exceder los 60 caracteres. ");
+        }
+
+        if (!descripcion) {
+            errores.push("- La descripción del ejercicio es obligatoria. ")
+        }
+        else if (descripcion.length > 300) {
+            errores.push("- La descripcón del ejercicio no puede exceder de los 300 caracteres. ")
+        }
+
+        if (!imagen) {
+            errores.push("- Debe de cargar una imagen de referencia. ")
+        }
+
+        // con un solo alert para todos los errores
+        if (errores.length > 0) {
+            alert("Porfavor Corrija los siguientes campos:\n\n" + errores.join("\n"));
+            return false;
+        }
+        return true;
+    }
+
+    // previsualización de la imagen
     inputImagen.addEventListener("change", function () {
         const archivo = this.files[0];
         if (archivo) {
@@ -123,7 +181,7 @@
         }
     });
 
-    //abiri modal 
+    //abiri modal
     btnAbrirModal.addEventListener("click", function (e) {
         e.preventDefault();
         modal.classList.remove("modal-oculto");
@@ -133,7 +191,7 @@
         modalInputBuscador.focus();
     });
 
-    // cerrar modal 
+    // cerrar modal
     function cerrarModalBusqueda() {
         modal.classList.add("modal-oculto");
     }
@@ -141,7 +199,7 @@
     btnCerrarModal.addEventListener("click", cerrarModalBusqueda);
     btnCancelar.addEventListener("click", cerrarModalBusqueda);
 
-    // buscar mientras escribes 
+    // buscar mientras escribes
     modalInputBuscador.addEventListener("input", function () {
         clearTimeout(modalTimerId);
         const self = this;
@@ -195,10 +253,10 @@
         });
     }
 
-    // boton aceptar para para pasar los datos 
+    // boton aceptar para para pasar los datos
     btnAceptar.addEventListener("click", function () {
         if (ejercicioSeleccionado) {
-            // le manda los valores a los campos del la vista 
+            // le manda los valores a los campos del la vista
             document.getElementById("Nombre_Ejer").value = ejercicioSeleccionado.Nombre_Ejer || "";
             document.getElementById("Descrip_Ejer").value = ejercicioSeleccionado.Descrip_Ejer || "";
             document.getElementById("id_CatEjer").value = ejercicioSeleccionado.id_CatEjer || "";
@@ -215,17 +273,16 @@
         cerrarModalBusqueda();
     });
 
-    // guardar ejercicio 
+    // guardar ejercicio
     document.getElementById("btnGuardar").addEventListener("click", function () {
+        if (!validarFormulario(true)) {
+            return;
+        }
+
         const nombre = document.getElementById("Nombre_Ejer").value.trim();
         const descripcion = document.getElementById("Descrip_Ejer").value.trim();
         const categoria = document.getElementById("id_CatEjer").value;
         const imagen = document.getElementById("ImagenReferencia").files[0];
-
-        if (!nombre || !descripcion || !categoria) {
-            alert("Por favor llene todos los campos requeridos.");
-            return;
-        }
 
         const formData = new FormData();
         formData.append("Nombre_Ejer", nombre);
@@ -239,35 +296,41 @@
             method: 'POST',
             body: formData
         })
-        .then(function (response) {
-            return response.text().then(function (text) {
-                try {
-                    return JSON.parse(text);
-                } catch (e) {
-                    throw new Error("El servidor respondió con un error: " + response.status + " - " + text.substring(0, 200));
+            .then(function (response) {
+                return response.text().then(function (text) {
+                    try {
+                        return JSON.parse(text);
+                    } catch (e) {
+                        throw new Error("El servidor respondió con un error: " + response.status + " - " + text.substring(0, 200));
+                    }
+                });
+            })
+            .then(function (data) {
+                if (data.respuesta) {
+                    alert("Ejercicio guardado exitosamente.");
+                    document.querySelector(".form-Ejercicio").reset();
+                    previewImg.src = '#';
+                    previewImg.style.display = 'none';
+                    limpiarTodosLosErrores();
+                } else {
+                    alert("Error: " + (data.mensaje || "No se pudo guardar."));
                 }
+            })
+            .catch(function (error) {
+                console.error("Error:", error);
+                alert(error.message || "Ocurrió un error al guardar el ejercicio.");
             });
-        })
-        .then(function (data) {
-            if (data.respuesta) {
-                alert("Ejercicio guardado exitosamente.");
-                document.querySelector(".form-Ejercicio").reset();
-                previewImg.src = '#';
-                previewImg.style.display = 'none';
-            } else {
-                alert("Error: " + (data.mensaje || "No se pudo guardar."));
-            }
-        })
-        .catch(function (error) {
-            console.error("Error:", error);
-            alert(error.message || "Ocurrió un error al guardar el ejercicio.");
-        });
     });
 
-    // actualizar 
+    // actualizar
     document.getElementById("btn-actualizar").addEventListener("click", function () {
         if (!ejercicioSeleccionado || !ejercicioSeleccionado.id_Ejercicio) {
             alert("Primero busque y seleccione un ejercicio para actualizar.");
+            return;
+        }
+
+        // false, no exige una imagen al actulizar ya que tiene una
+        if (!validarFormulario(false)) {
             return;
         }
 
@@ -275,11 +338,6 @@
         const descripcion = document.getElementById("Descrip_Ejer").value.trim();
         const categoria = document.getElementById("id_CatEjer").value;
         const imagen = document.getElementById("ImagenReferencia").files[0];
-
-        if (!nombre || !descripcion || !categoria) {
-            alert("Por favor llene todos los campos requeridos.");
-            return;
-        }
 
         const formData = new FormData();
         formData.append("id_Ejercicio", ejercicioSeleccionado.id_Ejercicio);
@@ -295,30 +353,31 @@
             method: 'POST',
             body: formData
         })
-        .then(function (response) {
-            return response.text().then(function (text) {
-                try { return JSON.parse(text); }
-                catch (e) { throw new Error("Error del servidor: " + response.status); }
+            .then(function (response) {
+                return response.text().then(function (text) {
+                    try { return JSON.parse(text); }
+                    catch (e) { throw new Error("Error del servidor: " + response.status); }
+                });
+            })
+            .then(function (data) {
+                if (data.respuesta) {
+                    alert("Ejercicio actualizado exitosamente.");
+                    document.querySelector(".form-Ejercicio").reset();
+                    previewImg.src = '#';
+                    previewImg.style.display = 'none';
+                    limpiarTodosLosErrores();
+                    ejercicioSeleccionado = null;
+                } else {
+                    alert("Error: " + (data.mensaje || "No se pudo actualizar."));
+                }
+            })
+            .catch(function (error) {
+                console.error("Error:", error);
+                alert(error.message || "Ocurrió un error al actualizar.");
             });
-        })
-        .then(function (data) {
-            if (data.respuesta) {
-                alert("Ejercicio actualizado exitosamente.");
-                document.querySelector(".form-Ejercicio").reset();
-                previewImg.src = '#';
-                previewImg.style.display = 'none';
-                ejercicioSeleccionado = null;
-            } else {
-                alert("Error: " + (data.mensaje || "No se pudo actualizar."));
-            }
-        })
-        .catch(function (error) {
-            console.error("Error:", error);
-            alert(error.message || "Ocurrió un error al actualizar.");
-        });
     });
 
-    //eliminar 
+    //eliminar
     document.getElementById("btn-Eliminar").addEventListener("click", function () {
         if (!ejercicioSeleccionado || !ejercicioSeleccionado.id_Ejercicio) {
             alert("Primero busque y seleccione un ejercicio para eliminar.");
@@ -336,27 +395,34 @@
             method: 'POST',
             body: formData
         })
-        .then(function (response) {
-            return response.text().then(function (text) {
-                try { return JSON.parse(text); }
-                catch (e) { throw new Error("Error del servidor: " + response.status); }
+            .then(function (response) {
+                return response.text().then(function (text) {
+                    try { return JSON.parse(text); }
+                    catch (e) { throw new Error("Error del servidor: " + response.status); }
+                });
+            })
+            .then(function (data) {
+                if (data.respuesta) {
+                    alert("Ejercicio eliminado exitosamente.");
+                    document.querySelector(".form-Ejercicio").reset();
+                    previewImg.src = '#';
+                    previewImg.style.display = 'none';
+                    ejercicioSeleccionado = null;
+                } else {
+                    alert("Error: " + (data.mensaje || "No se pudo eliminar."));
+                }
+            })
+            .catch(function (error) {
+                console.error("Error:", error);
+                alert(error.message || "Ocurrió un error al eliminar.");
             });
-        })
-        .then(function (data) {
-            if (data.respuesta) {
-                alert("Ejercicio eliminado exitosamente.");
-                document.querySelector(".form-Ejercicio").reset();
-                previewImg.src = '#';
-                previewImg.style.display = 'none';
-                ejercicioSeleccionado = null;
-            } else {
-                alert("Error: " + (data.mensaje || "No se pudo eliminar."));
-            }
-        })
-        .catch(function (error) {
-            console.error("Error:", error);
-            alert(error.message || "Ocurrió un error al eliminar.");
-        });
+    });
+
+    // limpiar errores al hacer reset
+    document.getElementById("btn-limpiar").addEventListener("click", function () {
+        limpiarTodosLosErrores();
+        previewImg.src = '#';
+        previewImg.style.display = 'none';
     });
 
 </script>

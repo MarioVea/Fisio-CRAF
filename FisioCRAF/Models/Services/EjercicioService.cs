@@ -59,8 +59,8 @@ namespace FisioCRAF.Models.Services
         {
             var lista = new List<Ejercicio>();
 
-            //filtara los resultados para encontrar coicidencias 
-            string consulta = $"select id_Ejercicio, Nombre_Ejer, Descrip_Ejer, Imag_Ejer, id_CatEjer from {tabla} where Nombre_Ejer like @busqueda";
+            //filtara los resultados para encontrar coicidencias por nombre o por clave
+            string consulta = $"select id_Ejercicio, Nombre_Ejer, Descrip_Ejer, Imag_Ejer, id_CatEjer from {tabla} where Nombre_Ejer like @busqueda or CAST(id_Ejercicio AS VARCHAR) like @busqueda";
 
             cmd.CommandText = consulta;
             cmd.Connection = con;

@@ -43,7 +43,7 @@ namespace FisioCRAF.Controllers
                     string rutaCompleta = Path.Combine(rutaCarpeta, nombreArchivo);
                     ImagenReferencia.SaveAs(rutaCompleta);
 
-                    //Genera la ruta para la base de datos
+                    //genera la ruta para la base de datos
                     rutaImagen = "/Content/ImagenesEjercicios/" + nombreArchivo;
                 }
 

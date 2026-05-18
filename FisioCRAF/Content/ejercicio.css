@@ -5,7 +5,7 @@ input, textarea {
     padding: 5px;
 }
 
-/* Encabezado y buscador  */
+/* encabezado y buscador  */
 .encabezado {
     width: 100%;
     display: flex;
@@ -49,14 +49,14 @@ input, textarea {
             padding: 5px 15px;
         }
 
-/* Área principal del formulario */
+/* area principal del formulario */
 form.form-Ejercicio {
     padding: 2rem;
     background-color: #e0e0e0; /* Color de fondo gris claro de la imagen */
     min-height: 80vh;
 }
 
-/*  Categorías */
+/* categorias */
 .datos1 {
     margin-bottom: 30px;
 }
@@ -79,7 +79,7 @@ form.form-Ejercicio {
         border: 1px solid #4a90e2; /* Borde azúl del combobox */
     }
 
-/*  Textos y Fotografía lado a lado */
+/*  textos y fotografía lado a lado */
 .datos2 {
     display: flex;
     justify-content: space-between;
@@ -126,7 +126,7 @@ form.form-Ejercicio {
     border-bottom: none;
 }
 
-/* Sección de Imagen Derecha */
+/* seccion de la imagen que la manda a la derecha */
 .datos-imagen {
     display: flex;
     flex-direction: column;
@@ -162,7 +162,7 @@ form.form-Ejercicio {
     }
 
 #fileInput {
-    display: none; /* Se oculta para usar el botón */
+    display: none; /* se oculta para usar el botón */
 }
 
 .btn-cargar-imagen {
@@ -177,7 +177,7 @@ form.form-Ejercicio {
     text-align: center;
 }
 
-/* Botones de acción inferiores (como cita.css) */
+/* botones de acción inferiores */
 .acciones {
     width: 90%;
     display: flex;
@@ -211,7 +211,7 @@ form.form-Ejercicio {
     background-color: white;
 }
 
-/* Modal Styles */
+/* estilo del modal */
 .modal-oculto {
     display: none;
 }
@@ -289,8 +289,8 @@ form.form-Ejercicio {
     gap: 10px;
 }
 
-.btn-primario {
-    background: #4caf50;
+/*.btn-primario {
+    background: #94F197;
     color: white;
     border: none;
     padding: 8px 15px;
@@ -305,4 +305,4 @@ form.form-Ejercicio {
     padding: 8px 15px;
     border-radius: 5px;
     cursor: pointer;
-}
+}*/
