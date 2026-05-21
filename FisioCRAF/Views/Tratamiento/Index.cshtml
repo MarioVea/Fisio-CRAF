@@ -7,125 +7,41 @@
 
 <link rel="stylesheet" href="~/Content/estilos.css">
 
-<style>
-    .tratamiento-container {
-        padding: 20px;
-        max-width: 900px;
-        margin: 0 auto;
-    }
-    .header-tratamiento {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 20px;
-    }
-    .buscador-wrap {
-        position: relative;
-    }
-    .form-group-trata {
-        margin-bottom: 15px;
-    }
-    .form-group-trata label {
-        display: block;
-        font-weight: bold;
-        margin-bottom: 5px;
-    }
-    .form-group-trata input[type='text'], .form-group-trata textarea {
-        width: 100%;
-        padding: 8px;
-        border: 1px solid #ccc;
-        border-radius: 4px;
-        box-sizing: border-box; /* Asegura que el padding no desborde el contenedor */
-    }
-    .form-group-trata textarea {
-        height: 120px;
-        resize: none;
-    }
-
-    .acciones-trata {
-        display: flex;
-        gap: 15px;
-        margin-top: 20px;
-        align-items: center;
-    }
-
-    .btn-trata {
-        padding: 10px 15px;
-        border: 1px solid #333;
-        border-radius: 5px;
-        cursor: pointer;
-        font-weight: bold;
-        text-align: center;
-    }
-    .btn-guardar { background-color: #90ee90; color: #000; }
-    .btn-eliminar { background-color: #cd5c5c; color: white; }
-    .btn-limpiar { background-color: #20b2aa; color: white; width: max-content; }
-
-    .layout-dos-columnas {
-        display: flex;
-        gap: 20px;
-    }
-
-    .columna-datos {
-        flex: 1;
-    }
-    .columna-botones {
-        width: 150px;
-    }
-
-    #tablaTratamientos {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 20px;
-    }
-    #tablaTratamientos th, #tablaTratamientos td {
-        border: 1px solid #ddd;
-        padding: 8px;
-        text-align: left;
-    }
-    #tablaTratamientos th {
-        background-color: #f2f2f2;
-    }
-    #tablaTratamientos tr:hover {
-        background-color: #f5f5f5;
-        cursor: pointer;
-    }
-</style>
-
-<div class="tratamiento-container">
-    <div class="header-tratamiento">
+<div class="enc">
+    <div class="encabezado" id="encabezado">
         <h1>Tratamientos</h1>
-        <div style="display:flex; align-items:center;">
-            <div class="buscador-wrap" style="background:#fff; border-radius:20px; padding:5px 15px; box-shadow: 0 0 5px rgba(0,0,0,0.1); border: 1px solid #ccc;">
-                <input id="txtBuscar" type="text" placeholder="BUSQUEDA POR CLAVE O NOMBRE" style="border:none; outline:none; width:250px;">
-            </div>
-            <button type="button" id="btnBuscarIcon" class="btn-buscar" style="background:#ddd; border:1px solid #aaa; border-radius:10px; padding:8px 15px; cursor:pointer; font-weight:bold; margin-left:10px;">Buscar</button>
+        <div class="buscador-wrap">
+            <input id="txtBuscar" type="text" placeholder="BUSQUEDA POR CLAVE O NOMBRE">
+            <ul id="listaResultados" class="resultados-busqueda oculta"></ul>
+        </div>
+        <button type="button" id="btnBuscarIcon" class="btn-buscar">Buscar Tratamiento</button>
+    </div>
+</div>
+
+<form class="form-tratamiento" method="post">
+    <div class="datos-principales">
+        <input id="txtId" type="hidden" value="@ViewBag.NuevoId" />
+
+        <div class="dato">
+            <label>Nombre del Tratamiento</label>
+            <input id="txtNombre" type="text" maxlength="50" />
+        </div>
+
+        <div class="dato">
+            <label>Descripcion del Tratamiento</label>
+            <textarea id="txtDescrip" style="padding:5px; border-radius:10px; border:1px solid black; height:120px; resize:none; outline:1px;" maxlength="300"></textarea>
         </div>
     </div>
 
-    <div class="layout-dos-columnas">
-        <div class="columna-datos">
-            <input id="txtId" type="hidden" value="@ViewBag.NuevoId" />
-
-            <div class="form-group-trata">
-                <label>Nombre del Tratamiento</label>
-                <input id="txtNombre" type="text" maxlength="50" />
-            </div>
-
-            <div class="form-group-trata">
-                <label style="background:skyblue; padding:5px; border:1px solid #ccc; margin-bottom: 0;">Descripcion del Tratamiento</label>
-                <textarea id="txtDescrip" style="border-top:none;" maxlength="300"></textarea>
-            </div>
-
-            <div class="acciones-trata">
-                <button type="button" class="btn-trata btn-limpiar" id="btnLimpiar">Limpiar Campos</button>
-                <button type="button" class="btn-trata btn-guardar" id="btnGuardar">Guardar Datos</button>
-                <button type="button" class="btn-trata btn-eliminar" id="btnEliminar">Eliminar Datos</button>
-            </div>
-        </div>
+    <div class="acciones">
+        <button type="button" id="btnGuardar">Guardar Datos</button>
+        <button type="button" id="btnActualizar">Actualizar Datos</button>
+        <button type="button" id="btnEliminar">Eliminar Datos</button>
+        <button type="button" id="btnLimpiar">Limpiar Campos</button>
     </div>
+</form>
 
-    <!-- Pestaña Emergente de Búsqueda -->
+<!-- Pestaña Emergente de Búsqueda -->
     <div id="modalBusqueda" class="modal modal-oculto" role="dialog" aria-modal="true" aria-labelledby="tituloModal">
         <div class="modal-contenido">
             <div class="modal-encabezado">
@@ -151,7 +67,6 @@
             </div>
         </div>
     </div>
-</div>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
@@ -173,6 +88,61 @@
 			$('#modalBusqueda').addClass('modal-oculto');
 		});
 
+		// --- Autocomplete en txtBuscar ---
+		$('#txtBuscar').on('input', function () {
+			clearTimeout(timerId);
+			let filtro = $(this).val().trim();
+			let listaResultados = $('#listaResultados');
+
+			timerId = setTimeout(() => {
+				if (filtro === "") {
+					listaResultados.empty().addClass('oculta');
+					return;
+				}
+
+				$.ajax({
+					url: '@Url.Action("CargarDg", "Tratamiento")',
+					type: 'GET',
+					data: { filtro: filtro },
+					success: function (data) {
+						listaResultados.empty();
+						if (data.length === 0) {
+							listaResultados.addClass('oculta');
+							return;
+						}
+
+						$.each(data, function (i, item) {
+							let li = $('<li>').text(item.Nombre_Trata);
+							li.click(function () {
+								$('#txtId').val(item.id_Trata);
+								$('#txtNombre').val(item.Nombre_Trata);
+								$('#txtDescrip').val(item.Descrip_Trata);
+								$('#txtBuscar').val(item.Nombre_Trata);
+								listaResultados.addClass('oculta');
+
+								// Deshabilitar guardar por estar seleccionado
+								$('#btnGuardar').prop('disabled', true);
+							});
+							listaResultados.append(li);
+						});
+						listaResultados.removeClass('oculta');
+					}
+				});
+			}, 300);
+		});
+
+		// Ocultar autocomplete si se hace clic fuera
+		$(document).click(function (e) {
+			if (!$(e.target).closest('.buscador-wrap').length) {
+				$('#listaResultados').addClass('oculta');
+			}
+		});
+
+		// --- Validar que no se admitan números ---
+		$('#txtNombre, #txtDescrip').on('input', function () {
+			this.value = this.value.replace(/[0-9]/g, '');
+		});
+
 		// --- Buscar en el Modal ---
 		$('#modalBuscador').on('input', function () {
 			clearTimeout(timerId);
@@ -185,7 +155,7 @@
 				}
 
 				$.ajax({
-					url: '/Tratamiento/CargarDg',
+					url: '@Url.Action("CargarDg", "Tratamiento")',
 					type: 'GET',
 					data: { filtro: filtro },
 					success: function (data) {
@@ -218,43 +188,81 @@
 				$('#txtNombre').val(tratSeleccionado.Nombre_Trata);
 				$('#txtDescrip').val(tratSeleccionado.Descrip_Trata);
 				$('#modalBusqueda').addClass('modal-oculto');
+
+				// Deshabilitar guardar porque ya existe
+				$('#btnGuardar').prop('disabled', true);
 			} else {
 				alert("Seleccione un tratamiento de la lista.");
 			}
 		});
 
 		// --- Guardar ---
-        $('#btnGuardar').click(function () {
-            let t = {
-                id_Trata: $('#txtId').val(),
-                Nombre_Trata: $('#txtNombre').val(),
-                Descrip_Trata: $('#txtDescrip').val()
-            };
+		$('#btnGuardar').click(function () {
+			let id = $('#txtId').val();
+			let t = {
+				id_Trata: id,
+				Nombre_Trata: $('#txtNombre').val(),
+				Descrip_Trata: $('#txtDescrip').val()
+			};
 
-            $.ajax({
-                url: '/Tratamiento/Guardar',
-                type: 'POST',
-                data: t,
-                success: function (response) {
-                    alert(response.message);
-                    if (response.success) {
-                        limpiar(response.nuevoId);
-                    }
-                },
-                error: function () {
-                    alert("Ocurrió un error en el servidor");
-                }
-            });
-        });
+			$.ajax({
+				url: '@Url.Action("Guardar", "Tratamiento")',
+				type: 'POST',
+				data: JSON.stringify(t),
+				contentType: 'application/json; charset=utf-8',
+				dataType: 'json',
+				success: function (response) {
+					alert(response.message);
+					if (response.success) {
+						limpiar(response.nuevoId);
+					}
+				},
+				error: function (xhr) {
+					alert("Ocurrió un error en el servidor: " + xhr.responseText);
+				}
+			});
+		});
 
-        // --- Eliminar ---
+		// --- Actualizar ---
+		$('#btnActualizar').click(function () {
+			let id = $('#txtId').val();
+			if (!id || id <= 0) {
+				alert("Debe seleccionar un tratamiento para actualizar.");
+				return;
+			}
+
+			let t = {
+				id_Trata: id,
+				Nombre_Trata: $('#txtNombre').val(),
+				Descrip_Trata: $('#txtDescrip').val()
+			};
+
+			$.ajax({
+				url: '@Url.Action("Actualizar", "Tratamiento")',
+				type: 'POST',
+				data: JSON.stringify(t),
+				contentType: 'application/json; charset=utf-8',
+				dataType: 'json',
+				success: function (response) {
+					alert(response.message);
+					if (response.success) {
+						limpiar(response.nuevoId);
+					}
+				},
+				error: function (xhr) {
+					alert("Ocurrió un error al actualizar: " + xhr.responseText);
+				}
+			});
+		});
+
+		// --- Eliminar ---
         $('#btnEliminar').click(function () {
             let id = $('#txtId').val();
             if (!id || id <= 0) return;
 
             if (confirm("¿Seguro que desea eliminar el tratamiento?")) {
                 $.ajax({
-                    url: '/Tratamiento/Eliminar',
+                    url: '@Url.Action("Eliminar", "Tratamiento")',
                     type: 'POST',
                     data: { id: id },
                     success: function (response) {
@@ -273,7 +281,7 @@
         // --- Limpiar ---
         $('#btnLimpiar').click(function () {
             $.ajax({
-                url: '/Tratamiento/ObtenerNuevoId',
+                url: '@Url.Action("ObtenerNuevoId", "Tratamiento")',
                 type: 'GET',
                 success: function (res) {
                     limpiar(res.nuevoId);
@@ -286,8 +294,11 @@
             $('#txtDescrip').val('');
             $('#txtId').val(nuevoId);
             $('#txtBuscar').val('');
-            $('#tablaTratamientos').hide();
+            $('#listaResultados').addClass('oculta');
             $('#txtNombre').focus();
+
+            // Habilitar guardar al limpiar
+            $('#btnGuardar').prop('disabled', false);
         }
     });
 </script>

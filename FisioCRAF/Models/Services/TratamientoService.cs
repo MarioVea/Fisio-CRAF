@@ -24,32 +24,41 @@ namespace FisioCRAF.Models.Services
             try
             {
                 con.Open();
-                // Verificamos si existe por ID
-                SqlCommand checkCmd = new SqlCommand("SELECT COUNT(*) FROM Salud.Tratamiento WHERE id_Trata = @id_Trata", con);
-                checkCmd.Parameters.AddWithValue("@id_Trata", t.id_Trata);
-                int count = (int)checkCmd.ExecuteScalar();
-
-                SqlCommand cmd = new SqlCommand();
-                cmd.Connection = con;
-
-                if (count > 0)
-                {
-                    // Update
-                    cmd.CommandText = "UPDATE Salud.Tratamiento SET Nombre_Trata = @nombre, Descrip_Trata = @descrip WHERE id_Trata = @id_Trata";
-                    resp = "Tratamiento actualizado correctamente";
-                }
-                else
-                {
-                    // Insert
-                    cmd.CommandText = "INSERT INTO Salud.Tratamiento (id_Trata, Nombre_Trata, Descrip_Trata) VALUES (@id_Trata, @nombre, @descrip)";
-                    resp = "Tratamiento guardado correctamente";
-                }
-
+                SqlCommand cmd = new SqlCommand("INSERT INTO Salud.Tratamiento (id_Trata, Nombre_Trata, Descrip_Trata) VALUES (@id_Trata, @nombre, @descrip)", con);
                 cmd.Parameters.AddWithValue("@id_Trata", t.id_Trata);
                 cmd.Parameters.AddWithValue("@nombre", t.Nombre_Trata);
                 cmd.Parameters.AddWithValue("@descrip", t.Descrip_Trata);
 
                 cmd.ExecuteNonQuery();
+                resp = "Tratamiento guardado correctamente";
+            }
+            catch (Exception ex)
+            {
+                resp = "Error: " + ex.Message;
+            }
+            finally
+            {
+                if (con.State == ConnectionState.Open) con.Close();
+            }
+            return resp;
+        }
+
+        public string actualizar(Tratamiento t)
+        {
+            string resp = "";
+            try
+            {
+                con.Open();
+                SqlCommand cmd = new SqlCommand("UPDATE Salud.Tratamiento SET Nombre_Trata = @nombre, Descrip_Trata = @descrip WHERE id_Trata = @id_Trata", con);
+                cmd.Parameters.AddWithValue("@id_Trata", t.id_Trata);
+                cmd.Parameters.AddWithValue("@nombre", t.Nombre_Trata);
+                cmd.Parameters.AddWithValue("@descrip", t.Descrip_Trata);
+
+                int affected = cmd.ExecuteNonQuery();
+                if (affected > 0)
+                    resp = "Tratamiento actualizado correctamente";
+                else
+                    resp = "No se encontró el tratamiento para actualizar";
             }
             catch (Exception ex)
             {

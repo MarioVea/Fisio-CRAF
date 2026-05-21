@@ -48,6 +48,34 @@ namespace FisioCRAF.Controllers
         }
 
         [HttpPost]
+        public ActionResult Actualizar(Tratamiento t)
+        {
+            if (string.IsNullOrWhiteSpace(t.Nombre_Trata))
+            {
+                return Json(new { success = false, message = "El campo Nombre de Tratamiento no puede ir vacío" });
+            }
+
+            if (t.Nombre_Trata.Length > 50)
+            {
+                return Json(new { success = false, message = "El Nombre del Tratamiento no puede exceder los 50 caracteres" });
+            }
+
+            if (string.IsNullOrWhiteSpace(t.Descrip_Trata))
+            {
+                return Json(new { success = false, message = "El campo Descripción de Tratamiento no puede ir vacío" });
+            }
+
+            if (t.Descrip_Trata.Length > 300)
+            {
+                return Json(new { success = false, message = "La Descripción del Tratamiento no puede exceder los 300 caracteres" });
+            }
+
+            string result = ts.actualizar(t);
+            bool success = result.Contains("correctamente");
+            return Json(new { success = success, message = result, nuevoId = ts.consecutivo() });
+        }
+
+        [HttpPost]
         public ActionResult Eliminar(int id)
         {
             string result = ts.eliminar(id);

@@ -265,6 +265,27 @@ main {
     width:70%;
     margin-bottom:20px;
 }
+
+
+.form-tratamiento {
+    width: 100%;
+    margin: auto;
+    margin-bottom: auto;
+    overflow: hidden;
+}
+
+.form-tratamiento .datos-principales .dato {
+    display: flex;
+    flex-direction: column;
+    margin: 20px 10px;
+}
+
+
+.form-tratamiento .datos-principales {
+    margin: auto;
+    width: 60%;
+    margin-bottom: 20px;
+}
 .form-paciente .datos-principales .dato{
     display: flex;
     flex-direction:column;
@@ -274,11 +295,17 @@ main {
 .form-paciente .datos-principales .dato label{
     margin-bottom: 10px;
 }
-.form-paciente .datos-principales .dato input{
-    outline:1px;
-    padding:5px;
+.form-paciente .datos-principales .dato input {
+    outline: 1px;
+    padding: 5px;
     border-radius: 10px;
-    border:1px black solid;
+    border: 1px black solid;
+}
+.form-tratamiento .datos-principales .dato input {
+    outline: 1px;
+    padding: 5px;
+    border-radius: 10px;
+    border: 1px black solid;
 }
 
 .form-paciente .datos-secundarios{
@@ -316,26 +343,47 @@ main {
     background-color: f0f0f0;
 }
 
-.form-paciente .acciones{
-    width:60%;
-    display:flex;
-    margin:auto;
+.form-paciente .acciones {
+    width: 60%;
+    display: flex;
+    margin: auto;
 }
-.form-paciente .acciones :nth-child(1){
+
+.form-tratamiento .acciones {
+    width: 60%;
+    display: flex;
+    margin: auto;
+}
+.form-paciente .acciones :nth-child(1) {
     background-color: rgb(161, 231, 162);
 }
-.form-paciente .acciones :nth-child(2){
+.form-paciente .acciones :nth-child(2) {
     background-color: rgb(152, 227, 225);
 }
-.form-paciente .acciones :nth-child(3){
+.form-paciente .acciones :nth-child(3) {
+    background-color: rgb(237, 102, 87);
+}
+.form-tratamiento .acciones :nth-child(1) {
+    background-color: rgb(161, 231, 162);
+}
+.form-tratamiento .acciones :nth-child(2) {
+    background-color: rgb(152, 227, 225);
+}
+.form-tratamiento .acciones :nth-child(3) {
     background-color: rgb(237, 102, 87);
 }
 
-.form-paciente .acciones button{
-    margin:0px 20px;
-    border-radius:5px;
-    padding:5px;
-    border:1px black solid;
+.form-paciente .acciones button {
+    margin: 0px 20px;
+    border-radius: 5px;
+    padding: 5px;
+    border: 1px black solid;
+}
+.form-tratamiento .acciones button {
+    margin: 0px 20px;
+    border-radius: 5px;
+    padding: 5px;
+    border: 1px black solid;
 }
 
 #Genero{
