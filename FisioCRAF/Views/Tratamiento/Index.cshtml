@@ -1,0 +1,304 @@
+@model FisioCRAF.Models.Entidades.Tratamiento
+
+@{
+    ViewBag.Title = "Tratamientos";
+    Layout = "~/Views/Shared/_menu.cshtml";
+}
+
+<link rel="stylesheet" href="~/Content/estilos.css">
+
+<div class="enc">
+    <div class="encabezado" id="encabezado">
+        <h1>Tratamientos</h1>
+        <div class="buscador-wrap">
+            <input id="txtBuscar" type="text" placeholder="BUSQUEDA POR CLAVE O NOMBRE">
+            <ul id="listaResultados" class="resultados-busqueda oculta"></ul>
+        </div>
+        <button type="button" id="btnBuscarIcon" class="btn-buscar">Buscar Tratamiento</button>
+    </div>
+</div>
+
+<form class="form-tratamiento" method="post">
+    <div class="datos-principales">
+        <input id="txtId" type="hidden" value="@ViewBag.NuevoId" />
+
+        <div class="dato">
+            <label>Nombre del Tratamiento</label>
+            <input id="txtNombre" type="text" maxlength="50" />
+        </div>
+
+        <div class="dato">
+            <label>Descripcion del Tratamiento</label>
+            <textarea id="txtDescrip" style="padding:5px; border-radius:10px; border:1px solid black; height:120px; resize:none; outline:1px;" maxlength="300"></textarea>
+        </div>
+    </div>
+
+    <div class="acciones">
+        <button type="button" id="btnGuardar">Guardar Datos</button>
+        <button type="button" id="btnActualizar">Actualizar Datos</button>
+        <button type="button" id="btnEliminar">Eliminar Datos</button>
+        <button type="button" id="btnLimpiar">Limpiar Campos</button>
+    </div>
+</form>
+
+<!-- Pestaña Emergente de Búsqueda -->
+    <div id="modalBusqueda" class="modal modal-oculto" role="dialog" aria-modal="true" aria-labelledby="tituloModal">
+        <div class="modal-contenido">
+            <div class="modal-encabezado">
+                <h3 id="tituloModal">Buscar Tratamiento</h3>
+                <button type="button" id="cerrarModal" class="btn-cerrar" aria-label="Cerrar">&times;</button>
+            </div>
+            <div class="modal-cuerpo">
+                <input id="modalBuscador" type="text" placeholder="Buscar por clave o nombre" class="modal-input" style="width: 100%; padding: 8px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box;">
+                <div class="tabla-scroll">
+                    <table class="tabla-resultados">
+                        <thead>
+                            <tr>
+                                <th>Nombre</th>
+                            </tr>
+                        </thead>
+                        <tbody id="modalResultados"></tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-acciones">
+                <button type="button" id="btnAceptar" class="btn-primario">Aceptar</button>
+                <button type="button" id="btnCancelar" class="btn-secundario">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+	$(document).ready(function () {
+		let tratSeleccionado = null;
+		let timerId;
+
+		// --- Abrir Modal ---
+		$('#btnBuscarIcon').click(function () {
+			$('#modalBusqueda').removeClass('modal-oculto');
+			$('#modalBuscador').val('');
+			$('#modalResultados').empty();
+			tratSeleccionado = null;
+			setTimeout(() => $('#modalBuscador').focus(), 100);
+		});
+
+		// --- Cerrar Modal ---
+		$('#cerrarModal, #btnCancelar').click(function () {
+			$('#modalBusqueda').addClass('modal-oculto');
+		});
+
+		// --- Autocomplete en txtBuscar ---
+		$('#txtBuscar').on('input', function () {
+			clearTimeout(timerId);
+			let filtro = $(this).val().trim();
+			let listaResultados = $('#listaResultados');
+
+			timerId = setTimeout(() => {
+				if (filtro === "") {
+					listaResultados.empty().addClass('oculta');
+					return;
+				}
+
+				$.ajax({
+					url: '@Url.Action("CargarDg", "Tratamiento")',
+					type: 'GET',
+					data: { filtro: filtro },
+					success: function (data) {
+						listaResultados.empty();
+						if (data.length === 0) {
+							listaResultados.addClass('oculta');
+							return;
+						}
+
+						$.each(data, function (i, item) {
+							let li = $('<li>').text(item.Nombre_Trata);
+							li.click(function () {
+								$('#txtId').val(item.id_Trata);
+								$('#txtNombre').val(item.Nombre_Trata);
+								$('#txtDescrip').val(item.Descrip_Trata);
+								$('#txtBuscar').val(item.Nombre_Trata);
+								listaResultados.addClass('oculta');
+
+								// Deshabilitar guardar por estar seleccionado
+								$('#btnGuardar').prop('disabled', true);
+							});
+							listaResultados.append(li);
+						});
+						listaResultados.removeClass('oculta');
+					}
+				});
+			}, 300);
+		});
+
+		// Ocultar autocomplete si se hace clic fuera
+		$(document).click(function (e) {
+			if (!$(e.target).closest('.buscador-wrap').length) {
+				$('#listaResultados').addClass('oculta');
+			}
+		});
+
+		// --- Validar que no se admitan números ---
+		$('#txtNombre, #txtDescrip').on('input', function () {
+			this.value = this.value.replace(/[0-9]/g, '');
+		});
+
+		// --- Buscar en el Modal ---
+		$('#modalBuscador').on('input', function () {
+			clearTimeout(timerId);
+			let filtro = $(this).val().trim();
+			timerId = setTimeout(() => {
+				if (filtro === "") {
+					$('#modalResultados').empty();
+					tratSeleccionado = null;
+					return;
+				}
+
+				$.ajax({
+					url: '@Url.Action("CargarDg", "Tratamiento")',
+					type: 'GET',
+					data: { filtro: filtro },
+					success: function (data) {
+						let tbody = $('#modalResultados');
+						tbody.empty();
+						tratSeleccionado = null;
+
+                        $.each(data, function (i, item) {
+                            let tr = $('<tr>').css('cursor', 'pointer');
+                            tr.append($('<td>').text(item.Nombre_Trata));
+                            tr.data('item', item);
+
+                            tr.click(function () {
+                                $('#modalResultados tr').removeClass('seleccionado');
+                                $(this).addClass('seleccionado');
+                                tratSeleccionado = $(this).data('item');
+                            });
+
+                            tbody.append(tr);
+                        });
+					}
+				});
+			}, 300);
+		});
+
+		// --- Aceptar y Rellenar Formulario ---
+		$('#btnAceptar').click(function () {
+			if (tratSeleccionado) {
+				$('#txtId').val(tratSeleccionado.id_Trata);
+				$('#txtNombre').val(tratSeleccionado.Nombre_Trata);
+				$('#txtDescrip').val(tratSeleccionado.Descrip_Trata);
+				$('#modalBusqueda').addClass('modal-oculto');
+
+				// Deshabilitar guardar porque ya existe
+				$('#btnGuardar').prop('disabled', true);
+			} else {
+				alert("Seleccione un tratamiento de la lista.");
+			}
+		});
+
+		// --- Guardar ---
+		$('#btnGuardar').click(function () {
+			let id = $('#txtId').val();
+			let t = {
+				id_Trata: id,
+				Nombre_Trata: $('#txtNombre').val(),
+				Descrip_Trata: $('#txtDescrip').val()
+			};
+
+			$.ajax({
+				url: '@Url.Action("Guardar", "Tratamiento")',
+				type: 'POST',
+				data: JSON.stringify(t),
+				contentType: 'application/json; charset=utf-8',
+				dataType: 'json',
+				success: function (response) {
+					alert(response.message);
+					if (response.success) {
+						limpiar(response.nuevoId);
+					}
+				},
+				error: function (xhr) {
+					alert("Ocurrió un error en el servidor: " + xhr.responseText);
+				}
+			});
+		});
+
+		// --- Actualizar ---
+		$('#btnActualizar').click(function () {
+			let id = $('#txtId').val();
+			if (!id || id <= 0) {
+				alert("Debe seleccionar un tratamiento para actualizar.");
+				return;
+			}
+
+			let t = {
+				id_Trata: id,
+				Nombre_Trata: $('#txtNombre').val(),
+				Descrip_Trata: $('#txtDescrip').val()
+			};
+
+			$.ajax({
+				url: '@Url.Action("Actualizar", "Tratamiento")',
+				type: 'POST',
+				data: JSON.stringify(t),
+				contentType: 'application/json; charset=utf-8',
+				dataType: 'json',
+				success: function (response) {
+					alert(response.message);
+					if (response.success) {
+						limpiar(response.nuevoId);
+					}
+				},
+				error: function (xhr) {
+					alert("Ocurrió un error al actualizar: " + xhr.responseText);
+				}
+			});
+		});
+
+		// --- Eliminar ---
+        $('#btnEliminar').click(function () {
+            let id = $('#txtId').val();
+            if (!id || id <= 0) return;
+
+            if (confirm("¿Seguro que desea eliminar el tratamiento?")) {
+                $.ajax({
+                    url: '@Url.Action("Eliminar", "Tratamiento")',
+                    type: 'POST',
+                    data: { id: id },
+                    success: function (response) {
+                        alert(response.message);
+                        if (response.success) {
+                            limpiar(response.nuevoId);
+                        }
+                    },
+                    error: function () {
+                        alert("Ocurrió un error al eliminar");
+                    }
+                });
+            }
+        });
+
+        // --- Limpiar ---
+        $('#btnLimpiar').click(function () {
+            $.ajax({
+                url: '@Url.Action("ObtenerNuevoId", "Tratamiento")',
+                type: 'GET',
+                success: function (res) {
+                    limpiar(res.nuevoId);
+                }
+            });
+        });
+
+        function limpiar(nuevoId) {
+            $('#txtNombre').val('');
+            $('#txtDescrip').val('');
+            $('#txtId').val(nuevoId);
+            $('#txtBuscar').val('');
+            $('#listaResultados').addClass('oculta');
+            $('#txtNombre').focus();
+
+            // Habilitar guardar al limpiar
+            $('#btnGuardar').prop('disabled', false);
+        }
+    });
+</script>
