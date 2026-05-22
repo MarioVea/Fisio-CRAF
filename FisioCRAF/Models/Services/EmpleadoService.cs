@@ -1,4 +1,5 @@
 ﻿using FisioCRAF.Models.Entidades;
+using Microsoft.Ajax.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -34,8 +35,9 @@ namespace FisioCRAF.Models.Services
             cmd.Parameters.AddWithValue("@Tipo_Emp", e.tipo_Emp);
             cmd.Parameters.AddWithValue("@Contraseña", e.Contraseña);
             cmd.Parameters.AddWithValue("@Telefono_Emp", e.Telefono_Emp);
-            cmd.Parameters.AddWithValue("@CedulaProfesional", e.CedulaProfesional);
-            cmd.Parameters.AddWithValue("@id_Esp", e.id_Esp);
+            // Si es null o un texto vacío, envía DBNull.Value; de lo contrario, envía el valor.
+            cmd.Parameters.AddWithValue("@CedulaProfesional", string.IsNullOrEmpty(e.CedulaProfesional) ? (object)DBNull.Value : e.CedulaProfesional);
+            cmd.Parameters.AddWithValue("@id_Esp", e.id_Esp == null ? (object)DBNull.Value : e.id_Esp);
             cmd.Parameters.AddWithValue("@Estatus_Emp", e.estatus_Emp);
 
             try
@@ -46,7 +48,7 @@ namespace FisioCRAF.Models.Services
             }
             catch(Exception ex)
             {
-                mensaje = $"Ocurrió un error: {ex.Message}";
+                mensaje = $"Ocurrió un error.";
             }
             finally
             {
@@ -68,8 +70,8 @@ namespace FisioCRAF.Models.Services
             cmd.Parameters.AddWithValue("@Tipo_Emp", e.tipo_Emp);
             cmd.Parameters.AddWithValue("@Contraseña", e.Contraseña);
             cmd.Parameters.AddWithValue("@Telefono_Emp", e.Telefono_Emp);
-            cmd.Parameters.AddWithValue("@CedulaProfesional", e.CedulaProfesional);
-            cmd.Parameters.AddWithValue("@id_Esp", e.id_Esp);
+            cmd.Parameters.AddWithValue("@CedulaProfesional", string.IsNullOrEmpty(e.CedulaProfesional) ? (object)DBNull.Value : e.CedulaProfesional);
+            cmd.Parameters.AddWithValue("@id_Esp", e.id_Esp == null ? (object)DBNull.Value : e.id_Esp);
             cmd.Parameters.AddWithValue("@Estatus_Emp", e.estatus_Emp);
 
             try
@@ -82,7 +84,7 @@ namespace FisioCRAF.Models.Services
             }
             catch (Exception ex)
             {
-                mensaje = $"Ocurrió un error: {ex.Message}";
+                mensaje = $"Ocurrió un error";
             }
             finally
             {
@@ -174,40 +176,48 @@ namespace FisioCRAF.Models.Services
             List<Empleado> empleados = new List<Empleado>();
             string query = "";
             if(busqueda == 0)
-                query = $"SELECT top 5 E.id_Emp, E.Clave_Emp, E.Nombre_Emp, E.ApellidoP_Emp,\r\n\t\tE.ApellidoM_Emp,E.Tipo_Emp,\r\n\t\t\r\n\t\t\tCASE E.Tipo_Emp\r\n\t\t\t\t\tWHEN 0 THEN 'Fisioterapeuta'\r\n\t\t\t\t\tWHEN 1 THEN 'Prestador de Servicios'\r\n\t\t\tEND AS Tipo,\r\n\r\n\t\t\tE.Contraseña,\r\n\t\t\tE.Telefono_Emp,\r\n\t\t\tE.CedulaProfesional,\r\n\t\t\tpe.id_Esp,\r\n\t\t\tpe.Nombre_Esp,\r\n\t\t\tE.Estatus_Emp,\r\n\r\n\t\t\tCASE E.Estatus_Emp\r\n\t\t\t\t\tWHEN 0 THEN 'Inactivo'\r\n\t\t\t\t\tWHEN 1 THEN 'Activo'\r\n\t\t\tEND AS Estatus\r\n\r\n\t\tFROM Persona.Empleados AS E\r\n\t\tINNER JOIN Persona.Especialidad AS pe ON E.id_Esp = pe.id_Esp\r\n\t\twhere concat (E.Nombre_Emp, ' ',E.ApellidoP_Emp,' ',E.ApellidoM_Emp) like '%{nombre}%' or E.Clave_Emp = '{nombre}'";
+                query = $"SELECT top 5 E.id_Emp, E.Clave_Emp, E.Nombre_Emp, E.ApellidoP_Emp,\r\n\t\tE.ApellidoM_Emp,E.Tipo_Emp,\r\n\t\t\r\n\t\t\tCASE E.Tipo_Emp\r\n\t\t\t\t\tWHEN 0 THEN 'Fisioterapeuta'\r\n\t\t\t\t\tWHEN 1 THEN 'Prestador de Servicios'\r\n\t\t\tEND AS Tipo,\r\n\r\n\t\t\tE.Contraseña,\r\n\t\t\tE.Telefono_Emp,\r\n\t\t\tE.CedulaProfesional,\r\n\t\t\tpe.id_Esp,\r\n\t\t\tpe.Nombre_Esp,\r\n\t\t\tE.Estatus_Emp,\r\n\r\n\t\t\tCASE E.Estatus_Emp\r\n\t\t\t\t\tWHEN 0 THEN 'Inactivo'\r\n\t\t\t\t\tWHEN 1 THEN 'Activo'\r\n\t\t\tEND AS Estatus\r\n\r\n\t\tFROM Persona.Empleados AS E\r\n\t\tLEFT JOIN Persona.Especialidad AS pe ON E.id_Esp = pe.id_Esp\r\n\t\twhere concat (E.Nombre_Emp, ' ',E.ApellidoP_Emp,' ',E.ApellidoM_Emp) like '%{nombre}%' or E.Clave_Emp = '{nombre}'";
             else
-                query = $"SELECT E.id_Emp, E.Clave_Emp, E.Nombre_Emp, E.ApellidoP_Emp,\r\n\t\tE.ApellidoM_Emp,E.Tipo_Emp,\r\n\t\t\r\n\t\t\tCASE E.Tipo_Emp\r\n\t\t\t\t\tWHEN 0 THEN 'Fisioterapeuta'\r\n\t\t\t\t\tWHEN 1 THEN 'Prestador de Servicios'\r\n\t\t\tEND AS Tipo,\r\n\r\n\t\t\tE.Contraseña,\r\n\t\t\tE.Telefono_Emp,\r\n\t\t\tE.CedulaProfesional,\r\n\t\t\tpe.id_Esp,\r\n\t\t\tpe.Nombre_Esp,\r\n\t\t\tE.Estatus_Emp,\r\n\r\n\t\t\tCASE E.Estatus_Emp\r\n\t\t\t\t\tWHEN 0 THEN 'Inactivo'\r\n\t\t\t\t\tWHEN 1 THEN 'Activo'\r\n\t\t\tEND AS Estatus\r\n\r\n\t\tFROM Persona.Empleados AS E\r\n\t\tINNER JOIN Persona.Especialidad AS pe ON E.id_Esp = pe.id_Esp\r\n\t\twhere concat (E.Nombre_Emp, ' ',E.ApellidoP_Emp,' ',E.ApellidoM_Emp) like '%{nombre}%' or E.Clave_Emp = '{nombre}'";
+                query = $"SELECT E.id_Emp, E.Clave_Emp, E.Nombre_Emp, E.ApellidoP_Emp,\r\n\t\tE.ApellidoM_Emp,E.Tipo_Emp,\r\n\t\t\r\n\t\t\tCASE E.Tipo_Emp\r\n\t\t\t\t\tWHEN 0 THEN 'Fisioterapeuta'\r\n\t\t\t\t\tWHEN 1 THEN 'Prestador de Servicios'\r\n\t\t\tEND AS Tipo,\r\n\r\n\t\t\tE.Contraseña,\r\n\t\t\tE.Telefono_Emp,\r\n\t\t\tE.CedulaProfesional,\r\n\t\t\tpe.id_Esp,\r\n\t\t\tpe.Nombre_Esp,\r\n\t\t\tE.Estatus_Emp,\r\n\r\n\t\t\tCASE E.Estatus_Emp\r\n\t\t\t\t\tWHEN 0 THEN 'Inactivo'\r\n\t\t\t\t\tWHEN 1 THEN 'Activo'\r\n\t\t\tEND AS Estatus\r\n\r\n\t\tFROM Persona.Empleados AS E\r\n\t\tLEFT JOIN Persona.Especialidad AS pe ON E.id_Esp = pe.id_Esp\r\n\t\twhere concat (E.Nombre_Emp, ' ',E.ApellidoP_Emp,' ',E.ApellidoM_Emp) like '%{nombre}%' or E.Clave_Emp = '{nombre}'";
             SqlCommand cmd = new SqlCommand(query, con);
             SqlDataAdapter da = new SqlDataAdapter(cmd);
             DataTable dt = new DataTable();
-            con.Open();
-            da.Fill(dt);
-            foreach (DataRow row in dt.Rows)
+            try
             {
-                Empleado empleado = new Empleado();
-                empleado.id_Emp = Convert.ToInt32(row["id_Emp"]);
-                empleado.Clave_Emp = row["Clave_Emp"].ToString();
-                empleado.Nombre_Emp = row["Nombre_Emp"].ToString();
-                empleado.ApellidoP_Emp = row["ApellidoP_Emp"].ToString();
-                empleado.ApellidoM_Emp = row["ApellidoM_Emp"].ToString();
-                empleado.tipo_Emp = Convert.ToInt32(row["Tipo_Emp"]);
-                empleado.Tipo_Emp = row["Tipo"].ToString();
-                empleado.Contraseña = row["Contraseña"].ToString();
-                empleado.Telefono_Emp = row["Telefono_Emp"].ToString();
-                empleado.CedulaProfesional = row["CedulaProfesional"].ToString();
-                empleado.id_Esp = Convert.ToInt32(row["id_Esp"]);
-                empleado.nombre_Esp = row["Nombre_Esp"].ToString();
-                empleado.estatus_Emp = Convert.ToInt32(row["Estatus_Emp"]);
-                empleado.Estatus_Emp = row["Estatus"].ToString();
+               con.Open();
+               da.Fill(dt);
+               foreach (DataRow row in dt.Rows)
+               {
+                   Empleado empleado = new Empleado();
+                   empleado.id_Emp = Convert.ToInt32(row["id_Emp"]);
+                   empleado.Clave_Emp = row["Clave_Emp"].ToString();
+                   empleado.Nombre_Emp = row["Nombre_Emp"].ToString();
+                   empleado.ApellidoP_Emp = row["ApellidoP_Emp"].ToString();
+                   empleado.ApellidoM_Emp = row["ApellidoM_Emp"].ToString();
+                   empleado.tipo_Emp = Convert.ToInt32(row["Tipo_Emp"]);
+                   empleado.Tipo_Emp = row["Tipo"].ToString();
+                   empleado.Contraseña = row["Contraseña"].ToString();
+                   empleado.Telefono_Emp = row["Telefono_Emp"].ToString();
+                   empleado.CedulaProfesional = row["CedulaProfesional"].ToString() != "" ? row["CedulaProfesional"].ToString() : null;
+                   empleado.id_Esp = row["id_Esp"] != DBNull.Value ? Convert.ToInt32(row["id_Esp"]) : (int?)null;
+                   empleado.nombre_Esp = row["Nombre_Esp"].ToString() != "" ? row["Nombre_Esp"].ToString() : null; ;
+                   empleado.estatus_Emp = Convert.ToInt32(row["Estatus_Emp"]);
+                   empleado.Estatus_Emp = row["Estatus"].ToString();
 
 
 
-                if (Convert.ToBoolean(row["Estatus_Emp"]) == false)
-                    empleado.estatus_Emp = 0;
-                else
-                    empleado.estatus_Emp = 1;
-                empleados.Add(empleado);
+                   if (Convert.ToBoolean(row["Estatus_Emp"]) == false)
+                       empleado.estatus_Emp = 0;
+                   else
+                       empleado.estatus_Emp = 1;
+                   empleados.Add(empleado);
+               }
             }
+            catch (Exception ex)
+            {
+
+            }
+            
             con.Close();
             return empleados;
         }

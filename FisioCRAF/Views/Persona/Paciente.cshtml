@@ -45,6 +45,7 @@
             <div class="dato">
                 <label for="fecha">Fecha de nacimiento</label>
                 <input id="fecha" name="Fecha_Nacimiento" type="date" required>
+                <span id="error-fecha" style="color:#e53e3e;font-size:0.85rem;display:none;">La fecha de nacimiento no puede ser posterior a hoy.</span>
             </div>
 
             <div class="dato">
@@ -124,9 +125,16 @@
     const btnEliminar = document.getElementById("btn-Eliminar");
     const btnLimpiar = document.getElementById("btn-limpiar");
 	const inputNombre = document.getElementById("nombre");
-	const inputPaterno = document.getElementById("paterno");
+	const inputPaterno = document.getElementById("paterno"); 
 	const inputMaterno = document.getElementById("materno");
 	const inputTelefono = document.getElementById("telefono");
+    const genero = document.querySelector('input[name="Genero"]:checked');
+
+    function capitalizarCadaPalabra(frase) {
+        return frase.split(' ').map(palabra => {
+            return palabra.charAt(0).toUpperCase() + palabra.slice(1);
+        }).join(' ');
+    }
 
 	function limpiarTexto(input) {
 		if (!input) {
@@ -161,6 +169,7 @@
         const id_Pac = document.getElementById("id_Pac").value;
         if(!id_Pac){
             alert("No se han proporcionado los datos del paciente a eliminar");
+            return;
         }
         try{
             const response = await fetch(`/Persona/eliminarPaciente`,{
@@ -189,9 +198,47 @@
     }
 
 
-    btnGuardar.addEventListener("click", function () {
-        guardarPaciente();
-        limpiarPaciente();
+    // Fecha maxima: hoy
+    const inputFecha = document.getElementById("fecha");
+    const hoy = new Date().toISOString().split("T")[0];
+    inputFecha.setAttribute("max", hoy);
+
+    function fechaValida() {
+        const errorFecha = document.getElementById("error-fecha");
+        const fechaValor = inputFecha.value;
+        if (!fechaValor) return true;
+        const fechaIngresada = new Date(fechaValor + "T00:00:00");
+        const fechaHoy = new Date();
+        fechaHoy.setHours(0, 0, 0, 0);
+        if (fechaIngresada > fechaHoy) {
+            errorFecha.style.display = "block";
+            inputFecha.focus();
+            return false;
+        }
+        errorFecha.style.display = "none";
+        return true;
+    }
+
+    inputFecha.addEventListener("change", fechaValida);
+
+    btnGuardar.addEventListener("click", async function () {
+        const nombre = document.getElementById("nombre").value.trim();
+        const paterno = document.getElementById("paterno").value.trim();
+        const telefono = document.getElementById("telefono").value.trim();
+        const fecha = document.getElementById("fecha").value;
+        const genero = document.querySelector('input[name="Genero"]:checked');
+
+        if (!nombre || !paterno || !telefono || !fecha || !genero) {
+            alert("Todos los campose son requeridos excepto el apellido materno");
+            return;
+        }
+
+        if (!fechaValida()) return;
+        
+        const exito = await guardarPaciente();
+        if (exito) {
+            limpiarPaciente();
+        }
     });
 
     async function guardarPaciente() {
@@ -210,9 +257,11 @@
                 throw new Error(data.message || response.statusText);
             }
             alert(data.message || "");
+            return true;
         }
         catch (error) {
-            alert(error.message || "Ocurrió un error al procesar los datos del paciente. Por favor, inténtelo de nuevo.");
+            alert("Ocurrió un error al procesar los datos del paciente. Por favor, inténtelo de nuevo.");
+            return false;
         }
     }
 
@@ -221,10 +270,10 @@
 
         return {
 			id_Pac: document.getElementById("id_Pac").value,
-			Nombre_Pac: document.getElementById("nombre").value,
-            ApellidoP_Pac: document.getElementById("paterno").value,
-            ApellidoM_Pac: document.getElementById("materno").value,
-            Telefono_Pac: document.getElementById("telefono").value,
+			Nombre_Pac: capitalizarCadaPalabra(document.getElementById("nombre").value.trim()),
+            ApellidoP_Pac: capitalizarCadaPalabra(document.getElementById("paterno").value.trim()),
+            ApellidoM_Pac: capitalizarCadaPalabra(document.getElementById("materno").value.trim()),
+            Telefono_Pac: document.getElementById("telefono").value.trim(),
             Fecha_Nacimiento: document.getElementById("fecha").value,
             Genero: genero
         };
@@ -296,6 +345,7 @@
             item.textContent = `${p.Nombre_Pac} ${p.ApellidoP_Pac} ${p.ApellidoM_Pac}`;
             item.addEventListener("click", function () {
                 rellenarFormulario(p);
+                elemento.value = "";
                 lista.classList.add("oculta");
                 btnGuardar.disabled = true;
             });
@@ -312,6 +362,7 @@
 
 
     btnActualizar.addEventListener("click", function(){
+        if (!fechaValida()) return;
         actualizarPaciente();
         limpiarPaciente();
     })
@@ -319,14 +370,25 @@
     function actualizarPaciente() {
         const paciente = {
             id_Pac: document.getElementById("id_Pac").value,
-            Nombre_Pac: document.getElementById("nombre").value,
-            ApellidoP_Pac: document.getElementById("paterno").value,
-            ApellidoM_Pac: document.getElementById("materno").value,
-            Telefono_Pac: document.getElementById("telefono").value,
+            Nombre_Pac: capitalizarCadaPalabra(document.getElementById("nombre").value.trim()),
+            ApellidoP_Pac: capitalizarCadaPalabra(document.getElementById("paterno").value.trim()),
+            ApellidoM_Pac: capitalizarCadaPalabra(document.getElementById("materno").value.trim()),
+            Telefono_Pac: document.getElementById("telefono").value.trim(),
             Fecha_Nacimiento: document.getElementById("fecha").value,
             Genero: document.querySelector('input[name="Genero"]:checked')?.value
         };
 
+
+        const nombre = document.getElementById("nombre").value.trim();
+        const paterno = document.getElementById("paterno").value.trim();
+        const telefono = document.getElementById("telefono").value.trim();
+        const fecha = document.getElementById("fecha").value;
+        const genero = document.querySelector('input[name="Genero"]:checked');
+
+        if (!nombre || !paterno || !telefono || !fecha || !genero) {
+            alert("Todos los campos son requeridos excepto el apellido materno.");
+            return;
+        }
         fetch(`/Persona/actualizarPaciente`, {
             method: "POST",
             headers: {
@@ -470,3 +532,4 @@
         alert('@HttpUtility.JavaScriptStringEncode(mensaje)');
     </script>
 }
+

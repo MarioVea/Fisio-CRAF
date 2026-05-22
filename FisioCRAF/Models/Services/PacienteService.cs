@@ -26,17 +26,28 @@ namespace FisioCRAF.Models.Services
             cmd.Parameters.AddWithValue("@id_Pac", id);
             cmd.Parameters.AddWithValue("@Nombre_Pac", paciente.Nombre_Pac);
             cmd.Parameters.AddWithValue("@ApellidoP_Pac", paciente.ApellidoP_Pac);
-            cmd.Parameters.AddWithValue("@ApellidoM_Pac", paciente.ApellidoM_Pac);
+            cmd.Parameters.AddWithValue("@ApellidoM_Pac", string.IsNullOrWhiteSpace(paciente.ApellidoM_Pac) ? (object)DBNull.Value : paciente.ApellidoM_Pac);
             cmd.Parameters.AddWithValue("@Telefono_Pac", paciente.Telefono_Pac);
             cmd.Parameters.AddWithValue("@Fecha_Nacimiento", paciente.Fecha_Nacimiento);
             cmd.Parameters.AddWithValue("@Genero", paciente.Genero);
 
-            con.Open();
-            if (cmd.ExecuteNonQuery() > 0)
+            try
             {
-                mensaje = "Paciente guardado correctamente";
+                con.Open();
+                if (cmd.ExecuteNonQuery() > 0)
+                {
+                    mensaje = "Paciente guardado correctamente";
+                }
             }
+            catch(Exception ex)
+            {
+
+            }
+            finally
+            {
             con.Close();
+
+            }
             return mensaje;
         }
         public int obtenerId()
@@ -113,17 +124,28 @@ namespace FisioCRAF.Models.Services
             cmd.Parameters.AddWithValue("@id_Pac", paciente.id_Pac);
             cmd.Parameters.AddWithValue("@Nombre_Pac", paciente.Nombre_Pac);
             cmd.Parameters.AddWithValue("@ApellidoP_Pac", paciente.ApellidoP_Pac);
-            cmd.Parameters.AddWithValue("@ApellidoM_Pac", paciente.ApellidoM_Pac);
+            cmd.Parameters.AddWithValue("@ApellidoM_Pac",string.IsNullOrWhiteSpace(paciente.ApellidoM_Pac) ? (object)DBNull.Value : paciente.ApellidoM_Pac);
             cmd.Parameters.AddWithValue("@Telefono_Pac", paciente.Telefono_Pac);
             cmd.Parameters.AddWithValue("@Fecha_Nacimiento", paciente.Fecha_Nacimiento);
             cmd.Parameters.AddWithValue("@Genero", paciente.Genero);
 
             con.Open();
-            if (cmd.ExecuteNonQuery() > 0)
+            try
             {
-                mensaje = "Paciente actualizado correctamente";
+                if (cmd.ExecuteNonQuery() > 0)
+                {
+                    mensaje = "Paciente actualizado correctamente";
+                }
+
             }
-            con.Close();
+            catch(Exception ex)
+            {
+
+            }
+            finally
+            {
+                con.Close();
+            }
             return mensaje;
 
 

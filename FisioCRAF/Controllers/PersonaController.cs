@@ -50,6 +50,13 @@ namespace FisioCRAF.Controllers
                         estatus_Emp = request.estatus_Emp,
                         id_Esp = request.id_Esp
                     };
+                    if (request.tipo_Emp == 1)
+                    {
+                        empleado.CedulaProfesional = null;
+                        empleado.id_Esp = null;
+                    }
+
+
                     string respuesta = es.actualizarEmpleado(empleado);
                     return Json(new { message = respuesta });
                 }
@@ -136,6 +143,7 @@ namespace FisioCRAF.Controllers
                     var body = reader.ReadToEnd();
                     var serializer = new JavaScriptSerializer();
                     var request = serializer.Deserialize<EmpleadoRequest>(body);
+
                     var empleado = new Empleado
                     {
                         Clave_Emp = request.Clave_Emp,
@@ -149,6 +157,11 @@ namespace FisioCRAF.Controllers
                         estatus_Emp = request.estatus_Emp,
                         id_Esp = request.id_Esp
                     };
+                    if(request.tipo_Emp == 1)
+                    {
+                        empleado.CedulaProfesional = null;
+                        empleado.id_Esp = null;
+                    }
                     string respuesta = es.guardarEmpleado(empleado);
                     return Json(new { message = respuesta });
                 }

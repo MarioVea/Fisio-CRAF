@@ -6,7 +6,7 @@
     <link rel="stylesheet" href="~/Content/estilos.css">
 	<link rel="stylesheet" href="~/Content/empleados.css">
         <div class="enc">
-			<div class="encabezado-empleado" id="encabezado">
+			<div class="encabezado" id="encabezado">
 				<h1 class="encabezado-titulo">Empleado</h1>
 				<div class="buscador-wrap">
 					<input id="buscador" type="text" placeholder="Introduzca el nombre del empleado">
@@ -20,11 +20,10 @@
     <form class="form-empleado">            
         <div class="datos-generales">
             <div class="datos-1">
-                <div class="busqueda">
+				<div class="busqueda">
+                    <label>Clave de empleado</label>
                     <input id="clave" type="text" placeholder="XXXX0000"/>
-                    <button>Buscar empleado</button>
                 </div>
-
                 <div class="estado">
                     <div class="datos">
                         <label>Estado del empleado</label>
@@ -49,17 +48,17 @@
                 <div class="datos">
                     <input type="hidden" name="id_Emp" id="id_Emp" />
                     <label for="nombre">Nombre/s</label>
-					<input id="nombre" type="text" name="Nombre_Emp" maxlength="50" pattern="[A-Za-zÁÉÍÓÚÜÑáéíóúüñ\s]+">
+					<input id="nombre" type="text" name="Nombre_Emp" maxlength="20" pattern="[A-Za-zÁÉÍÓÚÜÑáéíóúüñ\s]+">
                 </div>
 
                 <div class="datos">
                     <label for="paterno">Apellido Paterno</label>
-					<input id="paterno" type="text" name="ApellidoP_Emp" maxlength="50" pattern="[A-Za-zÁÉÍÓÚÜÑáéíóúüñ\s]+"> 
+					<input id="paterno" type="text" name="ApellidoP_Emp" maxlength="20" pattern="[A-Za-zÁÉÍÓÚÜÑáéíóúüñ\s]+"> 
                 </div>
 
                 <div class="datos">
                     <label for="materno">Apellido Materno</label>
-					<input id="materno" type="text" name="ApellidoM_Emp" maxlength="50" pattern="[A-Za-zÁÉÍÓÚÜÑáéíóúüñ\s]+">
+					<input id="materno" type="text" name="ApellidoM_Emp" maxlength="20" pattern="[A-Za-zÁÉÍÓÚÜÑáéíóúüñ\s]+">
                 </div>
 
             </div>
@@ -181,7 +180,64 @@
 		const passwordInput = document.getElementById("password");
 		const togglePassword = document.getElementById("toggle-password");
 		const idEmpleado = document.getElementById("id_Emp");
-		
+		const Clave = document.getElementById("clave");
+
+		const radioPrestador = document.getElementById("prestador");
+		const radioFisio = document.getElementById("fisio");
+		const especialidades = document.getElementById("especialidades");
+
+
+		nombreInput.addEventListener("input",generarClave)
+		paternoInput.addEventListener("input",generarClave)
+
+		cedulaInput.addEventListener("input",generarClave);
+
+
+		function generarClave(){
+
+
+			const tipoEmpleado = parseInt(document.querySelector('input[name="Tipo_Emp"]:checked')?.value || "20", 10)	
+
+
+			nombre = nombreInput.value;
+			paterno = paternoInput.value;
+			cedula = cedulaInput.value;
+			if(nombre.length > 3 && paterno.length >= 4){
+				const min = 1000;
+				const max = 9999;
+				
+				let numeroCuatroDigitos = "";
+
+				if(tipoEmpleado == 0 && cedula != null && cedula != ""){
+					numeroCuatroDigitos = cedula.slice(cedula.length - 4,cedula.length);
+				}
+				else if(tipoEmpleado == 1){
+					numeroCuatroDigitos = (Math.floor(Math.random() * (max - min + 1)) + min).toString();
+				}
+				const clave = (nombre.slice(0,1) + paterno.slice(0,3)).toUpperCase();
+				Clave.value = clave + numeroCuatroDigitos;
+				return;
+
+
+			}
+			Clave.value = "";
+		}
+
+
+		radioPrestador.addEventListener("change",function(){
+			cedulaInput.disabled = true;
+			especialidades.disabled = true;
+			generarClave();
+
+		})
+
+		radioFisio.addEventListener("change",function(){
+			cedulaInput.disabled = false;
+			especialidades.disabled = false;
+			generarClave();
+
+		})
+
 		const btnEliminar = document.getElementById("eliminar");
 
 		function limpiarTexto(input) {
@@ -259,6 +315,7 @@
 			obtenerEspecialidades();
 
 			const btnGuardar = document.getElementById("guardar");
+
 			if (btnGuardar) {
 				btnGuardar.addEventListener("click", function (e) {
 					e.preventDefault();
@@ -281,7 +338,7 @@
         };
         function mostrarEspecialidades(especialidades) {
             let comboEspecialidades = document.getElementById("especialidades");
-            comboEspecialidades.innerHTML = "<option value=''></option>";
+            comboEspecialidades.innerHTML = "";
             especialidades.forEach(
                 p => {
                     let opcion = document.createElement("option");
@@ -291,11 +348,42 @@
                 }
             );
         }
+        function validarFormulario() {
+			const clave = document.getElementById("clave").value.trim();
+			const nombre = document.getElementById("nombre").value.trim();
+			const paterno = document.getElementById("paterno").value.trim();
+			const materno = document.getElementById("materno").value.trim();
+			const password = document.getElementById("password").value.trim();
+			const numero = document.getElementById("numero").value.trim();
+			const tipoEmp = document.querySelector('input[name="Tipo_Emp"]:checked');
+			const estatusEmp = document.querySelector('input[name="Estatus_Emp"]:checked');
+			const cedula = document.getElementById("cedula").value.trim();
+			const id_Esp = document.getElementById("especialidades").value;
+
+			if (!clave || !nombre || !paterno || !materno || !password || !numero || !tipoEmp || !estatusEmp) {
+				alert("Todos los campos son requeridos");
+				return false;
+			}
+
+			if (tipoEmp.value === "0") {
+				if (!cedula || !id_Esp) {
+					alert("Todos los campos son requeridos");
+					return false;
+				}
+			}
+
+			return true;
+		}
+
         function guardarEmpleado() {
+			if (!validarFormulario()) {
+				return;
+			}
+
 			let empleado = {
 				Clave_Emp: document.getElementById("clave").value,
 				Nombre_Emp: document.getElementById("nombre").value,
-				ApellidoP_Emp: document.getElementById("paterno").value,
+				ApellidoP_Emp: document.getElementById("paterno").value,	
 				ApellidoM_Emp: document.getElementById("materno").value,
                 tipo_Emp: parseInt(document.querySelector('input[name="Tipo_Emp"]:checked')?.value || "0", 10),
 				Contraseña: document.getElementById("password").value,
@@ -304,6 +392,7 @@
                 id_Esp: parseInt(document.getElementById("especialidades").value || "0", 10),
 				estatus_Emp: parseInt(document.querySelector('input[name="Estatus_Emp"]:checked')?.value || "0", 10)
 			};
+
          fetch('@Url.Action("guardarEmpleado", "Persona")', {
 				method: "POST",
 				headers: {
@@ -321,11 +410,15 @@
 					}
 					return data;
 				})
-				.then(data => alert(data.message || ""))
-				.catch(error => alert(error.message));
+				.then(data => alert(data.message || ""));
+				LimpiarFormulario();
 		}
 
 		function actualizarEmpleado() {
+			if (!validarFormulario()) {
+				return;
+			}
+
 			let empleado = {
 				id_Emp: parseInt(document.getElementById("id_Emp").value || "0", 10),
 				Clave_Emp: document.getElementById("clave").value,
@@ -357,8 +450,8 @@
 					}
 					return data;
 				})
-				.then(data => alert(data.message || ""))
-				.catch(error => alert(error.message));
+				.then(data => alert(data.message || ""));
+				LimpiarFormulario();
 		}
         buscador.addEventListener("input", function () {
 			clearTimeout(timerId);
@@ -524,8 +617,46 @@
 			if (estatusRadio) {
 				estatusRadio.checked = true;
 			}
+
+			const btnGuardar = document.getElementById("guardar");
+			if (btnGuardar) btnGuardar.disabled = true;
 		}
 
 
+		function LimpiarFormulario() {
+			document.getElementById("id_Emp").value = "";
+			document.getElementById("clave").value = "";
+			document.getElementById("nombre").value = "";
+			document.getElementById("paterno").value = "";
+			document.getElementById("materno").value = "";
+			document.getElementById("password").value = "";
+			document.getElementById("numero").value = "";
+			document.getElementById("cedula").value = "";
+			document.getElementById("especialidades").value = "";
+			document.getElementById("buscador").value = "";
+
+			document.querySelectorAll('input[name="Tipo_Emp"]').forEach(r => r.checked = false);
+			document.querySelectorAll('input[name="Estatus_Emp"]').forEach(r => r.checked = false);
+
+			const togglePassword = document.getElementById("toggle-password");
+			if (togglePassword) {
+				togglePassword.checked = false;
+				document.getElementById("password").type = "password";
+			}
+
+			document.getElementById("cedula").disabled = false;
+			document.getElementById("especialidades").disabled = false;
+
+			const btnGuardar = document.getElementById("guardar");
+			if (btnGuardar) btnGuardar.disabled = false;
+		}
+
+		const btnLimpiar = document.getElementById("limpiar");
+		if (btnLimpiar) {
+			btnLimpiar.addEventListener("click", function(e) {
+				e.preventDefault();
+				LimpiarFormulario();
+			});
+		}
 
     </script>
