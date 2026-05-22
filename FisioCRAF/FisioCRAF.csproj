@@ -124,6 +124,7 @@
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\LoginController.cs" />
     <Compile Include="Controllers\PersonaController.cs" />
+    <Compile Include="Controllers\TratamientoController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -133,10 +134,12 @@
     <Compile Include="Models\Entidades\Especialidad.cs" />
     <Compile Include="Models\Entidades\Login.cs" />
     <Compile Include="Models\Entidades\Paciente.cs" />
+    <Compile Include="Models\Entidades\Tratamiento.cs" />
     <Compile Include="Models\Services\CitaService.cs" />
     <Compile Include="Models\Services\EmpleadoService.cs" />
     <Compile Include="Models\Services\loginService.cs" />
     <Compile Include="Models\Services\PacienteService.cs" />
+    <Compile Include="Models\Services\TratamientoService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -205,6 +208,7 @@
     <Content Include="Views\Datos\Cita.cshtml" />
     <Content Include="Views\Shared\_menu.cshtml" />
     <Content Include="Views\Login\Login.cshtml" />
+    <Content Include="Views\Tratamiento\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
