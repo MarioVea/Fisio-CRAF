@@ -1,0 +1,526 @@
+@{
+    Layout = "~/Views/Shared/_menu.cshtml";
+}
+<link rel="stylesheet" href="~/Content/lesion.css">
+<link rel="stylesheet" href="~/content/estilos.css">
+
+<div class="encabezado" id="encabezado">
+    <h2>Lesiones</h2>
+    <div class="buscador" id="buscador-wrap">
+        <input type="text" placeholder="Ingrese el nombre de la Lesion" id="inputBuscador">
+        <button id="abrirModal">Buscar</button>
+    </div>
+    
+</div>
+
+<form action="formLesion" class="form-Lesion">
+    <div class="contenido-principal">
+
+        @*//lado izquierdo*@
+        <div class="seccion-lesion">
+
+            <div class="datos1">
+                <div class="dato">
+                    <label for="id_TipoLesion">Tipo de Lesion</label>
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <select id="id_TipoLesion" name="id_TipoLesion" required>
+                            <option value="">Seleccione un tipo</option>
+                            @if (ViewBag.TiposLesion != null)
+                            {
+                                foreach (var tipo in ViewBag.TiposLesion)
+                                {
+                                    <option value="@tipo.id_TipoLes">@tipo.Nom_TipLes</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                    <span class="error-campo" id="error-tipo"></span>
+                </div>
+            </div>
+
+            <div class="datos2-lesion">
+                <div class="dato">
+                    <label for="Nombre_Lesion">Nombre</label>
+                    <input type="text" id="Nombre_Lesion" name="Nombre_Lesion" maxlength="60" required>
+                    <span class="error-campo" id="error-nombre"></span>
+                </div>
+                <div class="dato">
+                    <label for="id_Grado">Seleccione un Grado</label>
+                    <select id="id_Grado" name="id_Grado" required>
+                        <option value="">Seleccione un grado</option>
+                        @if (ViewBag.Grado != null)
+                        {
+                            foreach (var grado in ViewBag.Grado)
+                            {
+                                <option value="@grado.id_Grado">@grado.Nombre_Grado</option>
+                            }
+                        }
+                    </select>
+                    <span class="error-campo" id="error-grado"></span>
+                </div>
+            </div>
+
+            <div class="datos3-lesion">
+                <div class="dato">
+                    <label for="Descrip_Lesion">Descripcion breve de la Lesion</label>
+                    <textarea id="Descrip_Lesion" name="Descrip_Lesion" rows="6" maxlength="300" required></textarea>
+                    <span class="error-campo" id="error-descripcion"></span>
+                </div>
+            </div>
+
+        </div>
+
+        @*//lado derecho*@
+        <div class="seccion-ejercicios">
+            <h3 class="titulo-seccion-ejercicios">Ejercicios a asignar</h3>
+
+            <div class="datos1">
+                <div class="dato">
+                    <label for="id_CatEjer">Categoria</label>
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <select id="id_CatEjer" name="id_CatEjer">
+                            <option value="">Seleccione una categoría</option>
+                            @if (ViewBag.Categorias != null)
+                            {
+                                foreach (var cat in ViewBag.Categorias)
+                                {
+                                    <option value="@cat.id_CatEjer">@cat.Nombre_CatEjer</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="datos1" style="margin-top: 15px;">
+                <div class="dato">
+                    <label for="id_Ejercicio">Nombre del Ejercicio</label>
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <select id="id_Ejercicio" name="id_Ejercicio">
+                            <option value="">Seleccione un ejercicio</option>
+                        </select>
+                        @*-- boton agregar ejercicio --*@
+                        <button type="button" id="btnAgregarEjercicio">Agregar</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tabla-ejercicios-wrap">
+                <table class="tabla-ejercicios-asignados">
+                    <thead>
+                        <tr>
+                            <th>Ejercicios Asignados</th>
+                            <th>Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbodyEjerciciosAsignados"></tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="acciones">
+        <button id="btnGuardar" type="button">Guardar Lesion</button>
+        <button type="button" id="btn-actualizar">Actualizar Lesion</button>
+        <button id="btn-Eliminar" type="button">Eliminar Lesion</button>
+        <button type="reset" id="btn-limpiar">Limpiar Datos</button>
+    </div>
+
+    @*//tabala*@
+    <div class="tabla-inferior-wrap">
+        <table class="tabla-lesiones">
+            <thead>
+                <tr>
+                    <th>Tipo Lesión</th>
+                    <th>Nombre Lesión</th>
+                    <th>Grado</th>
+                    <th>Descripción</th>
+                    <th>Editar</th>
+                    <th>Eliminar</th>
+                </tr>
+            </thead>
+            <tbody id="tbodyLesiones"></tbody>
+        </table>
+    </div>
+
+</form>
+
+    @*//Moadal*@
+<div id="modalBusqueda" class="modal modal-oculto" role="dialog" aria-modal="true" aria-labelledby="tituloModal">
+    <div class="modal-contenido">
+        <div class="modal-encabezado">
+            <h3 id="tituloModal">Buscar Lesión</h3>
+            <button type="button" id="cerrarModal" class="btn-cerrar" aria-label="Cerrar">&times;</button>
+        </div>
+        <div class="modal-cuerpo">
+            <input id="modalBuscadorInput" type="text" placeholder="Buscar por nombre" class="modal-input">
+            <div class="tabla-scroll">
+                <table class="tabla-resultados">
+                    <thead>
+                        <tr>
+                            <th>Clave</th>
+                            <th>Nombre de la Lesión</th>
+                            <th>Descripción</th>
+                        </tr>
+                    </thead>
+                    <tbody id="modalResultados"></tbody>
+                </table>
+            </div>
+        </div>
+        <div class="modal-acciones">
+            <button type="button" id="btnAceptar" class="btn-primario">Aceptar</button>
+            <button type="button" id="btnCancelar" class="btn-secundario">Cancelar</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    /*limpiar*/
+    function limpiarTodosLosErrores() {
+        document.querySelectorAll(".error-campo").forEach(function (el) {
+            el.textContent = "";
+        });
+    }
+
+    function limpiarError(id) {
+        const el = document.getElementById(id);
+        if (el) el.textContent = "";
+    }
+
+    /*variables globales*/
+    const modal = document.getElementById("modalBusqueda");
+    const btnAbrirModal = document.getElementById("abrirModal");
+    const btnCerrarModal = document.getElementById("cerrarModal");
+    const btnCancelar = document.getElementById("btnCancelar");
+    const btnAceptar = document.getElementById("btnAceptar");
+    const modalInputBuscador = document.querySelector("#modalBusqueda .modal-input");
+    const modalResultados = document.getElementById("modalResultados");
+    let modalTimerId;
+    let lesionSeleccionada = null;
+    let ejerciciosAsignados = [];
+
+
+    /*Tabla inferior se carga al iniciar */
+    function cargarTablaLesiones() {
+        fetch('/Lesion/ObtenerTodasLasLesiones')
+            .then(function (r) { return r.json(); })
+            .then(function (data) { rendenrizarTablaLesiones(data); })
+            .catch(function (error) { console.error('Error al cargar lesiones:', error); });
+    }
+
+    function rendenrizarTablaLesiones(lesiones) {
+        const tbody = document.getElementById("tbodyLesiones");
+        tbody.innerHTML = "";
+        lesiones.forEach(function (l) {
+            const fila = document.createElement("tr");
+            fila.innerHTML =
+                "<td>" + (l.Nombre_TipoLes || "") + "</td>" +
+                "<td>" + (l.Nom_les || "") + "</td>" +
+                "<td>" + (l.Grado || "") + "</td>" +
+                "<td>" + (l.Descrip_Les || "") + "</td>" +
+                "<td><button type='button' class='btn-editar-tabla'>Editar</button></td>" +
+                "<td><button type='button' class='btn-eliminar-tabla'>Eliminar</button></td>";
+
+            /*boton editar de la tabla*/
+            fila.querySelector(".btn-editar-tabla").addEventListener("click", function () {
+                poblarFormulario(l);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+
+            /*boton eliminar de la tabla*/
+            fila.querySelector(".btn-eliminar-tabla").addEventListener("click", function () {
+                ejecutarEliminar(l.id_Lesion, l.Nom_les);
+            });
+            tbody.appendChild(fila);
+        });
+    }
+
+    /*cascada categoria y ejercicios*/
+    document.getElementById("id_CatEjer").addEventListener("change", function () {
+        const idCat = this.value;
+        const selectEjercicio = document.getElementById("id_Ejercicio");
+        selectEjercicio.innerHTML = "<option value=''>Seleccione un ejercicio</option>";
+
+        if (!idCat) return;
+
+        fetch('/Lesion/ObtenerEjerciciosPorCategoria?idCat=' + idCat)
+            .then(function (r) { return r.json(); })
+            .then(function (data) {
+                data.forEach(function (e) {
+                    const op = document.createElement("option");
+                    op.value = e.id_Ejercicio;
+                    op.textContent = e.Nombre_Ejer;
+                    selectEjercicio.appendChild(op);
+                });
+            })
+            .catch(function (err) { console.error('Error:', err); });
+    });
+
+    /*agregar ejercicios a la tabal derecha*/
+    document.getElementById("btnAgregarEjercicio").addEventListener("click", function () {
+        const select = document.getElementById("id_Ejercicio");
+        const idEjer = parseInt(select.value);
+        const nomEjer = select.options[select.selectedIndex].text;
+
+        if (!idEjer) {
+            alert("Seleccione un ejercicio para agregar.");
+            return;
+        }
+
+        /*evitar duplicados*/
+        const yaExiste = ejerciciosAsignados.some(function (e) { return e.id_Ejercicio === idEjer; });
+        if (yaExiste) {
+            alert("Este ejercicio ya fue agregado.");
+            return;
+        }
+
+        ejerciciosAsignados.push({ id_Ejercicio: idEjer, Nombre_Ejer: nomEjer });
+        renderizarTablaEjerciciosAsignados();
+    });
+
+    function renderizarTablaEjerciciosAsignados() {
+        const tbody = document.getElementById("tbodyEjerciciosAsignados");
+        tbody.innerHTML = "";
+        ejerciciosAsignados.forEach(function (e, index) {
+            const fila = document.createElement("tr");
+            fila.innerHTML =
+                "<td>" + e.Nombre_Ejer + "</td>" +
+                "<td><button type='button' class='btn-quitar-ejer' data-index='" + index + "'>Quitar</button></td>";
+            tbody.appendChild(fila);
+        });
+
+        tbody.querySelectorAll(".btn-quitar-ejer").forEach(function (btn) {
+            btn.addEventListener("click", function () {
+                const idx = parseInt(this.getAttribute("data-index"));
+                ejerciciosAsignados.splice(idx, 1);
+                renderizarTablaEjerciciosAsignados();
+            });
+        });
+    }
+
+    /*validaciones*/
+    function validarFormulario() {
+        const tipo = document.getElementById("id_TipoLesion").value;
+        const nombre = document.getElementById("Nombre_Lesion").value.trim();
+        const grado = document.getElementById("id_Grado").value;
+        const descripcion = document.getElementById("Descrip_Lesion").value.trim();
+        const errores = [];
+
+        if (!tipo) errores.push("- Seleccione un tipo de lesión.");
+        if (!nombre) errores.push("- El nombre de la lesión es obligatorio.");
+        else if (nombre.length > 60) errores.push("- El nombre no puede exceder 60 caracteres.");
+        if (!grado) errores.push("- Seleccione un grado.");
+        if (!descripcion) errores.push("- La descripción es obligatoria.");
+        else if (descripcion.length > 300) errores.push("- La descripción no puede exceder 300 caracteres.");
+        if (errores.length > 0) {
+            alert("Por favor corrija los siguientes campos:\n\n" + errores.join("\n"));
+            return false;
+        }
+        return true;
+
+    }
+
+
+
+    // Abrir modal
+    btnAbrirModal.addEventListener("click", function (e) {
+        e.preventDefault();
+        modal.classList.remove("modal-oculto");
+        modalInputBuscador.value = "";
+        modalResultados.innerHTML = "";
+        lesionSeleccionada = null;
+        modalInputBuscador.focus();
+    });
+
+    // Cerrar modal
+    function cerrarModalBusqueda() {
+        modal.classList.add("modal-oculto");
+    }
+
+    btnCerrarModal.addEventListener("click", cerrarModalBusqueda);
+    btnCancelar.addEventListener("click", cerrarModalBusqueda);
+
+    modalInputBuscador.addEventListener("input", function () {
+        clearTimeout(modalTimerId);
+        const self = this;
+        modalTimerId = setTimeout(function () {
+            const valor = self.value.trim();
+            if (!valor) { modalResultados.innerHTML = ""; return; }
+
+            fetch('/Lesion/BusquedaLesiones?busqueda=' + encodeURIComponent(valor))
+                .then(function (r) { return r.json(); })
+                .then(function (data) { mostrarResultadosModal(data); })
+                .catch(function (err) { console.error("Error:", err); });
+        }, 300);
+    });
+
+
+    function mostrarResultadosModal(lesiones) {
+        modalResultados.innerHTML = "";
+        lesionSeleccionada = null;
+        lesiones.forEach(function (l) {
+            const fila = document.createElement("tr");
+            const celdaClave = document.createElement("td"); celdaClave.textContent = l.id_Lesion || "";
+            const celdaNombre = document.createElement("td"); celdaNombre.textContent = l.Nom_les || "";
+            const celdaDes = document.createElement("td"); celdaDes.textContent = l.Descrip_Les || "";
+
+            fila.appendChild(celdaClave);
+            fila.appendChild(celdaNombre);
+            fila.appendChild(celdaDes);
+
+            fila.addEventListener("click", function () {
+                Array.from(modalResultados.querySelectorAll("tr")).forEach(function (r) { r.classList.remove("seleccionado"); });
+                fila.classList.add("seleccionado");
+                lesionSeleccionada = l;
+            });
+
+            modalResultados.appendChild(fila);
+        });
+    }
+
+    btnAceptar.addEventListener("click", function () {
+        
+        if (lesionSeleccionada) {
+            poblarFormulario(lesionSeleccionada);
+            document.getElementById("btnGuardar").disabled = true;
+        }
+        cerrarModalBusqueda();
+    });
+
+    /*poblar formulario desde el modal o tabla*/
+    function poblarFormulario(lesion) {
+        lesionSeleccionada = lesion;
+        document.getElementById("Nombre_Lesion").value = lesion.Nom_les || "";
+        document.getElementById("Descrip_Lesion").value = lesion.Descrip_Les || "";
+        document.getElementById("id_TipoLesion").value = lesion.id_TipoLes || "";
+        document.getElementById("id_Grado").value = lesion.Grado || "";
+
+        // Limpiar y recargar ejercicios asignados
+        ejerciciosAsignados = [];
+        renderizarTablaEjerciciosAsignados();
+
+        fetch('/Lesion/ObtenerEjerciciosDeLesion?idLesion=' + lesion.id_Lesion)
+            .then(function (r) { return r.json(); })
+            .then(function (data) {
+                ejerciciosAsignados = data; // [{id_Ejercicio, Nombre_Ejer}]
+                renderizarTablaEjerciciosAsignados();
+            })
+            .catch(function (err) { console.error("Error cargando ejercicios:", err); });
+    }
+    /*guardar*/
+    document.getElementById("btnGuardar").addEventListener("click", function () {
+        if (!validarFormulario()) return;
+
+        const formData = new FormData();
+        formData.append("Nombre_Lesion", document.getElementById("Nombre_Lesion").value.trim());
+        formData.append("Descrip_Lesion", document.getElementById("Descrip_Lesion").value.trim());
+        formData.append("id_TipoLesion", document.getElementById("id_TipoLesion").value);
+        formData.append("id_Grado", document.getElementById("id_Grado").value);
+        // Se agrega un campo por cada ejercicio asignado
+        ejerciciosAsignados.forEach(function (e) {
+            formData.append("ejerciciosIds", e.id_Ejercicio);
+        });
+
+        fetch('/Lesion/GuardarLesion', { method: 'POST', body: formData })
+            .then(function (r) { return r.text().then(function (t) { try { return JSON.parse(t); } catch (e) { throw new Error("Error del servidor: " + r.status); } }); })
+            .then(function (data) {
+                if (data.respuesta) {
+                    alert("Lesión guardada exitosamente.");
+                    limpiarFormulario();
+                    cargarTablaLesiones();
+                } else {
+                    alert("Error: " + (data.mensaje || "No se pudo guardar."));
+                }
+            })
+            .catch(function (err) { alert(err.message || "Error al guardar."); });
+    });
+
+    /*actualizar*/
+    document.getElementById("btn-actualizar").addEventListener("click", function () {
+        if (!lesionSeleccionada || !lesionSeleccionada.id_Lesion) {
+            alert("Primero busque y seleccione una lesión para actualizar.");
+            return;
+        }
+        if (!validarFormulario()) return;
+
+        const formData = new FormData();
+        formData.append("id_Lesion", lesionSeleccionada.id_Lesion);
+        formData.append("Nombre_Lesion", document.getElementById("Nombre_Lesion").value.trim());
+        formData.append("Descrip_Lesion", document.getElementById("Descrip_Lesion").value.trim());
+        formData.append("id_TipoLesion", document.getElementById("id_TipoLesion").value);
+        formData.append("id_Grado", document.getElementById("id_Grado").value);
+        ejerciciosAsignados.forEach(function (e) {
+            formData.append("ejerciciosIds", e.id_Ejercicio);
+        });
+
+        fetch('/Lesion/ActualizarLesion', { method: 'POST', body: formData })
+            .then(function (r) { return r.text().then(function (t) { try { return JSON.parse(t); } catch (e) { throw new Error("Error del servidor: " + r.status); } }); })
+            .then(function (data) {
+                if (data.respuesta) {
+                    alert("Lesión actualizada exitosamente.");
+                    limpiarFormulario();
+                    cargarTablaLesiones();
+                } else {
+                    alert("Error: " + (data.mensaje || "No se pudo actualizar."));
+                }
+            })
+            .catch(function (err) { alert(err.message || "Error al actualizar."); });
+    });
+
+    /*elimianr*/
+    document.getElementById("btn-Eliminar").addEventListener("click", function () {
+        if (!lesionSeleccionada || !lesionSeleccionada.id_Lesion) {
+            alert("Primero busque y seleccione una lesión para eliminar.");
+            return;
+        }
+        ejecutarEliminar(lesionSeleccionada.id_Lesion, lesionSeleccionada.Nom_Les);
+    });
+
+    function ejecutarEliminar(id, nombre) {
+        if (!confirm("¿Está seguro de eliminar la lesión '" + nombre + "'?")) return;
+
+        const formData = new FormData();
+        formData.append("id_Lesion", id);
+
+        fetch('/Lesion/EliminarLesion', { method: 'POST', body: formData })
+            .then(function (r) { return r.text().then(function (t) { try { return JSON.parse(t); } catch (e) { throw new Error("Error del servidor: " + r.status); } }); })
+            .then(function (data) {
+                if (data.respuesta) {
+                    alert("Lesión eliminada exitosamente.");
+                    limpiarFormulario();
+                    cargarTablaLesiones();
+                } else {
+                    alert("Error: " + (data.mensaje || "No se pudo eliminar."));
+                }
+            })
+            .catch(function (err) { alert(err.message || "Error al eliminar."); });
+    }
+
+    /*limpiar formulario*/
+    function limpiarFormulario() {
+        document.querySelector(".form-Lesion").reset();
+        limpiarTodosLosErrores();
+        ejerciciosAsignados = [];
+        renderizarTablaEjerciciosAsignados();
+        lesionSeleccionada = null;
+        document.getElementById("id_Ejercicio").innerHTML = '<option value="">Seleccione un ejercicio</option>';
+        document.getElementById("btnGuardar").disabled = false;
+    }
+
+    document.getElementById("btn-limpiar").addEventListener("click", limpiarFormulario);
+
+    /*cargar tabla al abrir la página*/
+    cargarTablaLesiones();
+
+    //function limpiarTodosLosErrores() {
+    //    document.querySelectorAll(".error-campo").forEach(function (el) {
+    //        el.textContent = "";
+    //    });
+    //}
+
+    //function limpiarError(id) {
+    //    const el = document.getElementById(id);
+    //    if (el) el.textContent = "";
+    //}
+</script>

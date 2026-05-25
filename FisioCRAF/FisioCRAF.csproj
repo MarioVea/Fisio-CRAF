@@ -114,6 +114,7 @@
     <Compile Include="Controllers\DatosController.cs" />
     <Compile Include="Controllers\EjercicioController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\LesionController.cs" />
     <Compile Include="Controllers\LoginController.cs" />
     <Compile Include="Controllers\PersonaController.cs" />
     <Compile Include="Global.asax.cs">
@@ -125,11 +126,15 @@
     <Compile Include="Models\Entidades\Ejercicio.cs" />
     <Compile Include="Models\Entidades\Empleado.cs" />
     <Compile Include="Models\Entidades\Especialidad.cs" />
+    <Compile Include="Models\Entidades\Grado.cs" />
+    <Compile Include="Models\Entidades\Lesion.cs" />
     <Compile Include="Models\Entidades\Login.cs" />
     <Compile Include="Models\Entidades\Paciente.cs" />
+    <Compile Include="Models\Entidades\TipoLesiones.cs" />
     <Compile Include="Models\Services\CitaService.cs" />
     <Compile Include="Models\Services\EjercicioService.cs" />
     <Compile Include="Models\Services\EmpleadoService.cs" />
+    <Compile Include="Models\Services\LesionService.cs" />
     <Compile Include="Models\Services\loginService.cs" />
     <Compile Include="Models\Services\PacienteService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -160,6 +165,7 @@
     <Content Include="Content\Images\FisioCRAF.png" />
     <Content Include="Content\Images\fondo.png" />
     <Content Include="Content\Images\luna-creciente.png" />
+    <Content Include="Content\lesion.css" />
     <Content Include="Content\login.css" />
     <Content Include="Content\menu.css" />
     <Content Include="favicon.ico" />
@@ -203,6 +209,7 @@
     <Content Include="Views\Login\Login.cshtml" />
     <Content Include="Views\Ejercicio\Ejercicio.cshtml" />
     <Content Include="Views\Ejercicio\Index.cshtml" />
+    <Content Include="Views\lesion\lesion.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
