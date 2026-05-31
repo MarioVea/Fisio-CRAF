@@ -1,0 +1,407 @@
+﻿/* =============================================
+   lesion.css  — misma base que ejercicio.css
+   ============================================= */
+
+input, textarea {
+    outline: none;
+    border: 1px solid black;
+    border-radius: 5px;
+    padding: 5px;
+}
+
+/* =============================================
+   ENCABEZADO
+   ============================================= */
+.encabezado {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    padding: 10px 20px;
+    background-color: #d1e0e0;
+    border-bottom: 2px solid black;
+    gap: 20px;
+}
+
+    .encabezado h2 {
+        margin: 0;
+        font-size: 2rem;
+        white-space: nowrap;
+    }
+
+    /* Buscador — mismo estilo que ejercicio.css */
+    .encabezado .buscador {
+        display: flex;
+        height: 35px;
+        width: 45%;
+        position: relative;
+        background: white;
+        border: 1px solid black;
+        border-radius: 10px;
+        overflow: hidden;
+    }
+
+        .encabezado .buscador input {
+            width: 85%;
+            padding: 5px 15px;
+            border: none;
+            outline: none;
+            height: 100%;
+        }
+
+        .encabezado .buscador button {
+            margin-left: auto;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            font-weight: bold;
+            padding: 5px 15px;
+            font-size: 1rem;
+        }
+
+/* botones acciones */
+.acciones {
+    width: 90%;
+    display: flex;
+    justify-content: center;
+    margin: auto;
+    margin-top: 40px;
+}
+
+    .acciones button {
+        margin: 0px 10px;
+        border-radius: 10px;
+        padding: 10px 15px;
+        border: 2px solid black;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+#btnGuardar {
+    background-color: rgb(161, 231, 162);
+}
+
+#btn-actualizar {
+    background-color: rgb(152, 227, 225);
+}
+
+#btn-Eliminar {
+    background-color: rgb(237, 102, 87);
+}
+
+#btn-limpiar {
+    background-color: white;
+}
+
+/* formulario principal */
+form.form-Lesion {
+    padding: 2rem;
+    background-color: #e0e0e0;
+    min-height: 80vh;
+}
+
+/* contenido principal */
+.contenido-principal {
+    display: flex;
+    gap: 40px;
+    align-items: flex-start;
+}
+
+/* seccion izquierda */
+.seccion-lesion {
+    flex: 1.5;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* Fila de categoría / tipo — mismo patrón que datos1 en ejercicio */
+.datos1 {
+    margin-bottom: 10px;
+}
+
+    .datos1 .dato {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .datos1 label {
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+
+    .datos1 select {
+        height: 30px;
+        border-radius: 5px;
+        padding: 5px;
+        min-width: 250px;
+        border: 1px solid #4a90e2;
+    }
+
+/* Fila Nombre + Grado lado a lado */
+.datos2-lesion {
+    display: flex;
+    gap: 30px;
+    align-items: flex-end;
+}
+
+    .datos2-lesion .dato {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+    }
+
+    .datos2-lesion label {
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+
+    .datos2-lesion input[type="text"] {
+        height: 30px;
+    }
+
+    .datos2-lesion select {
+        height: 30px;
+        border-radius: 5px;
+        padding: 5px;
+        border: 1px solid #4a90e2;
+    }
+
+/* fila descripción */
+.datos3-lesion .dato {
+    display: flex;
+    flex-direction: column;
+}
+
+.datos3-lesion label {
+    font-weight: bold;
+    margin-bottom: 0;
+}
+
+    /* Etiqueta azul encima del textarea — mismo patrón que ejercicio */
+    .datos3-lesion label[for="Descrip_Lesion"] {
+        background-color: #87ceeb;
+        text-align: center;
+        padding: 10px;
+        font-weight: bold;
+        border: 1px solid black;
+        border-bottom: none;
+        margin: 0;
+    }
+
+#Descrip_Lesion {
+    resize: none;
+    border: 2px solid #5ab0db;
+    border-top: none;
+    border-radius: 0 0 5px 5px;
+    padding: 10px;
+    height: 170px;
+}
+
+/* lado derecho */
+.seccion-ejercicios {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.titulo-seccion-ejercicios {
+    margin: 0 0 5px 0;
+    font-size: 1.2rem;
+    text-align: center;
+}
+
+/* Tabla de ejercicios asignados */
+.tabla-ejercicios-wrap {
+    margin-top: 15px;
+    border: 1px solid black;
+    border-radius: 5px;
+    overflow: hidden;
+    min-height: 180px;
+}
+
+.tabla-ejercicios-asignados {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+    .tabla-ejercicios-asignados thead tr {
+        background-color: #5ab0db;
+    }
+
+    .tabla-ejercicios-asignados th {
+        padding: 10px;
+        text-align: center;
+        border: 1px solid #ccc;
+        font-weight: bold;
+        color: white;
+    }
+
+    .tabla-ejercicios-asignados td {
+        padding: 8px;
+        border: 1px solid #ddd;
+        text-align: left;
+    }
+
+    .tabla-ejercicios-asignados thead tr:hover {
+        
+    }
+
+/* tabla inferior */
+.tabla-inferior-wrap {
+    margin-top: 40px;
+    border-radius: 5px;
+    overflow: hidden;
+    border: 1px solid #333;
+}
+
+.tabla-lesiones {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+    .tabla-lesiones thead tr {
+        background-color: #3b6fd4;
+    }
+
+    .tabla-lesiones th {
+        padding: 12px 10px;
+        text-align: center;
+        color: white;
+        font-weight: bold;
+        border: 1px solid #2d57b0;
+    }
+
+    .tabla-lesiones td {
+        padding: 9px 10px;
+        border: 1px solid #ddd;
+        text-align: left;
+    }
+
+    .tabla-lesiones tbody tr:nth-child(even) {
+        background-color: #f2f6ff;
+    }
+
+    .tabla-lesiones thead tr:hover {
+       
+    }
+
+/* mensaje error */
+.error-campo {
+    color: red;
+    font-size: 0.82rem;
+    margin-top: 3px;
+    min-height: 16px;
+}
+
+/* modal */
+.modal-oculto {
+    display: none;
+}
+
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modal-contenido {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    width: 50%;
+    max-height: 80%;
+    display: flex;
+    flex-direction: column;
+}
+
+.modal-encabezado {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 10px;
+}
+
+.btn-cerrar {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+.modal-input {
+    width: 100%;
+    margin: 15px 0;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.tabla-scroll {
+    overflow-y: auto;
+    max-height: 300px;
+}
+
+.tabla-resultados {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+    .tabla-resultados th,
+    .tabla-resultados td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+    }
+
+    .tabla-resultados thead tr:hover {
+       
+    }
+
+    .tabla-resultados tr.seleccionado {
+        background-color: #b3d4ff;
+    }
+
+.modal-acciones {
+    margin-top: 15px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.btn-primario {
+    background-color: #3b6fd4;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 20px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.btn-secundario {
+    background-color: white;
+    border: 2px solid black;
+    border-radius: 8px;
+    padding: 8px 20px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.tabla-ejercicios-asignados thead tr:hover {
+}
+
+.tabla-lesiones thead tr:hover {
+    cursor: default;
+}
+
+.tabla-resultados thead tr:hover {
+}

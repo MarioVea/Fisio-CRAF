@@ -1,0 +1,308 @@
+input, textarea {
+    outline: none;
+    border: 1px solid black;
+    border-radius: 5px;
+    padding: 5px;
+}
+
+/* encabezado y buscador  */
+.encabezado {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    background-color: #d1e0e0; /* Color gris perla de tu imagen */
+    border-bottom: 2px solid black;
+}
+
+    .encabezado h2 {
+        margin: 0;
+        margin-right: 20px;
+        font-size: 2rem;
+    }
+
+    .encabezado .buscador {
+        display: flex;
+        height: 35px;
+        width: 50%;
+        position: relative;
+        background: white;
+        border: 1px solid black;
+        border-radius: 10px;
+        overflow: hidden;
+    }
+
+        .encabezado .buscador input {
+            width: 85%;
+            padding: 5px 15px;
+            border: none;
+            outline: none;
+            height: 100%;
+        }
+
+        .encabezado .buscador button {
+            margin-left: auto;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            font-weight: bold;
+            padding: 5px 15px;
+        }
+
+/* area principal del formulario */
+form.form-Ejercicio {
+    padding: 2rem;
+    background-color: #e0e0e0; /* Color de fondo gris claro de la imagen */
+    min-height: 80vh;
+}
+
+/* categorias */
+.datos1 {
+    margin-bottom: 30px;
+}
+
+    .datos1 .dato {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .datos1 label {
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+
+    .datos1 select {
+        height: 30px;
+        border-radius: 5px;
+        padding: 5px;
+        min-width: 250px;
+        border: 1px solid #4a90e2; /* Borde azúl del combobox */
+    }
+
+/*  textos y fotografía lado a lado */
+.datos2 {
+    display: flex;
+    justify-content: space-between;
+    gap: 40px;
+    margin-top: 20px;
+}
+
+    .datos2 > div.dato {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+    }
+
+    .datos2 label {
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+
+    .datos2 input[type="text"] {
+        height: 30px;
+        margin-bottom: 20px;
+    }
+
+#Descrip_Ejer {
+    resize: none;
+    height: 150px;
+    border: 2px solid #5ab0db;
+    border-top: none;
+    border-radius: 0 0 5px 5px;
+    padding: 10px;
+}
+
+/* la cosa azul encima de Descripción e Imagen */
+.datos2 label[for="Descrip_Ejer"], .etiqueta-azul {
+    background-color: #87ceeb;
+    text-align: center;
+    padding: 10px;
+    font-weight: bold;
+    border: 1px solid black;
+    margin: 0;
+}
+
+.datos2 label[for="Descrip_Ejer"] {
+    border-bottom: none;
+}
+
+/* seccion de la imagen que la manda a la derecha */
+.datos-imagen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 350px;
+}
+
+.panel-imagen {
+    width: 100%;
+    border: 1px dashed black;
+    background-color: #f7f7f7;
+    margin-bottom: 10px;
+}
+
+.etiqueta-azul {
+    border-bottom: none;
+}
+
+#imagenPreview {
+    height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    border: 1px solid black;
+    background: white;
+}
+
+    #imagenPreview img {
+        max-width: 100%;
+        max-height: 100%;
+        display: none;
+    }
+
+#fileInput {
+    display: none; /* se oculta para usar el botón */
+}
+
+.btn-cargar-imagen {
+    display: inline-block;
+    background-color: #b3b3ff;
+    border: 2px solid black;
+    border-radius: 10px;
+    padding: 8px 30px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 10px;
+    text-align: center;
+}
+
+/* botones de acción inferiores */
+.acciones {
+    width: 90%;
+    display: flex;
+    justify-content: center;
+    margin: auto;
+    margin-top: 40px;
+}
+
+    .acciones button {
+        margin: 0px 10px;
+        border-radius: 10px;
+        padding: 10px 15px;
+        border: 2px solid black;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+#btnGuardar {
+    background-color: rgb(161, 231, 162);
+}
+
+#btn-actualizar {
+    background-color: rgb(152, 227, 225);
+}
+
+#btn-Eliminar {
+    background-color: rgb(237, 102, 87);
+}
+
+#btn-limpiar {
+    background-color: white;
+}
+
+/* estilo del modal */
+.modal-oculto {
+    display: none;
+}
+
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modal-contenido {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    width: 50%;
+    max-height: 80%;
+    display: flex;
+    flex-direction: column;
+}
+
+.modal-encabezado {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 10px;
+}
+
+.btn-cerrar {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+.modal-input {
+    width: 100%;
+    margin: 15px 0;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.tabla-resultados {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+    .tabla-resultados th, .tabla-resultados td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+    }
+
+    .tabla-resultados tr:hover {
+        background-color: #e6f0ff;
+        cursor: pointer;
+    }
+
+    .tabla-resultados tr.seleccionado {
+        background-color: #b3d4ff;
+    }
+
+.modal-acciones {
+    margin-top: 15px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+/*.btn-primario {
+    background: #94F197;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.btn-secundario {
+    background: #f44336;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+}*/
