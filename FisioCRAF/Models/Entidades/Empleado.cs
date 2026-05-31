@@ -17,7 +17,7 @@ namespace FisioCRAF.Models.Entidades
         public string Contraseña { get; set; }
         public string Telefono_Emp { get; set; }
         public string CedulaProfesional { get; set; }
-        public int id_Esp { get; set; }
+        public int? id_Esp { get; set; }
         public string nombre_Esp { get; set; }
         public int estatus_Emp { get; set; }
         public string Estatus_Emp { get; set; }

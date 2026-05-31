@@ -3,12 +3,11 @@ main {
     height: auto;
     background-color: #f0f0f0;
 }
-.encabezado-empleado {
+.encabezado {
     display: flex;
     align-items: center;
     margin: auto;
     margin-top: 0px;
-    background-color: #b4f6d6;
     padding:20px;
 }
 
@@ -20,7 +19,7 @@ main {
     width:min(1100px, 95%);
 }
 
-.encabezado-empleado input {
+.encabezado input {
     height: 2rem;
     border-radius: 20px;
     outline: none;
@@ -47,6 +46,7 @@ main {
     margin-bottom:20px;
     display: flex;
     width:90%;
+    justify-content: center;
 }
 
 .busqueda input, button{

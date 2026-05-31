@@ -1,19 +1,18 @@
 ﻿@{ 
     Layout = "~/Views/Shared/_menu.cshtml";
 }
-    <link rel="stylesheet" href="~/Content/cita.css">
     <link rel="stylesheet" href="~/Content/estilos.css">
+    <link rel="stylesheet" href="~/Content/cita.css">
+    <div class="enc">
         <div class="encabezado" id="encabezado">
             <h2>Cita</h2>
             <div class="buscador" id="buscador-wrap">
-                <input type="text" placeholder="Ingrese el folio de la cita">
-                <ul class="resultados oculto">
-                    <li>Lorem ipsum dolor sit amet.</li>
-                    <li>Lorem ipsum dolor sit amet.</li>
-                </ul>
+                <input id="buscador" type="text" placeholder="Ingrese el nombre del paciente">
+                <ul id="listaResultados" class="resultados oculto"></ul>
                 <button id="abrirModal">Buscar</button>
             </div>
         </div>
+    </div>
         <form action="" class="form-Cita">
             <div class="datos1">
                 <div class="dato">
@@ -50,16 +49,16 @@
                         <div class="opciones-estado">
                             <div class="opcion">
                                 <label for="atendido">Atendida</label>
-                                <input id="atendido" name="Estatus_Cita" type="radio" value"1">
+                                <input id="atendido" name="Estatus_Cita" type="radio" value="1">
                             </div>
 
                             <div class="opcion">
                                 <label for="pendiente">Pendiente</label>
-                                <input type="radio" name="Estatus_Cita" id="pendiente" value"0">
+                                <input type="radio" name="Estatus_Cita" id="pendiente" value="0">
                             </div>
                             <div class="opcion">
                                 <label for="cancelada">Cancelada</label>
-                                <input type="radio" name="Estatus_Cita" id="cancelada" value"2">
+                                <input type="radio" name="Estatus_Cita" id="cancelada" value="2">
                             </div>
                         </div>
                     </div>
@@ -81,7 +80,21 @@
                     <button type="button" id="cerrarModal" class="btn-cerrar" aria-label="Cerrar">&times;</button>
                 </div>
                 <div class="modal-cuerpo">
-                    <input id="modalBuscador" type="text" placeholder="Buscar por nombre" class="modal-input">
+                    <div style="margin-bottom: 15px;">
+                        <label><input type="radio" name="tipoBusquedaCita" value="nombre" checked> Por Nombre</label>
+                        <label style="margin-left: 15px;"><input type="radio" name="tipoBusquedaCita" value="fecha"> Por Rango de Fechas</label>
+                    </div>
+                    <div id="contenedorBusquedaNombre">
+                        <input id="modalBuscador" type="text" placeholder="Buscar por nombre" class="modal-input" style="width: 50%;">
+                    </div>
+                    <div id="contenedorBusquedaFecha" class="oculto">
+                        <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 15px;">
+                            <input type="date" id="modalFechaInicio" class="modal-input" style="width: auto;">
+                            <span> a </span>
+                            <input type="date" id="modalFechaFin" class="modal-input" style="width: auto;">
+                            <button id="btnBuscarCitasFecha" type="button" style="padding: 5px 10px; border-radius: 5px; cursor: pointer; border: 1px solid black; background: #fff;">Buscar</button>
+                        </div>
+                    </div>
                     <div class="tabla-scroll">
                         <table class="tabla-resultados">
                             <thead>
@@ -151,9 +164,14 @@
         let pacienteSeleccionado = null;
 
 
+        const buscador = document.getElementById("buscador");
+        const listaResultados = document.getElementById("listaResultados");
+        let timerId;
+
         const modalBuscador = document.getElementById("modalBuscador");
         let modalTimerId;
         const btnGuardar = document.getElementById("btnGuardar");
+        const btnLimpiar = document.getElementById("btn-limpiar");
         const modal = document.getElementById("modalBusqueda");
         const modalPaciente = document.getElementById("modalBusquedaPaciente");
         const cerrarModal = document.getElementById("cerrarModal");
@@ -174,10 +192,39 @@
         let citaSeleccionada = null;
 
 
-        document.addEventListener("DOMContentLoaded",obtenerFisios);
+        document.addEventListener("DOMContentLoaded", function() {
+            obtenerFisios();
+            const hoy = new Date();
+            const anio = hoy.getFullYear();
+            const mes = String(hoy.getMonth() + 1).padStart(2, "0");
+            const dia = String(hoy.getDate()).padStart(2, "0");
+            inputFecha.setAttribute("min", `${anio}-${mes}-${dia}`);
+        });
+
+        if (btnLimpiar) {
+            btnLimpiar.addEventListener("click", function() {
+                limpiarFormulario();
+            });
+        }
 
         btnGuardar.addEventListener("click",async function(e){
             e.preventDefault();
+
+            const datos = obtenerDatos();
+            datos.Estatus_Cita = 1;
+
+            if (!datos.Fecha_Cita || !datos.Hora_Cita || !datos.id_Emp || !datos.id_Pac) {
+                alert("Por favor complete todos los campos requeridos (Paciente, Fisioterapeuta, Fecha y Hora).");
+                return;
+            }
+
+            const hoyGuardar = new Date();
+            hoyGuardar.setHours(0, 0, 0, 0);
+            const fechaSeleccionada = new Date(datos.Fecha_Cita + "T00:00:00");
+            if (fechaSeleccionada < hoyGuardar) {
+                alert("No se puede agendar una cita en una fecha anterior a la actual.");
+                return;
+            }
 
             try {
                 const response = await fetch(`/Datos/guardarCita`, {
@@ -185,7 +232,100 @@
                     headers: {
                         "Content-Type": "application/json"
                     },
-                    body: JSON.stringify(obtenerDatos())
+                    body: JSON.stringify(datos)
+                })
+
+                if (!response.ok) {
+                    alert("Ocurri� un error con el servidor");
+                    return;
+                }
+
+                const data = await response.json();
+
+                if (data.respuesta == false) {
+                    alert(data.mensaje || "Ocurri� un error al registrar la cita");
+                }
+                else if (data.respuesta == true) {
+                    alert("Cita guardada exitosamente");
+                    limpiarFormulario();
+                }
+            }
+            catch (error) {
+                alert(error.message);
+            }
+        
+        });
+
+
+        const btnActualizar = document.getElementById("btn-actualizar");
+        btnActualizar.addEventListener("click", async function(e) {
+            e.preventDefault();
+
+            const datos = obtenerDatos();
+            if (!datos.Fecha_Cita || !datos.Hora_Cita || !datos.id_Emp || !datos.id_Pac) {
+                alert("Por favor complete todos los campos requeridos (Paciente, Fisioterapeuta, Fecha y Hora).");
+                return;
+            }
+
+            const hoyActualizar = new Date();
+            hoyActualizar.setHours(0, 0, 0, 0);
+            const fechaSeleccionadaAct = new Date(datos.Fecha_Cita + "T00:00:00");
+            if (fechaSeleccionadaAct < hoyActualizar) {
+                alert("No se puede agendar una cita en una fecha anterior a la actual.");
+                return;
+            }
+
+            try {
+                const response = await fetch(`/Datos/actualizarCita`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(datos)
+                })
+
+                if (!response.ok) {
+                    alert("Ocurri� un error con el servidor");
+                    return;
+                }
+
+                const data = await response.json();
+
+                if (data.respuesta == false) {
+                    alert(data.mensaje || "Ocurri� un error al actualizar la cita");
+                }
+                else if (data.respuesta == true) {
+                    alert("Cita actualizada exitosamente");
+                    limpiarFormulario();
+                }
+            }
+            catch (error) {
+                alert(error.message);
+            }
+        });
+
+
+        const btnEliminar = document.getElementById("btn-Eliminar");
+        btnEliminar.addEventListener("click", async function(e) {
+            e.preventDefault();
+
+            const idCita = inputCita.value;
+            if (!idCita) {
+                alert("Seleccione una cita para eliminar.");
+                return;
+            }
+
+            if (!confirm("�Est� seguro de que desea eliminar esta cita?")) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/Datos/eliminarCita`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ id_Cita: idCita })
                 })
 
                 if (!response.ok) {
@@ -196,18 +336,56 @@
                 const data = await response.json();
 
                 if (data.respuesta == false) {
-                    alert("Ocurrió un error al registrar la cita");
+                    alert("Ocurrió un error al eliminar la cita");
                 }
                 else if (data.respuesta == true) {
-                    alert("Cita guardada exitosamente");
+                    alert("Cita eliminada exitosamente");
+                    limpiarFormulario();
                 }
             }
             catch (error) {
                 alert(error.message);
             }
-        
         });
 
+
+        buscador.addEventListener("input", function () {
+            clearTimeout(timerId);
+            timerId = setTimeout(() => {
+                const valor = this.value.trim();
+                if (!valor) {
+                    mostrarResultados([]);
+                    return;
+                }
+                let nombre = encodeURIComponent(valor);
+                fetch(`/Datos/obtenerCitas?nombre=${nombre}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        mostrarResultados(data);
+                    });
+            }, 300);
+        });
+
+        function mostrarResultados(citas) {
+            listaResultados.innerHTML = "";
+
+            citas.forEach(c => {
+                const item = document.createElement("li");
+                item.textContent = `Folio: ${c.Folio || ""} | ${c.Nombre || ""} - ${formatearFecha(c.Fecha_Cita)} ${formatearHora(c.Hora_Cita)}`;
+                item.addEventListener("click", function () {
+                    asignarCita(c);
+                    listaResultados.classList.add("oculto");
+                    buscador.value = "";
+                });
+                listaResultados.appendChild(item);
+            });
+
+            if (listaResultados.children.length === 0) {
+                listaResultados.classList.add("oculto");
+            } else {
+                listaResultados.classList.remove("oculto");
+            }
+        }
 
         modalBuscador.addEventListener("input", function () {
             clearTimeout(modalTimerId);
@@ -217,8 +395,8 @@
                     limpiarResultadosModal();
                     return;
                 }
-                let folio = encodeURIComponent(valor);
-                fetch(`/Datos/obtenerCitas?Folio=${folio}`)
+                let nombre = encodeURIComponent(valor);
+                fetch(`/Datos/obtenerCitas?nombre=${nombre}`)
                     .then(response => response.json())
                     .then(data => {
                         mostrarResultadosModal(data);
@@ -226,10 +404,50 @@
             }, 300);
         });
 
+        const radiosTipoBusqueda = document.querySelectorAll('input[name="tipoBusquedaCita"]');
+        const contenedorBusquedaNombre = document.getElementById("contenedorBusquedaNombre");
+        const contenedorBusquedaFecha = document.getElementById("contenedorBusquedaFecha");
+        const btnBuscarCitasFecha = document.getElementById("btnBuscarCitasFecha");
+        const modalFechaInicio = document.getElementById("modalFechaInicio");
+        const modalFechaFin = document.getElementById("modalFechaFin");
+
+        radiosTipoBusqueda.forEach(radio => {
+            radio.addEventListener("change", function () {
+                if (this.value === "nombre") {
+                    contenedorBusquedaNombre.classList.remove("oculto");
+                    contenedorBusquedaFecha.classList.add("oculto");
+                } else {
+                    contenedorBusquedaNombre.classList.add("oculto");
+                    contenedorBusquedaFecha.classList.remove("oculto");
+                }
+                limpiarResultadosModal();
+            });
+        });
+
+        btnBuscarCitasFecha.addEventListener("click", function () {
+            const fInicio = modalFechaInicio.value;
+            const fFin = modalFechaFin.value;
+
+            if (!fInicio || !fFin) {
+                alert("Por favor seleccione ambas fechas.");
+                return;
+            }
+
+            fetch(`/Datos/obtenerCitasPorFecha?fechaInicio=${fInicio}&fechaFin=${fFin}`)
+                .then(response => response.json())
+                .then(data => {
+                    mostrarResultadosModal(data);
+                })
+                .catch(err => {
+                    alert("Error al buscar citas por fecha.");
+                });
+        });
+
+
 
         function mostrarResultadosModal(citas) {
-            modalResultadosPaciente.innerHTML = "";
-            pacienteSeleccionado = null;
+            modalResultados.innerHTML = "";
+            citaSeleccionada = null;
 
             citas.forEach(c => {
                 const fila = document.createElement("tr");
@@ -257,12 +475,9 @@
             });
         }
 
-
-
-
         function limpiarResultadosModal() {
             modalResultados.innerHTML = "";
-            pacienteSeleccionado = null;
+            citaSeleccionada = null;
         }
 
 
@@ -290,11 +505,26 @@
                 Fecha_Cita : inputFecha.value, 
                 Hora_Cita : inputHora.value, 
                 id_Emp : comboFisio.value, 
-                Estatus_Cita : document.querySelector('input[name="Genero"]:checked')?.value
+                Estatus_Cita : document.querySelector('input[name="Estatus_Cita"]:checked')?.value || "0"
             }
 
 
             return datos;
+        }
+
+        function limpiarFormulario() {
+            inputCita.value = "";
+            inputFolio.value = "";
+            inputPaciente.value = "";
+            nombrePaciente.value = "";
+            inputMotivo.value = "";
+            inputFecha.value = "";
+            inputHora.value = "";
+            comboFisio.value = "";
+            radioAtendido.checked = false;
+            radioPendiente.checked = false;
+            radioCancelada.checked = false;
+            btnGuardar.disabled = false;
         }
 
         modalBuscadorPaciente.addEventListener("input", function () {
@@ -460,6 +690,8 @@
             radioAtendido.checked = estatus === 1;
             radioPendiente.checked = estatus === 0;
             radioCancelada.checked = estatus === 2;
+
+            btnGuardar.disabled = true;
         }
 
 

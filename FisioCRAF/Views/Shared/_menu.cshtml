@@ -24,6 +24,9 @@
             <a href="@Url.Action("Ejercicio","Ejercicio")" class="option">
                 <button class="opcion">Ejercicios</button>
             </a>
+            <a href="@Url.Action("Index","Tratamiento")" class="option">
+                <button class="opcion">Tratamientos</button>
+            </a>
             <a href="@Url.Action("lesion","lesion")" class="option">
                 <button class="opcion">Lesiones</button>
             </a>
@@ -75,8 +78,8 @@
         opciones.classList.add("transicion");
         menu.classList.remove("volver");
         opciones.classList.remove("volver");
-        encabezado.classList.add("transicion");
         encabezado.classList.remove("opc-cuerpo-claro");
+        encabezado.classList.add("transicion");
         boton.style.backgroundImage = "url('@Url.Content("~/Content/Images/dom.png")')";
 
 
@@ -147,4 +150,3 @@
 </script>
 
 </html>
-
