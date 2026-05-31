@@ -515,6 +515,8 @@
 				item.addEventListener("click", function () {
 					rellenarFormulario(e);
 					listaResultados.classList.add("oculta");
+					buscador.value = "";
+
 				});
 				listaResultados.appendChild(item);
 			});
@@ -612,7 +614,14 @@
 			if (tipoRadio) {
 				tipoRadio.checked = true;
 			}
-
+			if(tipoValor == 0){
+				cedulaInput.disabled = false;
+				especialidades.disabled = false;
+			}
+			else{
+				cedulaInput.disabled = true;
+				especialidades.disabled = true;
+			}
 			const estatusRadio = document.querySelector(`input[name="Estatus_Emp"][value="${estatusValor}"]`);
 			if (estatusRadio) {
 				estatusRadio.checked = true;

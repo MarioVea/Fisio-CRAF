@@ -14,7 +14,7 @@
             <input id="txtBuscar" type="text" placeholder="BUSQUEDA POR CLAVE O NOMBRE">
             <ul id="listaResultados" class="resultados-busqueda oculta"></ul>
         </div>
-        <button type="button" id="btnBuscarIcon" class="btn-buscar">Buscar Tratamiento</button>
+        <button type="button" id="btnBuscarIcon" class="btn-buscar">Buscar</button>
     </div>
 </div>
 
@@ -117,7 +117,7 @@
 								$('#txtId').val(item.id_Trata);
 								$('#txtNombre').val(item.Nombre_Trata);
 								$('#txtDescrip').val(item.Descrip_Trata);
-								$('#txtBuscar').val(item.Nombre_Trata);
+								$('#txtBuscar').val("");
 								listaResultados.addClass('oculta');
 
 								// Deshabilitar guardar por estar seleccionado
