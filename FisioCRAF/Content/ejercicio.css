@@ -7,12 +7,11 @@ input, textarea {
 
 /* encabezado y buscador  */
 .encabezado {
-    width: 100%;
-    display: flex;
-    align-items: center;
-    padding: 10px;
-    background-color: #d1e0e0; /* Color gris perla de tu imagen */
-    border-bottom: 2px solid black;
+    width:100%;
+    display:flex;
+    align-items:center;
+    padding:10px;
+    border-bottom:1px solid black;
 }
 
     .encabezado h2 {
@@ -23,31 +22,30 @@ input, textarea {
 
     .encabezado .buscador {
         display: flex;
-        height: 35px;
-        width: 50%;
+        height: 20px;
+        margin-left: 20px;
+        width: 100%;
+        padding: 10px;
         position: relative;
-        background: white;
-        border: 1px solid black;
-        border-radius: 10px;
-        overflow: hidden;
     }
 
         .encabezado .buscador input {
             width: 85%;
-            padding: 5px 15px;
-            border: none;
-            outline: none;
-            height: 100%;
+            padding: 5px;
+            border-radius: 10px;
+            height: 15px;
         }
 
         .encabezado .buscador button {
             margin-left: auto;
-            border: none;
-            background: transparent;
-            cursor: pointer;
-            font-weight: bold;
-            padding: 5px 15px;
+            height: 30px;
+            border-radius: 10px;
+            border: 1px solid black;
         }
+
+#abrirModal {
+    margin-left: 20px;
+}
 
 /* area principal del formulario */
 form.form-Ejercicio {
@@ -306,3 +304,10 @@ form.form-Ejercicio {
     border-radius: 5px;
     cursor: pointer;
 }*/
+
+
+
+.enc{
+    background-color: #b4f6d6;
+    border-bottom: 1px solid black;   
+}

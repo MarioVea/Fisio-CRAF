@@ -1,4 +1,4 @@
-﻿@{
+@{
 
 	Layout = "~/Views/Shared/_menu.cshtml";
 }
@@ -303,7 +303,7 @@
 			telefonoInput.addEventListener("input", () => limpiarNumeros(telefonoInput, 10));
 		}
 		if (cedulaInput) {
-			cedulaInput.addEventListener("input", () => cedulaInput.value = cedulaInput.value.slice(0, 10));
+			cedulaInput.addEventListener("input", () => limpiarNumeros(cedulaInput, 10));
 		}
 		if (togglePassword && passwordInput) {
 			togglePassword.addEventListener("change", () => {
