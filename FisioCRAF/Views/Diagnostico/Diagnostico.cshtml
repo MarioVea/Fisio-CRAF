@@ -1,0 +1,415 @@
+﻿@{
+    Layout = "~/Views/Shared/_menu.cshtml";
+}
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="~/Content/diagnostico.css" />
+
+<!-- 
+     HEADER
+ -->
+<header class="header">
+    <h1>Diagnóstico</h1>
+
+    <div class="search-wrap" role="search">
+        <input id="search-global"
+               type="text"
+               placeholder="Ingrese el motivo de cita o nombre del paciente…"
+               autocomplete="off"
+               aria-label="Búsqueda de paciente" />
+        <button id="abrirModal" class="btn-buscar" type="button">Buscar</button>
+    </div>
+
+    <div class="header-actions">
+        <button id="btn-limpiar" class="btn-secondary" type="button" title="Limpiar campos de paciente">🧹 Limpiar</button>
+        <button id="btn-save" class="btn-save" type="button" title="Guardar datos">💾 Guardar</button>
+        <button id="btn-actualizar" class="btn-save" type="button" title="Actualizar datos" style="background:#f59e0b; box-shadow:0 3px 10px rgba(245,158,11,.35);" disabled>✏️ Actualizar</button>
+        <button id="btn-eliminar" class="btn-danger" type="button" title="Eliminar registro" disabled>🗑️ Eliminar</button>
+    </div>
+</header>
+
+<!-- 
+     MAIN
+ -->
+<main class="main" id="main-content">
+
+    <!-- ── Campos superiores ── -->
+    <section class="top-fields" aria-label="Datos del paciente y cita">
+        <input type="hidden" id="id-cita" value="" />
+        <input type="hidden" id="id-diag" value="" />
+        <input type="hidden" id="id-pac" value="" />
+        <input type="hidden" id="id-emp" value="" />
+
+        <div class="field-group">
+            <label for="motivo-cita">Motivo Cita</label>
+            <input id="motivo-cita" type="text" placeholder="Ej. Dolor lumbar" maxlength="100" readonly />
+        </div>
+
+        <div class="field-group">
+            <label for="nombre-paciente">Nombre del Paciente</label>
+            <input id="nombre-paciente" type="text" placeholder="Apellido, Nombre" maxlength="100" readonly />
+        </div>
+
+        <div class="field-group">
+            <label for="nombre-fisio">Nombre Fisioterapeuta</label>
+            <input id="nombre-fisio" type="text" placeholder="Dr. / Dra." maxlength="100" readonly />
+        </div>
+
+        <div class="field-group">
+            <label for="consultorio">Consultorio</label>
+            <select id="consultorio">
+                <option value="">— Seleccionar —</option>
+                @if (ViewBag.Consultorios != null)
+                {
+                    foreach (var c in ViewBag.Consultorios)
+                    {
+                        <option value="@c.id_Consul">@c.Nombre_Consul</option>
+                    }
+                }
+            </select>
+        </div>
+
+        <div class="field-group">
+            <label for="num-diag">Núm. Diag</label>
+            <input id="num-diag" type="number" value="" min="1" readonly tabindex="-1" title="Consecutivo automático" />
+        </div>
+
+    </section>
+
+    <!-- ── Pestañas ── -->
+    <nav class="tabs" role="tablist" aria-label="Secciones del diagnóstico">
+        <button class="tab active" role="tab" aria-selected="true" aria-controls="tab-datos" data-tab="datos">Datos Generales</button>
+        <button class="tab" role="tab" aria-selected="false" aria-controls="tab-ejercicios" data-tab="ejercicios">Asignación de Ejercicios</button>
+        <button class="tab" role="tab" aria-selected="false" aria-controls="tab-musculo" data-tab="musculo">Selección de Músculo</button>
+    </nav>
+
+    <!-- 
+         TAB 1 — DATOS GENERALES
+     -->
+    <section id="tab-datos" class="tab-panel active" role="tabpanel">
+
+        <!-- Fila de opciones de diagnóstico -->
+        <div class="dg-top">
+            <fieldset class="tipo-diag">
+                <legend class="label">Tipo de Diagnóstico</legend>
+                <div class="radio-group">
+                    <label><input type="radio" name="tipoDiag" value="0" checked /> Genérico</label>
+                    <label><input type="radio" name="tipoDiag" value="1" /> Específico</label>
+                </div>
+            </fieldset>
+
+            <div class="field-group">
+                <label for="nombre-diag">Nombre del Diagnóstico</label>
+                <input id="nombre-diag" type="text" placeholder="Ej. Tendinitis" maxlength="70" />
+            </div>
+
+            <div class="field-group">
+                <label for="tipo-lesion">Tipo de Lesión</label>
+                <select id="tipo-lesion">
+                    <option value="">— Seleccionar —</option>
+                    @if (ViewBag.TipoLesiones != null)
+                    {
+                        foreach (var t in ViewBag.TipoLesiones)
+                        {
+                            <option value="@t.id_TipoLes">@t.Nom_TipLes</option>
+                        }
+                    }
+                </select>
+            </div>
+
+            <div class="field-group">
+                <label for="sel-lesion">Selecciona una Lesión</label>
+                <select id="sel-lesion">
+                    <option value="">— Seleccionar —</option>
+                </select>
+            </div>
+
+            <div class="field-group">
+                <label for="sel-escala">Escala de Dolor</label>
+                <select id="sel-escala">
+                    <option value="">— Seleccionar —</option>
+                    @if (ViewBag.EscalasDolor != null)
+                    {
+                        foreach (var e in ViewBag.EscalasDolor)
+                        {
+                            <option value="@e.id_EscalaDolor">@e.Valor_Escala</option>
+                        }
+                    }
+                </select>
+            </div>
+        </div>
+
+        <!-- Cuerpo: Radiografía | Descripción -->
+        <div class="dg-body" style="grid-template-columns: 200px 1fr;">
+            <div class="xray-card">
+                <div class="card-head">📷 Radiografía</div>
+                <div class="card-body" id="xray-drop" role="button" tabindex="0">
+                    <span id="xray-label">＋ Adjuntar imagen</span>
+                    <img id="xray-preview" src="" alt="Vista previa radiografía" style="display:none; max-width:100%; max-height:150px;" />
+                    <input id="xray-file" type="file" accept="image/*" style="display:none" />
+                </div>
+            </div>
+
+            <div class="desc-card">
+                <div class="card-head">📝 Descripción breve de la Lesión</div>
+                <textarea id="desc-lesion" placeholder="Describa brevemente los síntomas y hallazgos relevantes…" maxlength="300"></textarea>
+            </div>
+        </div>
+
+        <!-- Tabla de registros de diagnóstico -->
+        <div class="table-wrap">
+            <div class="table-head">
+                <button id="btn-add-diag" class="btn-add" type="button" title="Agregar registro de diagnóstico">＋</button>
+            </div>
+            <div class="table-scroll">
+                <table id="tabla-diag">
+                    <thead>
+                        <tr>
+                            <th scope="col">Tipo</th>
+                            <th scope="col">Nombre Diagnóstico</th>
+                            <th scope="col">Lesión</th>
+                            <th scope="col">Radiografía</th>
+                            <th scope="col">Escala Dolor</th>
+                            <th scope="col">Descripción</th>
+                            <th scope="col">Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody id="diag-tbody">
+                        <tr class="empty-row">
+                            <td colspan="7">No hay registros. Presione ＋ para agregar.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </section>
+
+    <!-- 
+         TAB 2 — ASIGNACIÓN DE EJERCICIOS
+     -->
+    <section id="tab-ejercicios" class="tab-panel" role="tabpanel">
+        <div class="ej-top">
+            <div class="ej-filtros" role="group" aria-label="Filtrar por categoría">
+                <span class="filtro-label">Categoría:</span>
+                <button class="cat-pill active" data-cat="todos" type="button">Todos</button>
+                @if (ViewBag.Categorias != null)
+                {
+                    foreach (var cat in ViewBag.Categorias)
+                    {
+                        <button class="cat-pill" data-cat="@cat.id_CatEjer" type="button">@cat.Nombre_CatEjer</button>
+                    }
+                }
+            </div>
+
+            <div class="ej-controls">
+                <div class="field-group">
+                    <label for="sel-ejercicio">Selecciona un Ejercicio</label>
+                    <select id="sel-ejercicio">
+                        <option value="">— Seleccionar —</option>
+                    </select>
+                </div>
+                <div class="field-group field-sm">
+                    <label for="ej-series">Series</label>
+                    <input id="ej-series" type="number" min="1" max="20" placeholder="0" />
+                </div>
+                <div class="field-group field-sm">
+                    <label for="ej-repeticiones">Repeticiones</label>
+                    <input id="ej-repeticiones" type="number" min="1" max="100" placeholder="0" />
+                </div>
+                <button id="btn-add-ej" class="btn-add" type="button" title="Agregar ejercicio">＋</button>
+            </div>
+        </div>
+
+        <div class="table-wrap">
+            <div class="table-scroll">
+                <table id="tabla-ejercicios">
+                    <thead>
+                        <tr>
+                            <th scope="col">Ejercicios Asignados</th>
+                            <th scope="col">Categoría</th>
+                            <th scope="col">Series</th>
+                            <th scope="col">Repeticiones</th>
+                            <th scope="col">Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ej-tbody">
+                        <tr class="empty-row">
+                            <td colspan="5">No hay ejercicios asignados.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- 
+         TAB 3 — SELECCIÓN DE MÚSCULO
+     -->
+    <section id="tab-musculo" class="tab-panel" role="tabpanel">
+        <div class="musculo-layout">
+            <!-- Panel izquierdo: cuerpo + controles -->
+            <div class="musculo-left">
+                <div class="vistas-selector" role="group" aria-label="Vista del cuerpo">
+                    <button class="vista-btn active" data-vista="anterior" type="button">Vista Anterior</button>
+                    <button class="vista-btn" data-vista="posterior" type="button">Vista Posterior</button>
+                </div>
+
+                <!-- Cuerpo SVG interactivo -->
+                <div class="body-canvas" id="body-canvas"></div>
+
+                <div class="zona-leyenda" id="zona-leyenda" aria-live="polite">
+                    <span class="leyenda-dot" style="background:var(--teal)"></span>
+                    <span id="zona-nombre-texto">Ninguna zona seleccionada</span>
+                </div>
+            </div>
+
+            <!-- Panel derecho: tratamientos + descripción + tabla -->
+            <div class="musculo-right">
+                <div class="musculo-form">
+                    <div class="field-group">
+                        <label for="zona-sel-display">Zona Seleccionada</label>
+                        <input id="zona-sel-display" type="text" readonly placeholder="Haga clic en el cuerpo…" />
+                    </div>
+
+                    <div class="field-group">
+                        <label for="tratamiento-select">Tratamiento</label>
+                        <select id="tratamiento-select">
+                            <option value="">— Seleccionar —</option>
+                            @if (ViewBag.Tratamientos != null)
+                            {
+                                foreach (var t in ViewBag.Tratamientos)
+                                {
+                                    <option value="@t.id_Trata">@t.Nombre_Trata</option>
+                                }
+                            }
+                        </select>
+                    </div>
+
+                    <div class="field-group">
+                        <label for="musculo-desc">Descripción breve de la lesión</label>
+                        <textarea id="musculo-desc" rows="4" maxlength="200" placeholder="Describa la lesión en esta zona…"></textarea>
+                    </div>
+
+                    <button id="btn-add-musculo" class="btn-add-musculo" type="button">＋ Agregar zona</button>
+                </div>
+
+                <!-- Tabla de zonas agregadas -->
+                <div class="table-wrap" style="margin-top:16px">
+                    <div class="table-scroll">
+                        <table id="tabla-musculo">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Zona / Músculo</th>
+                                    <th scope="col">Tratamiento</th>
+                                    <th scope="col">Descripción</th>
+                                    <th scope="col">Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody id="musculo-tbody">
+                                <tr class="empty-row">
+                                    <td colspan="4">Sin zonas registradas. Seleccione un músculo en el cuerpo.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+</main>
+
+<!-- 
+     MODAL — BÚSQUEDA DE DIAGNÓSTICO
+ -->
+<div id="modalBusqueda" class="modal-overlay" role="dialog" aria-modal="true" hidden>
+    <div class="modal-box">
+        <header class="modal-header">
+            <h2>🔍 Buscar Diagnóstico</h2>
+            <button class="modal-close" id="cerrarModal" type="button" aria-label="Cerrar">✕</button>
+        </header>
+        <div class="modal-body">
+            <div class="modal-search-wrap">
+                <input id="modalBuscadorInput" type="text" placeholder="Buscar por paciente o motivo de cita…" autocomplete="off" class="modal-input" />
+                <span class="icon" aria-hidden="true">🔍</span>
+            </div>
+            <div class="table-wrap" style="margin-top:12px">
+                <div class="table-scroll">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Núm. Diag</th>
+                                <th>Paciente</th>
+                                <th>Motivo de Cita</th>
+                                <th>Fecha</th>
+                            </tr>
+                        </thead>
+                        <tbody id="modalResultados"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="modal-confirm-actions" style="padding:12px 24px 20px;">
+            <button type="button" id="btnAceptar" class="btn-save">Aceptar</button>
+            <button type="button" id="btnCancelar" class="btn-secondary">Cancelar</button>
+        </div>
+    </div>
+</div>
+
+<!-- 
+     MODAL — EDITAR REGISTRO DIAGNÓSTICO
+ -->
+<div id="modal-editar" class="modal-overlay" role="dialog" aria-modal="true" hidden>
+    <div class="modal-box">
+        <header class="modal-header">
+            <h2>✏️ Editar Registro</h2>
+            <button class="modal-close" id="modal-editar-close" type="button" aria-label="Cerrar">✕</button>
+        </header>
+        <div class="modal-body">
+            <div class="edit-grid">
+                <div class="field-group">
+                    <label for="edit-tipo">Tipo de Diagnóstico</label>
+                    <select id="edit-tipo">
+                        <option value="0">Genérico</option>
+                        <option value="1">Específico</option>
+                    </select>
+                </div>
+                <div class="field-group">
+                    <label for="edit-nombre">Nombre del Diagnóstico</label>
+                    <input id="edit-nombre" type="text" maxlength="70" />
+                </div>
+                <div class="field-group">
+                    <label for="edit-lesion">Lesión</label>
+                    <select id="edit-lesion">
+                        <option value="">— Seleccionar —</option>
+                    </select>
+                </div>
+                <div class="field-group">
+                    <label for="edit-dolor">Escala de Dolor</label>
+                    <select id="edit-dolor">
+                        <option value="">— Seleccionar —</option>
+                    </select>
+                </div>
+                <div class="field-group" style="grid-column:1/-1">
+                    <label for="edit-desc">Descripción</label>
+                    <textarea id="edit-desc" rows="3" maxlength="300"></textarea>
+                </div>
+            </div>
+            <div class="modal-confirm-actions" style="margin-top:16px">
+                <button id="btn-editar-cancelar" class="btn-secondary" type="button">Cancelar</button>
+                <button id="btn-editar-guardar" class="btn-save" type="button">Guardar cambios</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Inyectar datos de catálogos como JSON para JavaScript -->
+<script>
+    var LESIONES_DATA = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.Lesiones ?? new List<object>()));
+    var EJERCICIOS_DATA = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.Ejercicios ?? new List<object>()));
+    var ESCALAS_DATA = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.EscalasDolor ?? new List<object>()));
+    var TRATAMIENTOS_DATA = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.Tratamientos ?? new List<object>()));
+</script>
+<script src="~/Content/diagnostico.js"></script>
+
+
