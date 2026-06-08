@@ -1,52 +1,10 @@
 ﻿'use strict';
 
-/* ═══════════════════════════════════════════
-   DATOS SIMULADOS (reemplazar con BD real)
-════════════════════════════════════════════ */
-const PACIENTES_DB = [
-    { id: 1, nombre: 'García López, María', motivo: 'Dolor lumbar crónico', fisio: 'Dra. Sánchez Torres' },
-    { id: 2, nombre: 'Martínez Ruiz, Carlos', motivo: 'Rehabilitación post-operatoria', fisio: 'Dr. Ramírez Vega' },
-    { id: 3, nombre: 'Hernández Mora, Ana', motivo: 'Esguince de tobillo', fisio: 'Dra. Sánchez Torres' },
-    { id: 4, nombre: 'López Castro, Pedro', motivo: 'Cervicalgia', fisio: 'Dr. Ramírez Vega' },
-    { id: 5, nombre: 'Rodríguez Díaz, Laura', motivo: 'Tendinitis rotuliana', fisio: 'Dra. Flores Mendoza' },
-    { id: 6, nombre: 'Torres Guzmán, Jorge', motivo: 'Dolor de hombro', fisio: 'Dr. Ramírez Vega' },
-];
-
-const EJERCICIOS_DB = [
-    { id: 1, nombre: 'Extensión de rodilla', cat: 'fuerza' },
-    { id: 2, nombre: 'Flexión de cadera', cat: 'movilidad' },
-    { id: 3, nombre: 'Puente glúteo', cat: 'fuerza' },
-    { id: 4, nombre: 'Estiramiento isquiotibial', cat: 'estiramiento' },
-    { id: 5, nombre: 'Equilibrio monopodal', cat: 'equilibrio' },
-    { id: 6, nombre: 'Respiración diafragmática', cat: 'respiratorio' },
-    { id: 7, nombre: 'Rotación de hombro', cat: 'movilidad' },
-    { id: 8, nombre: 'Press de pecho con banda', cat: 'fuerza' },
-    { id: 9, nombre: 'Estiramiento de gemelos', cat: 'estiramiento' },
-    { id: 10, nombre: 'Marcha en puntillas', cat: 'equilibrio' },
-    { id: 11, nombre: 'Elevación de pierna recta', cat: 'fuerza' },
-    { id: 12, nombre: 'Respiración costal', cat: 'respiratorio' },
-];
-
-/* Registros simulados para el modal de eliminar */
-let REGISTROS_DB = [
-    { num: 1, paciente: 'García López, María', motivo: 'Dolor lumbar crónico' },
-    { num: 2, paciente: 'Martínez Ruiz, Carlos', motivo: 'Rehabilitación post-operatoria' },
-    { num: 3, paciente: 'Hernández Mora, Ana', motivo: 'Esguince de tobillo' },
-];
-
-/* Contador de Núm. Diag */
-let numDiagActual = 1;
-
-/* Fila en edición */
-let filaEditando = null;
-/* Registro a eliminar (modal) */
-let registroAEliminar = null;
-
-/* ═══════════════════════════════════════════
+/* 
    UTILIDADES
-════════════════════════════════════════════ */
+ */
 const $ = id => document.getElementById(id);
-const soloTexto = v => /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s.,'-]+$/.test(v.trim());
+const soloTexto = v => /^[A-Za-zÁÉÍÓÚáéíóúÑñüÜ\s.,;:()\-']+$/.test(v.trim());
 const soloNumeros = v => /^\d+$/.test(v.trim());
 
 function mostrarAlerta(msg, tipo = 'error') {
@@ -66,9 +24,17 @@ function mostrarAlerta(msg, tipo = 'error') {
     setTimeout(() => div.remove(), 3200);
 }
 
-/* ═══════════════════════════════════════════
+/* 
+   ESTADO GLOBAL
+ */
+let diagnosticoSeleccionado = null; // objeto con datos del diag cargado
+let filaEditando = null;
+let zonaSeleccionada = null;
+let vistaActual = 'anterior';
+
+/* 
    TABS
-════════════════════════════════════════════ */
+ */
 document.querySelectorAll('.tab').forEach(tab => {
     tab.addEventListener('click', () => {
         document.querySelectorAll('.tab').forEach(t => {
@@ -76,101 +42,299 @@ document.querySelectorAll('.tab').forEach(tab => {
             t.setAttribute('aria-selected', 'false');
         });
         document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-
         tab.classList.add('active');
         tab.setAttribute('aria-selected', 'true');
         $('tab-' + tab.dataset.tab).classList.add('active');
     });
 });
 
-/* ═══════════════════════════════════════════
-   BÚSQUEDA GLOBAL — Autocomplete
-════════════════════════════════════════════ */
-const searchInput = $('search-global');
-const suggestions = $('search-suggestions');
+/* 
+   MODAL DE BÚSQUEDA (estilo Ejercicios)
+ */
+const modal = $('modalBusqueda');
+const btnAbrirModal = $('abrirModal');
+const btnCerrarModal = $('cerrarModal');
+const btnCancelar = $('btnCancelar');
+const btnAceptar = $('btnAceptar');
+const modalInputBuscador = $('modalBuscadorInput');
+const modalResultados = $('modalResultados');
+let modalTimerId;
+let itemSeleccionadoModal = null;
 
-const campoMotivo = $('motivo-cita');
-const campoPaciente = $('nombre-paciente');
-const campoFisio = $('nombre-fisio');
+// Abrir modal
+btnAbrirModal.addEventListener('click', function (e) {
+    e.preventDefault();
+    modal.removeAttribute('hidden');
+    modalInputBuscador.value = '';
+    modalResultados.innerHTML = '<tr class="empty-row"><td colspan="4">Ingrese un término de búsqueda.</td></tr>';
+    itemSeleccionadoModal = null;
+    modalInputBuscador.focus();
+});
 
-searchInput.addEventListener('input', () => {
-    const q = searchInput.value.trim().toLowerCase();
-    suggestions.innerHTML = '';
+// Cerrar modal
+function cerrarModalBusqueda() {
+    modal.setAttribute('hidden', '');
+}
+btnCerrarModal.addEventListener('click', cerrarModalBusqueda);
+btnCancelar.addEventListener('click', cerrarModalBusqueda);
 
-    if (q.length < 2) { suggestions.classList.remove('open'); return; }
+// Buscar mientras escribes
+modalInputBuscador.addEventListener('input', function () {
+    clearTimeout(modalTimerId);
+    const self = this;
+    modalTimerId = setTimeout(function () {
+        const valor = self.value.trim();
+        if (!valor) {
+            modalResultados.innerHTML = '<tr class="empty-row"><td colspan="4">Ingrese un término de búsqueda.</td></tr>';
+            return;
+        }
 
-    const filtrados = PACIENTES_DB.filter(p =>
-        p.nombre.toLowerCase().includes(q) || p.motivo.toLowerCase().includes(q)
-    );
+        fetch('/Diagnostico/BuscarDiagnosticos?busqueda=' + encodeURIComponent(valor))
+            .then(function (response) { return response.json(); })
+            .then(function (data) { mostrarResultadosModal(data); })
+            .catch(function (error) { console.error("Error:", error); });
+    }, 300);
+});
 
-    if (!filtrados.length) {
-        suggestions.classList.remove('open');
+function mostrarResultadosModal(resultados) {
+    modalResultados.innerHTML = '';
+    itemSeleccionadoModal = null;
+
+    if (!resultados || !resultados.length) {
+        modalResultados.innerHTML = '<tr class="empty-row"><td colspan="4">Sin resultados.</td></tr>';
         return;
     }
 
-    filtrados.forEach(p => {
-        const li = document.createElement('li');
-        li.textContent = `${p.nombre} — ${p.motivo}`;
-        li.setAttribute('role', 'option');
-        li.addEventListener('click', () => seleccionarPaciente(p));
-        suggestions.appendChild(li);
+    resultados.forEach(function (r) {
+        const fila = document.createElement('tr');
+        fila.innerHTML =
+            '<td>' + (r.Num_Diag > 0 ? r.Num_Diag : '<span style="color:var(--muted);font-size:.8rem">Nuevo</span>') + '</td>' +
+            '<td>' + (r.Paciente || '') + '</td>' +
+            '<td>' + (r.Motivo_Cita || '') + '</td>' +
+            '<td>' + (r.Fecha_Cita || '') + '</td>';
+
+        fila.addEventListener('click', function () {
+            Array.from(modalResultados.querySelectorAll('tr')).forEach(function (row) { row.classList.remove('seleccionado'); });
+            fila.classList.add('seleccionado');
+            itemSeleccionadoModal = r;
+        });
+
+        modalResultados.appendChild(fila);
     });
-
-    suggestions.classList.add('open');
-});
-
-document.addEventListener('click', e => {
-    if (!e.target.closest('.search-wrap')) suggestions.classList.remove('open');
-});
-
-function seleccionarPaciente(p) {
-    campoMotivo.value = p.motivo;
-    campoPaciente.value = p.nombre;
-    campoFisio.value = p.fisio;
-
-    [campoMotivo, campoPaciente, campoFisio].forEach(c => {
-        c.readOnly = true;
-        c.classList.add('locked');
-    });
-
-    searchInput.value = p.nombre;
-    suggestions.classList.remove('open');
-    mostrarAlerta(`Paciente "${p.nombre}" seleccionado.`, 'ok');
 }
 
-/* ═══════════════════════════════════════════
-   BOTÓN LIMPIAR DATOS
-════════════════════════════════════════════ */
-$('btn-limpiar').addEventListener('click', () => {
-    [campoMotivo, campoPaciente, campoFisio].forEach(c => {
-        c.value = '';
-        c.readOnly = false;
-        c.classList.remove('locked');
-    });
-    searchInput.value = '';
-    suggestions.classList.remove('open');
-    mostrarAlerta('Campos de paciente limpiados.', 'ok');
+// Aceptar selección
+btnAceptar.addEventListener('click', function () {
+    if (!itemSeleccionadoModal) {
+        mostrarAlerta('Seleccione un registro de la tabla.');
+        return;
+    }
+
+    // Cargar datos en los campos
+    $('id-cita').value = itemSeleccionadoModal.id_Cita || '';
+    $('id-diag').value = itemSeleccionadoModal.id_Diag || '';
+    $('id-pac').value = itemSeleccionadoModal.id_Pac || '';
+    $('id-emp').value = itemSeleccionadoModal.id_Emp || '';
+    $('motivo-cita').value = itemSeleccionadoModal.Motivo_Cita || '';
+    $('nombre-paciente').value = itemSeleccionadoModal.Paciente || '';
+    $('nombre-fisio').value = itemSeleccionadoModal.Fisioterapeuta || '';
+    $('num-diag').value = itemSeleccionadoModal.Num_Diag > 0 ? itemSeleccionadoModal.Num_Diag : '';
+
+    if (itemSeleccionadoModal.id_Consul) {
+        $('consultorio').value = itemSeleccionadoModal.id_Consul;
+    }
+
+    if (itemSeleccionadoModal.id_Diag > 0) {
+        // Cargar detalles del diagnóstico existente
+        fetch('/Diagnostico/ObtenerDetalleDiagnostico?id=' + itemSeleccionadoModal.id_Diag)
+            .then(function (response) { return response.json(); })
+            .then(function (result) {
+                if (result.respuesta && result.datos) {
+                    cargarDetallesEnVista(result.datos);
+                }
+            })
+            .catch(function (error) { console.error("Error cargando detalles:", error); });
+
+        // Bloquear guardar, habilitar actualizar y eliminar
+        diagnosticoSeleccionado = itemSeleccionadoModal;
+        $('btn-save').disabled = true;
+        $('btn-save').style.opacity = '0.5';
+        $('btn-actualizar').disabled = false;
+        $('btn-actualizar').style.opacity = '1';
+        $('btn-eliminar').disabled = false;
+        $('btn-eliminar').style.opacity = '1';
+    } else {
+        // No tiene diagnóstico, preparar para guardar uno nuevo
+        $('diag-tbody').innerHTML = '<tr class="empty-row"><td colspan="7">No hay registros. Presione ＋ para agregar.</td></tr>';
+        $('ej-tbody').innerHTML = '<tr class="empty-row"><td colspan="5">No hay ejercicios asignados.</td></tr>';
+        $('musculo-tbody').innerHTML = '<tr class="empty-row"><td colspan="4">Sin zonas registradas.</td></tr>';
+        
+        diagnosticoSeleccionado = null;
+        $('btn-save').disabled = false;
+        $('btn-save').style.opacity = '1';
+        $('btn-actualizar').disabled = true;
+        $('btn-actualizar').style.opacity = '0.5';
+        $('btn-eliminar').disabled = true;
+        $('btn-eliminar').style.opacity = '0.5';
+    }
+
+    cerrarModalBusqueda();
+    
+    if (itemSeleccionadoModal.id_Diag > 0) {
+        mostrarAlerta('Diagnóstico #' + itemSeleccionadoModal.Num_Diag + ' cargado.', 'ok');
+    } else {
+        mostrarAlerta('Cita cargada. Listo para crear nuevo diagnóstico.', 'ok');
+    }
 });
 
-/* ═══════════════════════════════════════════
-   NÚM. DIAG — solo positivo, consecutivo, bloqueado
-════════════════════════════════════════════ */
-const inputNumDiag = $('num-diag');
-inputNumDiag.value = numDiagActual;
-inputNumDiag.setAttribute('readonly', true);
-inputNumDiag.setAttribute('min', '1');
+function cargarDetallesEnVista(datos) {
+    // Cargar consultorio
+    if (datos.id_Consul) $('consultorio').value = datos.id_Consul;
 
-/* ═══════════════════════════════════════════
+    // Cargar DetallesDiag en la tabla
+    var tbody = $('diag-tbody');
+    tbody.innerHTML = '';
+    if (datos.DetallesDiag && datos.DetallesDiag.length > 0) {
+        datos.DetallesDiag.forEach(function (dd) {
+            var tipoLabel = dd.Tipo_Diag ? 'Específico' : 'Genérico';
+            var tr = document.createElement('tr');
+            tr.innerHTML =
+                '<td>' + tipoLabel + '</td>' +
+                '<td>' + (dd.Nombre_Diag || '—') + '</td>' +
+                '<td>' + (dd.Nombre_Lesion || '—') + '</td>' +
+                '<td>' + (dd.RadioGrafia ? '<img src="' + dd.RadioGrafia + '" style="height:40px;border-radius:4px;" />' : '—') + '</td>' +
+                '<td>' + (dd.Valor_Escala || '—') + '</td>' +
+                '<td title="' + (dd.Descrip_Diag || '') + '">' + (dd.Descrip_Diag ? dd.Descrip_Diag.slice(0, 35) + (dd.Descrip_Diag.length > 35 ? '…' : '') : '—') + '</td>' +
+                '<td>' +
+                '<button class="btn-tbl btn-tbl-edit" title="Editar" onclick="abrirEditar(this)">✏️</button>' +
+                '<button class="btn-tbl btn-tbl-del" title="Quitar" onclick="quitarFilaDiag(this)">🗑️</button>' +
+                '</td>';
+            tr.dataset.datos = JSON.stringify({
+                tipo: dd.Tipo_Diag ? '1' : '0',
+                nombre: dd.Nombre_Diag || '',
+                id_Lesion: dd.id_Lesion || '',
+                nombreLesion: dd.Nombre_Lesion || '',
+                dolor: dd.Valor_Escala || '',
+                id_EscalaDolor: dd.id_EscalaDolor || '',
+                desc: dd.Descrip_Diag || '',
+                radiografia: dd.RadioGrafia || ''
+            });
+            tbody.appendChild(tr);
+        });
+    } else {
+        tbody.innerHTML = '<tr class="empty-row"><td colspan="7">No hay registros. Presione ＋ para agregar.</td></tr>';
+    }
+
+    // Cargar DetallesEjer en la tabla
+    var ejTbody = $('ej-tbody');
+    ejTbody.innerHTML = '';
+    if (datos.DetallesEjer && datos.DetallesEjer.length > 0) {
+        datos.DetallesEjer.forEach(function (de) {
+            var tr = document.createElement('tr');
+            tr.innerHTML =
+                '<td>' + (de.Nombre_Ejer || '—') + '</td>' +
+                '<td>' + (de.Nombre_CatEjer || '—') + '</td>' +
+                '<td>' + de.Series + '</td>' +
+                '<td>' + de.Repeticiones + '</td>' +
+                '<td><button class="btn-tbl btn-tbl-del" title="Quitar" onclick="quitarFilaEj(this)">🗑️</button></td>';
+            tr.dataset.datos = JSON.stringify({
+                id_Ejercicio: de.id_Ejercicio,
+                nombre: de.Nombre_Ejer,
+                categoria: de.Nombre_CatEjer,
+                series: de.Series,
+                repeticiones: de.Repeticiones
+            });
+            ejTbody.appendChild(tr);
+        });
+    } else {
+        ejTbody.innerHTML = '<tr class="empty-row"><td colspan="5">No hay ejercicios asignados.</td></tr>';
+    }
+
+    // Cargar DetallesCH en la tabla
+    var musTbody = $('musculo-tbody');
+    musTbody.innerHTML = '';
+    if (datos.DetallesCH && datos.DetallesCH.length > 0) {
+        datos.DetallesCH.forEach(function (ch) {
+            var tr = document.createElement('tr');
+            tr.innerHTML =
+                '<td><strong>' + (ch.Nombre_Musculo || '—') + '</strong></td>' +
+                '<td style="font-size:.8rem">' + (ch.Nombre_Trata || '—') + '</td>' +
+                '<td title="' + (ch.Descripcion_DiagCH || '') + '">' + (ch.Descripcion_DiagCH ? ch.Descripcion_DiagCH.slice(0, 40) + (ch.Descripcion_DiagCH.length > 40 ? '…' : '') : '—') + '</td>' +
+                '<td><button class="btn-tbl btn-tbl-del" title="Quitar" onclick="quitarFilaMusculo(this)">🗑️</button></td>';
+            tr.dataset.datos = JSON.stringify({
+                nombre: ch.Nombre_Musculo,
+                imagen: ch.Imag_Musculo,
+                id_Trata: ch.id_Trata,
+                nombreTrata: ch.Nombre_Trata,
+                desc: ch.Descripcion_DiagCH
+            });
+            musTbody.appendChild(tr);
+        });
+    } else {
+        musTbody.innerHTML = '<tr class="empty-row"><td colspan="4">Sin zonas registradas.</td></tr>';
+    }
+}
+
+/* 
+   CERRAR MODALES
+ */
+function abrirModal(id) {
+    var m = $(id);
+    m.removeAttribute('hidden');
+}
+function cerrarModal(id) {
+    $(id).setAttribute('hidden', '');
+}
+document.querySelectorAll('.modal-overlay').forEach(m => {
+    m.addEventListener('click', e => { if (e.target === m) cerrarModal(m.id); });
+});
+document.addEventListener('keydown', e => {
+    if (e.key !== 'Escape') return;
+    ['modalBusqueda', 'modal-editar'].forEach(id => {
+        if (!$(id).hasAttribute('hidden')) cerrarModal(id);
+    });
+});
+
+/* 
+   BOTÓN LIMPIAR
+ */
+$('btn-limpiar').addEventListener('click', function () {
+    $('id-cita').value = '';
+    $('id-diag').value = '';
+    $('id-pac').value = '';
+    $('id-emp').value = '';
+    $('motivo-cita').value = '';
+    $('nombre-paciente').value = '';
+    $('nombre-fisio').value = '';
+    $('num-diag').value = '';
+    $('consultorio').value = '';
+
+    // Limpiar tablas
+    $('diag-tbody').innerHTML = '<tr class="empty-row"><td colspan="7">No hay registros. Presione ＋ para agregar.</td></tr>';
+    $('ej-tbody').innerHTML = '<tr class="empty-row"><td colspan="5">No hay ejercicios asignados.</td></tr>';
+    $('musculo-tbody').innerHTML = '<tr class="empty-row"><td colspan="4">Sin zonas registradas.</td></tr>';
+
+    // Desbloquear guardar
+    diagnosticoSeleccionado = null;
+    $('btn-save').disabled = false;
+    $('btn-save').style.opacity = '1';
+    $('btn-actualizar').disabled = true;
+    $('btn-actualizar').style.opacity = '0.5';
+    $('btn-eliminar').disabled = true;
+    $('btn-eliminar').style.opacity = '0.5';
+
+    mostrarAlerta('Datos limpiados.', 'ok');
+});
+
+/* 
    RADIOGRAFÍA
-════════════════════════════════════════════ */
+ */
 const xrayDrop = $('xray-drop');
 const xrayFile = $('xray-file');
 const xrayPreview = $('xray-preview');
 const xrayLabel = $('xray-label');
 
 xrayDrop.addEventListener('click', () => xrayFile.click());
-xrayDrop.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') xrayFile.click(); });
-
 xrayFile.addEventListener('change', () => {
     const file = xrayFile.files[0];
     if (!file) return;
@@ -183,69 +347,93 @@ xrayFile.addEventListener('change', () => {
     reader.readAsDataURL(file);
 });
 
-/* ═══════════════════════════════════════════
-   TAB 1 — TABLA DIAGNÓSTICOS
-════════════════════════════════════════════ */
-const dolorLabels = ['Sin Dolor', 'Leve', 'Moderado', 'Fuerte', 'Extremo'];
+/* 
+   TIPO DE LESIÓN → Cargar lesiones filtradas
+ */
+$('tipo-lesion').addEventListener('change', function () {
+    var tipoId = this.value;
+    var selLesion = $('sel-lesion');
+    selLesion.innerHTML = '<option value="">— Seleccionar —</option>';
 
-$('btn-add-diag').addEventListener('click', () => {
-    // Validaciones
-    const tipo = document.querySelector('input[name="tipoDiag"]:checked')?.value || '';
-    const nombre = $('nombre-diag').value.trim();
-    const lesion = $('sel-lesion').options[$('sel-lesion').selectedIndex]?.text || '';
-    const dolorEl = document.querySelector('input[name="dolor"]:checked');
-    const desc = $('desc-lesion').value.trim();
+    if (!tipoId) return;
+
+    var filtradas = (typeof LESIONES_DATA !== 'undefined' ? LESIONES_DATA : []).filter(function (l) {
+        return String(l.id_TipoLes) === String(tipoId);
+    });
+
+    filtradas.forEach(function (l) {
+        var opt = document.createElement('option');
+        opt.value = l.id_Lesion;
+        opt.textContent = l.Nom_les;
+        selLesion.appendChild(opt);
+    });
+});
+
+/* 
+   TAB 1 — AGREGAR DIAGNÓSTICO A TABLA
+ */
+$('btn-add-diag').addEventListener('click', function () {
+    var tipo = document.querySelector('input[name="tipoDiag"]:checked');
+    var nombre = $('nombre-diag').value.trim();
+    var lesionSel = $('sel-lesion');
+    var lesionText = lesionSel.options[lesionSel.selectedIndex] ? lesionSel.options[lesionSel.selectedIndex].text : '';
+    var lesionVal = lesionSel.value;
+    var escalaSel = $('sel-escala');
+    var escalaText = escalaSel.options[escalaSel.selectedIndex] ? escalaSel.options[escalaSel.selectedIndex].text : '';
+    var escalaVal = escalaSel.value;
+    var desc = $('desc-lesion').value.trim();
+    var imgSrc = xrayPreview.src && xrayPreview.style.display !== 'none' ? xrayPreview.src : '';
 
     if (!nombre) { mostrarAlerta('Ingrese el nombre del diagnóstico.'); return; }
-    if (!soloTexto(nombre)) { mostrarAlerta('El nombre del diagnóstico solo admite texto.'); return; }
-    if (!$('sel-lesion').value) { mostrarAlerta('Seleccione una lesión.'); return; }
-    if (!dolorEl) { mostrarAlerta('Seleccione la escala de dolor.'); return; }
+    if (!lesionVal) { mostrarAlerta('Seleccione una lesión.'); return; }
+    if (!escalaVal) { mostrarAlerta('Seleccione la escala de dolor.'); return; }
 
-    const dolorVal = dolorLabels[parseInt(dolorEl.value)];
-    const tipoLabel = tipo === 'generico' ? 'Genérico' : 'Específico';
-    const imgSrc = xrayPreview.src && xrayPreview.style.display !== 'none' ? xrayPreview.src : null;
-
-    const tbody = $('diag-tbody');
-    const emptyRow = tbody.querySelector('.empty-row');
+    var tipoLabel = tipo && tipo.value === '1' ? 'Específico' : 'Genérico';
+    var tbody = $('diag-tbody');
+    var emptyRow = tbody.querySelector('.empty-row');
     if (emptyRow) emptyRow.remove();
 
-    const tr = document.createElement('tr');
-    tr.dataset.idx = numDiagActual;
-    tr.innerHTML = `
-    <td>${tipoLabel}</td>
-    <td>${nombre}</td>
-    <td>${lesion}</td>
-    <td>${imgSrc ? `<img src="${imgSrc}" alt="Radiografía" style="height:40px;border-radius:4px;cursor:pointer;" onclick="window.open('${imgSrc}')"/>` : '—'}</td>
-    <td>${dolorVal}</td>
-    <td title="${desc}">${desc ? desc.slice(0, 35) + (desc.length > 35 ? '…' : '') : '—'}</td>
-    <td>
-      <button class="btn-tbl btn-tbl-edit" title="Editar registro" onclick="abrirEditar(this)">✏️</button>
-      <button class="btn-tbl btn-tbl-del"  title="Quitar registro" onclick="quitarFilaDiag(this)">🗑️</button>
-    </td>
-  `;
-    tr.dataset.datos = JSON.stringify({ tipo, nombre, lesion, dolor: dolorVal, desc });
+    var tr = document.createElement('tr');
+    tr.innerHTML =
+        '<td>' + tipoLabel + '</td>' +
+        '<td>' + nombre + '</td>' +
+        '<td>' + (lesionText || '—') + '</td>' +
+        '<td>' + (imgSrc ? '<img src="' + imgSrc + '" style="height:40px;border-radius:4px;" />' : '—') + '</td>' +
+        '<td>' + (escalaText || '—') + '</td>' +
+        '<td title="' + desc + '">' + (desc ? desc.slice(0, 35) + (desc.length > 35 ? '…' : '') : '—') + '</td>' +
+        '<td>' +
+        '<button class="btn-tbl btn-tbl-edit" title="Editar" onclick="abrirEditar(this)">✏️</button>' +
+        '<button class="btn-tbl btn-tbl-del" title="Quitar" onclick="quitarFilaDiag(this)">🗑️</button>' +
+        '</td>';
+
+    tr.dataset.datos = JSON.stringify({
+        tipo: tipo ? tipo.value : '0',
+        nombre: nombre,
+        id_Lesion: lesionVal,
+        nombreLesion: lesionText,
+        dolor: escalaText,
+        id_EscalaDolor: escalaVal,
+        desc: desc,
+        radiografia: imgSrc
+    });
     tbody.appendChild(tr);
 
-    numDiagActual++;
-    inputNumDiag.value = numDiagActual;
-
-    // Limpiar formulario
+    // Limpiar campos
     $('nombre-diag').value = '';
     $('tipo-lesion').value = '';
-    $('sel-lesion').value = '';
+    $('sel-lesion').innerHTML = '<option value="">— Seleccionar —</option>';
+    $('sel-escala').value = '';
     $('desc-lesion').value = '';
-    document.querySelectorAll('input[name="dolor"]').forEach(r => r.checked = false);
     xrayPreview.style.display = 'none';
     xrayLabel.style.display = '';
     xrayPreview.src = '';
     xrayFile.value = '';
 
-    mostrarAlerta('Registro agregado correctamente.', 'ok');
+    mostrarAlerta('Registro agregado.', 'ok');
 });
 
 function quitarFilaDiag(btn) {
-    const tr = btn.closest('tr');
-    tr.remove();
+    btn.closest('tr').remove();
     if (!$('diag-tbody').querySelector('tr')) {
         $('diag-tbody').innerHTML = '<tr class="empty-row"><td colspan="7">No hay registros. Presione ＋ para agregar.</td></tr>';
     }
@@ -254,32 +442,66 @@ function quitarFilaDiag(btn) {
 /* ── Editar fila ── */
 function abrirEditar(btn) {
     filaEditando = btn.closest('tr');
-    const d = JSON.parse(filaEditando.dataset.datos || '{}');
-    $('edit-tipo').value = d.tipo || 'generico';
+    var d = JSON.parse(filaEditando.dataset.datos || '{}');
+    $('edit-tipo').value = d.tipo || '0';
     $('edit-nombre').value = d.nombre || '';
-    $('edit-lesion').value = d.lesion || '';
-    $('edit-dolor').value = d.dolor || 'Sin Dolor';
+
+    // Cargar lesiones en el modal edit
+    var editLesion = $('edit-lesion');
+    editLesion.innerHTML = '<option value="">— Seleccionar —</option>';
+    (typeof LESIONES_DATA !== 'undefined' ? LESIONES_DATA : []).forEach(function (l) {
+        var opt = document.createElement('option');
+        opt.value = l.id_Lesion;
+        opt.textContent = l.Nom_les;
+        editLesion.appendChild(opt);
+    });
+    editLesion.value = d.id_Lesion || '';
+
+    // Cargar escalas en el modal edit
+    var editDolor = $('edit-dolor');
+    editDolor.innerHTML = '<option value="">— Seleccionar —</option>';
+    (typeof ESCALAS_DATA !== 'undefined' ? ESCALAS_DATA : []).forEach(function (e) {
+        var opt = document.createElement('option');
+        opt.value = e.id_EscalaDolor;
+        opt.textContent = e.Valor_Escala;
+        editDolor.appendChild(opt);
+    });
+    editDolor.value = d.id_EscalaDolor || '';
+
     $('edit-desc').value = d.desc || '';
     abrirModal('modal-editar');
 }
 
-$('btn-editar-guardar').addEventListener('click', () => {
+$('btn-editar-guardar').addEventListener('click', function () {
     if (!filaEditando) return;
-    const nombre = $('edit-nombre').value.trim();
+    var nombre = $('edit-nombre').value.trim();
     if (!nombre) { mostrarAlerta('El nombre no puede estar vacío.'); return; }
-    if (!soloTexto(nombre)) { mostrarAlerta('El nombre solo admite texto.'); return; }
 
-    const tipo = $('edit-tipo').value;
-    const lesion = $('edit-lesion').value.trim();
-    const dolor = $('edit-dolor').value;
-    const desc = $('edit-desc').value.trim();
+    var tipo = $('edit-tipo').value;
+    var lesionSel = $('edit-lesion');
+    var lesionVal = lesionSel.value;
+    var lesionText = lesionSel.options[lesionSel.selectedIndex] ? lesionSel.options[lesionSel.selectedIndex].text : '';
+    var dolorSel = $('edit-dolor');
+    var dolorVal = dolorSel.value;
+    var dolorText = dolorSel.options[dolorSel.selectedIndex] ? dolorSel.options[dolorSel.selectedIndex].text : '';
+    var desc = $('edit-desc').value.trim();
 
-    filaEditando.dataset.datos = JSON.stringify({ tipo, nombre, lesion, dolor, desc });
-    const celdas = filaEditando.querySelectorAll('td');
-    celdas[0].textContent = tipo === 'generico' ? 'Genérico' : 'Específico';
+    var oldData = JSON.parse(filaEditando.dataset.datos || '{}');
+    filaEditando.dataset.datos = JSON.stringify({
+        tipo: tipo,
+        nombre: nombre,
+        id_Lesion: lesionVal,
+        nombreLesion: lesionText,
+        dolor: dolorText,
+        id_EscalaDolor: dolorVal,
+        desc: desc,
+        radiografia: oldData.radiografia || ''
+    });
+    var celdas = filaEditando.querySelectorAll('td');
+    celdas[0].textContent = tipo === '1' ? 'Específico' : 'Genérico';
     celdas[1].textContent = nombre;
-    celdas[2].textContent = lesion || '—';
-    celdas[4].textContent = dolor;
+    celdas[2].textContent = lesionText || '—';
+    celdas[4].textContent = dolorText || '—';
     celdas[5].textContent = desc ? desc.slice(0, 35) + (desc.length > 35 ? '…' : '') : '—';
     celdas[5].title = desc;
 
@@ -291,127 +513,25 @@ $('btn-editar-guardar').addEventListener('click', () => {
 $('btn-editar-cancelar').addEventListener('click', () => cerrarModal('modal-editar'));
 $('modal-editar-close').addEventListener('click', () => cerrarModal('modal-editar'));
 
-/* ═══════════════════════════════════════════
-   MODAL ELIMINAR REGISTRO
-════════════════════════════════════════════ */
-$('btn-eliminar').addEventListener('click', () => {
-    renderTablaModal('');
-    $('modal-search-input').value = '';
-    abrirModal('modal-eliminar');
-});
-
-$('modal-eliminar-close').addEventListener('click', () => cerrarModal('modal-eliminar'));
-
-$('modal-search-input').addEventListener('input', () => {
-    renderTablaModal($('modal-search-input').value.trim().toLowerCase());
-});
-
-function renderTablaModal(q) {
-    const tbody = $('modal-resultados-tbody');
-    tbody.innerHTML = '';
-
-    const lista = q.length
-        ? REGISTROS_DB.filter(r =>
-            r.paciente.toLowerCase().includes(q) || r.motivo.toLowerCase().includes(q))
-        : REGISTROS_DB;
-
-    if (!lista.length) {
-        tbody.innerHTML = '<tr class="empty-row"><td colspan="4">Sin resultados.</td></tr>';
-        return;
-    }
-
-    lista.forEach(r => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-      <td>${r.num}</td>
-      <td>${r.paciente}</td>
-      <td>${r.motivo}</td>
-      <td>
-        <button class="btn-add" style="width:auto;padding:4px 14px;font-size:.8rem;"
-          onclick="pedirConfirmacionEliminar(${r.num})">Seleccionar</button>
-      </td>
-    `;
-        tbody.appendChild(tr);
-    });
-}
-
-function pedirConfirmacionEliminar(num) {
-    registroAEliminar = REGISTROS_DB.find(r => r.num === num);
-    if (!registroAEliminar) return;
-    $('modal-confirmar-msg').textContent =
-        `Estás a punto de eliminar el registro #${registroAEliminar.num} del paciente "${registroAEliminar.paciente}" con motivo "${registroAEliminar.motivo}". Esta acción no se puede deshacer.`;
-    cerrarModal('modal-eliminar');
-    abrirModal('modal-confirmar');
-}
-
-$('btn-confirmar-cancelar').addEventListener('click', () => {
-    registroAEliminar = null;
-    cerrarModal('modal-confirmar');
-});
-
-$('btn-confirmar-eliminar').addEventListener('click', () => {
-    if (!registroAEliminar) return;
-    REGISTROS_DB = REGISTROS_DB.filter(r => r.num !== registroAEliminar.num);
-    mostrarAlerta(`Registro #${registroAEliminar.num} eliminado.`, 'ok');
-    registroAEliminar = null;
-    cerrarModal('modal-confirmar');
-});
-
-/* ── Helpers modales ── */
-function abrirModal(id) {
-    const m = $(id);
-    m.removeAttribute('hidden');
-    m.querySelector('button,input')?.focus();
-}
-function cerrarModal(id) {
-    $(id).setAttribute('hidden', '');
-}
-
-// Cerrar modal al click fuera
-document.querySelectorAll('.modal-overlay').forEach(m => {
-    m.addEventListener('click', e => { if (e.target === m) cerrarModal(m.id); });
-});
-
-// Cerrar con Escape
-document.addEventListener('keydown', e => {
-    if (e.key !== 'Escape') return;
-    ['modal-eliminar', 'modal-confirmar', 'modal-editar'].forEach(id => {
-        if (!$(id).hasAttribute('hidden')) cerrarModal(id);
-    });
-});
-
-/* ═══════════════════════════════════════════
-   BOTÓN GUARDAR DATOS
-════════════════════════════════════════════ */
-$('btn-save').addEventListener('click', () => {
-    const motivo = $('motivo-cita').value.trim();
-    const paciente = $('nombre-paciente').value.trim();
-    const fisio = $('nombre-fisio').value.trim();
-
-    if (!motivo || !paciente || !fisio) {
-        mostrarAlerta('Complete los campos de Motivo, Paciente y Fisioterapeuta.');
-        return;
-    }
-    // Aquí iría la llamada al backend
-    mostrarAlerta('Datos guardados correctamente.', 'ok');
-});
-
-/* ═══════════════════════════════════════════
+/* 
    TAB 2 — EJERCICIOS
-════════════════════════════════════════════ */
+ */
 let catActiva = 'todos';
 
 function cargarEjercicios(cat) {
-    const sel = $('sel-ejercicio');
+    var sel = $('sel-ejercicio');
     sel.innerHTML = '<option value="">— Seleccionar —</option>';
-    const lista = cat === 'todos'
-        ? EJERCICIOS_DB
-        : EJERCICIOS_DB.filter(e => e.cat === cat);
-    lista.forEach(e => {
-        const opt = document.createElement('option');
-        opt.value = e.id;
-        opt.textContent = e.nombre;
-        opt.dataset.cat = e.cat;
+    var lista = (typeof EJERCICIOS_DATA !== 'undefined' ? EJERCICIOS_DATA : []);
+
+    if (cat !== 'todos') {
+        lista = lista.filter(function (e) { return String(e.id_CatEjer) === String(cat); });
+    }
+    lista.forEach(function (e) {
+        var opt = document.createElement('option');
+        opt.value = e.id_Ejercicio;
+        opt.textContent = e.Nombre_Ejer;
+        opt.dataset.cat = e.Nombre_CatEjer;
+        opt.dataset.catId = e.id_CatEjer;
         sel.appendChild(opt);
     });
 }
@@ -424,37 +544,36 @@ document.querySelectorAll('.cat-pill').forEach(pill => {
         cargarEjercicios(catActiva);
     });
 });
+cargarEjercicios('todos');
 
-cargarEjercicios('todos'); // Inicializar
-
-$('btn-add-ej').addEventListener('click', () => {
-    const selEj = $('sel-ejercicio');
-    const series = $('ej-series').value.trim();
-    const reps = $('ej-repeticiones').value.trim();
+$('btn-add-ej').addEventListener('click', function () {
+    var selEj = $('sel-ejercicio');
+    var series = $('ej-series').value.trim();
+    var reps = $('ej-repeticiones').value.trim();
 
     if (!selEj.value) { mostrarAlerta('Seleccione un ejercicio.'); return; }
-    if (!series || !soloNumeros(series) || parseInt(series) < 1) { mostrarAlerta('Ingrese un número válido de series (mínimo 1).'); return; }
-    if (!reps || !soloNumeros(reps) || parseInt(reps) < 1) { mostrarAlerta('Ingrese un número válido de repeticiones (mínimo 1).'); return; }
+    if (!series || !soloNumeros(series) || parseInt(series) < 1) { mostrarAlerta('Ingrese series válidas (mínimo 1).'); return; }
+    if (!reps || !soloNumeros(reps) || parseInt(reps) < 1) { mostrarAlerta('Ingrese repeticiones válidas (mínimo 1).'); return; }
 
-    const ejercicio = EJERCICIOS_DB.find(e => e.id == selEj.value);
-    const catLabel = catActiva !== 'todos' ? catActiva
-        : ejercicio?.cat || '—';
-
-    const tbody = $('ej-tbody');
-    const emptyRow = tbody.querySelector('.empty-row');
+    var opt = selEj.options[selEj.selectedIndex];
+    var tbody = $('ej-tbody');
+    var emptyRow = tbody.querySelector('.empty-row');
     if (emptyRow) emptyRow.remove();
 
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-    <td>${ejercicio?.nombre || '—'}</td>
-    <td style="text-transform:capitalize">${catLabel}</td>
-    <td>${parseInt(series)}</td>
-    <td>${parseInt(reps)}</td>
-    <td>
-      <button class="btn-tbl btn-tbl-del" title="Quitar ejercicio"
-        onclick="quitarFilaEj(this)">🗑️</button>
-    </td>
-  `;
+    var tr = document.createElement('tr');
+    tr.innerHTML =
+        '<td>' + opt.textContent + '</td>' +
+        '<td>' + (opt.dataset.cat || '—') + '</td>' +
+        '<td>' + parseInt(series) + '</td>' +
+        '<td>' + parseInt(reps) + '</td>' +
+        '<td><button class="btn-tbl btn-tbl-del" title="Quitar" onclick="quitarFilaEj(this)">🗑️</button></td>';
+    tr.dataset.datos = JSON.stringify({
+        id_Ejercicio: parseInt(selEj.value),
+        nombre: opt.textContent,
+        categoria: opt.dataset.cat || '',
+        series: parseInt(series),
+        repeticiones: parseInt(reps)
+    });
     tbody.appendChild(tr);
 
     selEj.value = '';
@@ -464,118 +583,100 @@ $('btn-add-ej').addEventListener('click', () => {
 });
 
 function quitarFilaEj(btn) {
-    const tr = btn.closest('tr');
-    tr.remove();
+    btn.closest('tr').remove();
     if (!$('ej-tbody').querySelector('tr')) {
         $('ej-tbody').innerHTML = '<tr class="empty-row"><td colspan="5">No hay ejercicios asignados.</td></tr>';
     }
 }
 
-/* ═══════════════════════════════════════════
-   TAB 3 — SELECCIÓN DE MÚSCULO (SVG interactivo)
-════════════════════════════════════════════ */
-let zonaSeleccionada = null;
-let generoActual = 'masculino';
-let vistaActual = 'anterior';
+/* 
+   TAB 3 — SELECCIÓN DE MÚSCULO (SVG)
+ */
 
-/* Definición de zonas musculares con colores y nombres */
+/* ZONAS MUSCULARES (Aproximaciones sobre la imagen cuerpo_humano.png) */
 const ZONAS = {
     anterior: [
-        { id: 'pectoral', nombre: 'Pectoral Mayor', color: '#6ee7b7', path: 'M 100 110 Q 115 100 130 110 Q 130 135 115 140 Q 100 135 100 110 Z M 160 110 Q 175 100 190 110 Q 190 135 175 140 Q 160 135 160 110 Z' },
-        { id: 'deltoides-ant', nombre: 'Deltoides Anterior', color: '#fbbf24', path: 'M 90 105 Q 95 90 110 95 Q 110 115 100 120 Q 90 115 90 105 Z M 180 105 Q 185 90 200 95 Q 200 115 190 120 Q 180 115 180 105 Z' },
-        { id: 'biceps', nombre: 'Bíceps Braquial', color: '#f87171', path: 'M 78 130 Q 82 120 92 125 Q 95 155 88 160 Q 78 155 78 130 Z M 198 130 Q 202 120 212 125 Q 215 155 208 160 Q 198 155 198 130 Z' },
-        { id: 'abdominales', nombre: 'Abdominales', color: '#60a5fa', path: 'M 110 145 Q 145 140 180 145 L 178 200 Q 145 205 112 200 Z' },
-        { id: 'cuadriceps', nombre: 'Cuádriceps', color: '#a78bfa', path: 'M 105 240 Q 120 235 135 240 L 138 310 Q 122 315 108 310 Z M 155 240 Q 170 235 185 240 L 188 310 Q 172 315 158 310 Z' },
-        { id: 'tibial', nombre: 'Tibial Anterior', color: '#34d399', path: 'M 108 318 Q 118 314 128 318 L 126 370 Q 116 374 106 370 Z M 162 318 Q 172 314 182 318 L 180 370 Q 170 374 160 370 Z' },
+        { id: 'deltoides-izq-ant', nombre: 'Deltoides Izquierdo', tag: '<ellipse cx="58" cy="135" rx="15" ry="30" transform="rotate(15 58 135)"' },
+        { id: 'deltoides-der-ant', nombre: 'Deltoides Derecho', tag: '<ellipse cx="178" cy="135" rx="15" ry="30" transform="rotate(-15 178 135)"' },
+        { id: 'pectoral-izq', nombre: 'Pectoral Izquierdo', tag: '<ellipse cx="90" cy="135" rx="25" ry="20"' },
+        { id: 'pectoral-der', nombre: 'Pectoral Derecho', tag: '<ellipse cx="145" cy="135" rx="25" ry="20"' },
+        { id: 'biceps-izq', nombre: 'Bíceps Izquierdo', tag: '<ellipse cx="45" cy="190" rx="12" ry="25" transform="rotate(20 45 190)"' },
+        { id: 'biceps-der', nombre: 'Bíceps Derecho', tag: '<ellipse cx="190" cy="190" rx="12" ry="25" transform="rotate(-20 190 190)"' },
+        { id: 'antebrazo-izq-ant', nombre: 'Antebrazo Izquierdo', tag: '<ellipse cx="32" cy="240" rx="10" ry="25" transform="rotate(25 32 240)"' },
+        { id: 'antebrazo-der-ant', nombre: 'Antebrazo Derecho', tag: '<ellipse cx="203" cy="240" rx="10" ry="25" transform="rotate(-25 203 240)"' },
+        { id: 'abdominales', nombre: 'Abdominales', tag: '<rect x="95" y="160" width="45" height="80" rx="10"' },
+        { id: 'oblicuo-izq', nombre: 'Oblicuo Izquierdo', tag: '<ellipse cx="80" cy="190" rx="10" ry="35" transform="rotate(10 80 190)"' },
+        { id: 'oblicuo-der', nombre: 'Oblicuo Derecho', tag: '<ellipse cx="155" cy="190" rx="10" ry="35" transform="rotate(-10 155 190)"' },
+        { id: 'cuadriceps-izq', nombre: 'Cuádriceps Izquierdo', tag: '<ellipse cx="85" cy="285" rx="20" ry="45"' },
+        { id: 'cuadriceps-der', nombre: 'Cuádriceps Derecho', tag: '<ellipse cx="150" cy="285" rx="20" ry="45"' },
+        { id: 'tibial-izq', nombre: 'Tibial Anterior Izquierdo', tag: '<ellipse cx="85" cy="385" rx="12" ry="40"' },
+        { id: 'tibial-der', nombre: 'Tibial Anterior Derecho', tag: '<ellipse cx="150" cy="385" rx="12" ry="40"' },
     ],
     posterior: [
-        { id: 'trapecio', nombre: 'Trapecio', color: '#fbbf24', path: 'M 105 95 Q 145 85 185 95 Q 175 120 145 125 Q 115 120 105 95 Z' },
-        { id: 'dorsales', nombre: 'Dorsal Ancho', color: '#f87171', path: 'M 100 130 Q 115 125 135 135 L 130 190 Q 112 195 95 185 Z M 190 130 Q 175 125 155 135 L 160 190 Q 178 195 195 185 Z' },
-        { id: 'gluteos', nombre: 'Glúteos', color: '#a78bfa', path: 'M 108 205 Q 145 198 182 205 L 180 250 Q 145 256 110 250 Z' },
-        { id: 'isquiotibial', nombre: 'Isquiotibiales', color: '#60a5fa', path: 'M 108 258 Q 123 253 138 258 L 136 318 Q 120 323 106 318 Z M 152 258 Q 167 253 182 258 L 180 318 Q 164 323 150 318 Z' },
-        { id: 'gemelos', nombre: 'Gemelos', color: '#6ee7b7', path: 'M 108 325 Q 120 320 130 325 L 128 375 Q 118 380 106 375 Z M 160 325 Q 172 320 182 325 L 180 375 Q 170 380 158 375 Z' },
-        { id: 'triceps', nombre: 'Tríceps Braquial', color: '#34d399', path: 'M 78 130 Q 83 120 92 126 Q 93 158 85 163 Q 77 158 78 130 Z M 198 130 Q 203 120 212 126 Q 213 158 205 163 Q 197 158 198 130 Z' },
+        { id: 'trapecio', nombre: 'Trapecio', tag: '<polygon points="350,90 325,120 375,120"' },
+        { id: 'deltoides-izq-post', nombre: 'Deltoides Post. Izquierdo', tag: '<ellipse cx="290" cy="135" rx="15" ry="30" transform="rotate(15 290 135)"' },
+        { id: 'deltoides-der-post', nombre: 'Deltoides Post. Derecho', tag: '<ellipse cx="410" cy="135" rx="15" ry="30" transform="rotate(-15 410 135)"' },
+        { id: 'espalda-alta-izq', nombre: 'Espalda Alta Izquierda', tag: '<polygon points="350,120 310,130 315,180 350,210"' },
+        { id: 'espalda-alta-der', nombre: 'Espalda Alta Derecha', tag: '<polygon points="350,120 390,130 385,180 350,210"' },
+        { id: 'triceps-izq', nombre: 'Tríceps Izquierdo', tag: '<ellipse cx="280" cy="190" rx="12" ry="25" transform="rotate(20 280 190)"' },
+        { id: 'triceps-der', nombre: 'Tríceps Derecho', tag: '<ellipse cx="420" cy="190" rx="12" ry="25" transform="rotate(-20 420 190)"' },
+        { id: 'antebrazo-izq-post', nombre: 'Antebrazo Post. Izquierdo', tag: '<ellipse cx="265" cy="240" rx="10" ry="25" transform="rotate(25 265 240)"' },
+        { id: 'antebrazo-der-post', nombre: 'Antebrazo Post. Derecho', tag: '<ellipse cx="435" cy="240" rx="10" ry="25" transform="rotate(-25 435 240)"' },
+        { id: 'lumbar', nombre: 'Zona Lumbar', tag: '<polygon points="350,210 320,240 380,240"' },
+        { id: 'gluteo-izq', nombre: 'Glúteo Izquierdo', tag: '<ellipse cx="320" cy="255" rx="25" ry="20"' },
+        { id: 'gluteo-der', nombre: 'Glúteo Derecho', tag: '<ellipse cx="380" cy="255" rx="25" ry="20"' },
+        { id: 'isquiotibial-izq', nombre: 'Isquiotibial Izquierdo', tag: '<ellipse cx="315" cy="315" rx="18" ry="40"' },
+        { id: 'isquiotibial-der', nombre: 'Isquiotibial Derecho', tag: '<ellipse cx="385" cy="315" rx="18" ry="40"' },
+        { id: 'gemelo-izq', nombre: 'Gemelo Izquierdo', tag: '<ellipse cx="315" cy="390" rx="15" ry="35"' },
+        { id: 'gemelo-der', nombre: 'Gemelo Derecho', tag: '<ellipse cx="385" cy="390" rx="15" ry="35"' },
     ]
 };
 
-/* Cuerpo humano SVG base (silueta simple) */
-function generarSVG(genero, vista) {
-    const zonas = ZONAS[vista];
+function generarSVG(vista) {
+    var zonas = ZONAS[vista];
+    var xOffset = vista === 'anterior' ? 0 : 233;
 
-    // Silueta diferente por género (sutil)
-    const cabezaRx = genero === 'femenino' ? 20 : 18;
-    const cuerpoPath = genero === 'femenino'
-        ? 'M 115 165 Q 100 175 98 220 Q 96 240 108 245 L 108 390 L 130 390 L 130 295 L 145 295 L 145 390 L 167 390 L 167 245 Q 179 240 182 220 Q 180 175 175 165 Z'
-        : 'M 112 165 Q 95 175 93 215 Q 91 240 108 245 L 108 390 L 130 390 L 130 295 L 145 295 L 145 390 L 167 390 L 167 245 Q 199 240 197 215 Q 195 175 178 165 Z';
+    var zonasSVG = zonas.map(function (z) {
+        return z.tag + ' class="zona-muscular" data-zona="' + z.id + '" data-nombre="' + z.nombre + '" ' +
+            'fill="transparent" stroke="transparent" stroke-width="0" ' +
+            'role="button" tabindex="0" aria-label="' + z.nombre + '" style="cursor:pointer; transition: fill 0.2s;"/>';
+    }).join('\n');
 
-    const brazosPath = 'M 95 165 Q 82 168 76 210 Q 74 230 78 240 L 92 240 L 94 185 Q 108 170 115 165 Z M 195 165 Q 208 168 214 210 Q 216 230 212 240 L 198 240 L 196 185 Q 182 170 175 165 Z';
-
-    let zonasSVG = zonas.map(z =>
-        `<path class="zona-muscular" data-zona="${z.id}" data-nombre="${z.nombre}"
-       d="${z.path}" fill="${z.color}" stroke="rgba(0,0,0,0.15)" stroke-width="0.8"
-       role="button" tabindex="0" aria-label="${z.nombre}"/>`
-    ).join('\n');
-
-    return `
-<svg viewBox="60 60 170 380" xmlns="http://www.w3.org/2000/svg" aria-label="Cuerpo humano ${genero} vista ${vista}">
-  <!-- Cabeza -->
-  <ellipse cx="145" cy="82" rx="${cabezaRx}" ry="22" fill="#f5cba7" stroke="#c8a882" stroke-width="1"/>
-  <!-- Cuello -->
-  <rect x="137" y="102" width="16" height="14" rx="4" fill="#f5cba7"/>
-  <!-- Torso -->
-  <path d="${cuerpoPath}" fill="#e8d5c4" stroke="#c8a882" stroke-width="1"/>
-  <!-- Brazos -->
-  <path d="${brazosPath}" fill="#e8d5c4" stroke="#c8a882" stroke-width="1"/>
-  <!-- Zonas musculares interactivas -->
-  ${zonasSVG}
-  <!-- Manos -->
-  <ellipse cx="75"  cy="248" rx="8" ry="11" fill="#f5cba7" stroke="#c8a882" stroke-width="1"/>
-  <ellipse cx="215" cy="248" rx="8" ry="11" fill="#f5cba7" stroke="#c8a882" stroke-width="1"/>
-  <!-- Pies -->
-  <ellipse cx="120" cy="394" rx="14" ry="6" fill="#f5cba7" stroke="#c8a882" stroke-width="1"/>
-  <ellipse cx="160" cy="394" rx="14" ry="6" fill="#f5cba7" stroke="#c8a882" stroke-width="1"/>
-</svg>`;
+    return '<svg viewBox="' + xOffset + ' 0 233 481" xmlns="http://www.w3.org/2000/svg" aria-label="Cuerpo humano vista ' + vista + '" style="width:100%; height:100%; border-radius:12px;">' +
+        '<image href="/Content/cuerpo_humano.png" x="0" y="0" width="467" height="481" />' +
+        zonasSVG +
+        '</svg>';
 }
 
 function renderBody() {
-    const canvas = $('body-canvas');
-    canvas.innerHTML = generarSVG(generoActual, vistaActual);
-
-    // Eventos en zonas
-    canvas.querySelectorAll('.zona-muscular').forEach(zona => {
-        zona.addEventListener('click', () => seleccionarZona(zona));
-        zona.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') seleccionarZona(zona); });
+    var canvas = $('body-canvas');
+    canvas.innerHTML = generarSVG(vistaActual);
+    canvas.querySelectorAll('.zona-muscular').forEach(function (zona) {
+        zona.addEventListener('click', function () { seleccionarZona(zona); });
+        zona.addEventListener('mouseenter', function () { 
+            if (!zona.classList.contains('selected')) zona.setAttribute('fill', 'rgba(255,255,255,0.4)');
+        });
+        zona.addEventListener('mouseleave', function () {
+            if (!zona.classList.contains('selected')) zona.setAttribute('fill', 'transparent');
+        });
     });
 }
 
 function seleccionarZona(zona) {
-    // Quitar selección previa
-    $('body-canvas').querySelectorAll('.zona-muscular').forEach(z => z.classList.remove('selected'));
-
+    $('body-canvas').querySelectorAll('.zona-muscular').forEach(function (z) {
+        z.classList.remove('selected');
+        z.setAttribute('fill', 'transparent');
+    });
     zona.classList.add('selected');
+    zona.setAttribute('fill', 'rgba(20, 184, 166, 0.5)'); // Teal highlight
     zonaSeleccionada = { id: zona.dataset.zona, nombre: zona.dataset.nombre };
-
     $('zona-sel-display').value = zonaSeleccionada.nombre;
     $('zona-nombre-texto').textContent = zonaSeleccionada.nombre;
 }
 
-/* Selector género */
-document.querySelectorAll('.genero-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-        document.querySelectorAll('.genero-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        generoActual = btn.dataset.genero;
-        zonaSeleccionada = null;
-        $('zona-sel-display').value = '';
-        $('zona-nombre-texto').textContent = 'Ninguna zona seleccionada';
-        renderBody();
-    });
-});
-
-/* Selector vista */
-document.querySelectorAll('.vista-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-        document.querySelectorAll('.vista-btn').forEach(b => b.classList.remove('active'));
+document.querySelectorAll('.vista-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+        document.querySelectorAll('.vista-btn').forEach(function (b) { b.classList.remove('active'); });
         btn.classList.add('active');
         vistaActual = btn.dataset.vista;
         zonaSeleccionada = null;
@@ -586,55 +687,208 @@ document.querySelectorAll('.vista-btn').forEach(btn => {
 });
 
 /* Agregar zona a tabla */
-$('btn-add-musculo').addEventListener('click', () => {
+$('btn-add-musculo').addEventListener('click', function () {
     if (!zonaSeleccionada) { mostrarAlerta('Seleccione una zona en el cuerpo.'); return; }
 
-    const tratSelOpts = Array.from($('tratamiento-select').selectedOptions);
-    if (!tratSelOpts.length) { mostrarAlerta('Seleccione al menos un tratamiento.'); return; }
+    var tratSel = $('tratamiento-select');
+    var tratVal = tratSel.value;
+    var tratText = tratSel.options[tratSel.selectedIndex] ? tratSel.options[tratSel.selectedIndex].text : '';
+    var desc = $('musculo-desc').value.trim();
 
-    const tratamientos = tratSelOpts.map(o => o.text).join(', ');
-    const desc = $('musculo-desc').value.trim();
-
-    const tbody = $('musculo-tbody');
-    const emptyRow = tbody.querySelector('.empty-row');
+    var tbody = $('musculo-tbody');
+    var emptyRow = tbody.querySelector('.empty-row');
     if (emptyRow) emptyRow.remove();
 
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-    <td><strong>${zonaSeleccionada.nombre}</strong><br/><small style="color:var(--muted);text-transform:capitalize">${vistaActual}</small></td>
-    <td style="font-size:.8rem">${tratamientos}</td>
-    <td title="${desc}">${desc ? desc.slice(0, 40) + (desc.length > 40 ? '…' : '') : '—'}</td>
-    <td>
-      <button class="btn-tbl btn-tbl-del" title="Quitar zona" onclick="quitarFilaMusculo(this)">🗑️</button>
-    </td>
-  `;
+    var tr = document.createElement('tr');
+    tr.innerHTML =
+        '<td><strong>' + zonaSeleccionada.nombre + '</strong><br/><small style="color:var(--muted);text-transform:capitalize">' + vistaActual + '</small></td>' +
+        '<td style="font-size:.8rem">' + (tratText || '—') + '</td>' +
+        '<td title="' + desc + '">' + (desc ? desc.slice(0, 40) + (desc.length > 40 ? '…' : '') : '—') + '</td>' +
+        '<td><button class="btn-tbl btn-tbl-del" title="Quitar" onclick="quitarFilaMusculo(this)">🗑️</button></td>';
+    tr.dataset.datos = JSON.stringify({
+        nombre: zonaSeleccionada.nombre,
+        imagen: zonaSeleccionada.id,
+        id_Trata: tratVal ? parseInt(tratVal) : null,
+        nombreTrata: tratText,
+        desc: desc
+    });
     tbody.appendChild(tr);
 
-    // Limpiar
     $('zona-sel-display').value = '';
     $('zona-nombre-texto').textContent = 'Ninguna zona seleccionada';
     $('musculo-desc').value = '';
-    $('tratamiento-select').selectedIndex = -1;
-    $('body-canvas').querySelectorAll('.zona-muscular').forEach(z => z.classList.remove('selected'));
+    $('tratamiento-select').value = '';
+    $('body-canvas').querySelectorAll('.zona-muscular').forEach(function (z) {
+        z.classList.remove('selected');
+        z.style.opacity = '.85';
+        z.style.filter = '';
+    });
     zonaSeleccionada = null;
-
     mostrarAlerta('Zona muscular registrada.', 'ok');
 });
 
 function quitarFilaMusculo(btn) {
-    const tr = btn.closest('tr');
-    tr.remove();
+    btn.closest('tr').remove();
     if (!$('musculo-tbody').querySelector('tr')) {
-        $('musculo-tbody').innerHTML = '<tr class="empty-row"><td colspan="4">Sin zonas registradas. Seleccione un músculo en el cuerpo.</td></tr>';
+        $('musculo-tbody').innerHTML = '<tr class="empty-row"><td colspan="4">Sin zonas registradas.</td></tr>';
     }
 }
 
-/* ── Init ── */
 renderBody();
 
-/* Exponer funciones globales referenciadas en HTML inline */
+/* 
+   GUARDAR DIAGNÓSTICO
+ */
+$('btn-save').addEventListener('click', function () {
+    var idCita = $('id-cita').value;
+    if (!idCita) {
+        mostrarAlerta('Primero busque y seleccione una cita/paciente.');
+        return;
+    }
+
+    var payload = recopilarDatos();
+    payload.id_Cita = parseInt(idCita);
+
+    fetch('/Diagnostico/GuardarDiagnostico', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+    })
+    .then(function (response) { return response.json(); })
+    .then(function (data) {
+        if (data.respuesta) {
+            mostrarAlerta('Diagnóstico guardado exitosamente.', 'ok');
+            $('btn-limpiar').click();
+        } else {
+            mostrarAlerta('Error: ' + (data.mensaje || 'No se pudo guardar.'));
+        }
+    })
+    .catch(function (error) {
+        console.error("Error:", error);
+        mostrarAlerta('Ocurrió un error al guardar.');
+    });
+});
+
+/* 
+   ACTUALIZAR DIAGNÓSTICO
+ */
+$('btn-actualizar').addEventListener('click', function () {
+    if (!diagnosticoSeleccionado || !diagnosticoSeleccionado.id_Diag) {
+        mostrarAlerta('Primero busque y seleccione un diagnóstico para actualizar.');
+        return;
+    }
+
+    var payload = recopilarDatos();
+    payload.id_Diag = parseInt(diagnosticoSeleccionado.id_Diag);
+
+    fetch('/Diagnostico/ActualizarDiagnostico', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+    })
+    .then(function (response) { return response.json(); })
+    .then(function (data) {
+        if (data.respuesta) {
+            mostrarAlerta('Diagnóstico actualizado exitosamente.', 'ok');
+        } else {
+            mostrarAlerta('Error: ' + (data.mensaje || 'No se pudo actualizar.'));
+        }
+    })
+    .catch(function (error) {
+        console.error("Error:", error);
+        mostrarAlerta('Ocurrió un error al actualizar.');
+    });
+});
+
+/* 
+   ELIMINAR DIAGNÓSTICO
+ */
+$('btn-eliminar').addEventListener('click', function () {
+    if (!diagnosticoSeleccionado || !diagnosticoSeleccionado.id_Diag) {
+        mostrarAlerta('Primero busque y seleccione un diagnóstico para eliminar.');
+        return;
+    }
+
+    if (!confirm('¿Está seguro de eliminar el diagnóstico #' + diagnosticoSeleccionado.Num_Diag + '? Esta acción no se puede deshacer.')) {
+        return;
+    }
+
+    var formData = new FormData();
+    formData.append('id_Diag', diagnosticoSeleccionado.id_Diag);
+
+    fetch('/Diagnostico/EliminarDiagnostico', {
+        method: 'POST',
+        body: formData
+    })
+    .then(function (response) { return response.json(); })
+    .then(function (data) {
+        if (data.respuesta) {
+            mostrarAlerta('Diagnóstico eliminado exitosamente.', 'ok');
+            $('btn-limpiar').click();
+        } else {
+            mostrarAlerta('Error: ' + (data.mensaje || 'No se pudo eliminar.'));
+        }
+    })
+    .catch(function (error) {
+        console.error("Error:", error);
+        mostrarAlerta('Ocurrió un error al eliminar.');
+    });
+});
+
+/* 
+   RECOPILAR DATOS DE LAS TABLAS
+ */
+function recopilarDatos() {
+    var consulVal = $('consultorio').value;
+
+    // Recopilar DetallesDiag
+    var detallesDiag = [];
+    $('diag-tbody').querySelectorAll('tr:not(.empty-row)').forEach(function (tr) {
+        var d = JSON.parse(tr.dataset.datos || '{}');
+        detallesDiag.push({
+            Tipo_Diag: d.tipo === '1',
+            Nombre_Diag: d.nombre || '',
+            id_Lesion: d.id_Lesion ? parseInt(d.id_Lesion) : null,
+            RadioGrafia: d.radiografia || null,
+            Descrip_Diag: d.desc || '',
+            id_EscalaDolor: d.id_EscalaDolor ? parseInt(d.id_EscalaDolor) : null
+        });
+    });
+
+    // Recopilar DetallesEjer
+    var detallesEjer = [];
+    $('ej-tbody').querySelectorAll('tr:not(.empty-row)').forEach(function (tr) {
+        var d = JSON.parse(tr.dataset.datos || '{}');
+        detallesEjer.push({
+            id_Ejercicio: d.id_Ejercicio || null,
+            id_DetalleEjerLes: null,
+            Series: d.series || 1,
+            Repeticiones: d.repeticiones || 1
+        });
+    });
+
+    // Recopilar DetallesCH
+    var detallesCH = [];
+    $('musculo-tbody').querySelectorAll('tr:not(.empty-row)').forEach(function (tr) {
+        var d = JSON.parse(tr.dataset.datos || '{}');
+        detallesCH.push({
+            Imag_Musculo: d.imagen || '',
+            Nombre_Musculo: d.nombre || '',
+            Descripcion_DiagCH: d.desc || '',
+            id_Trata: d.id_Trata || null
+        });
+    });
+
+    return {
+        id_Consul: consulVal ? parseInt(consulVal) : null,
+        DetallesDiag: detallesDiag,
+        DetallesEjer: detallesEjer,
+        DetallesCH: detallesCH
+    };
+}
+
+/* Exponer funciones globales para onclick inline */
 window.abrirEditar = abrirEditar;
 window.quitarFilaDiag = quitarFilaDiag;
 window.quitarFilaEj = quitarFilaEj;
 window.quitarFilaMusculo = quitarFilaMusculo;
-window.pedirConfirmacionEliminar = pedirConfirmacionEliminar;

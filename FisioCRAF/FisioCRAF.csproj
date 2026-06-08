@@ -106,6 +106,12 @@
       <Private>True</Private>
       <HintPath>..\packages\Antlr.3.5.0.2\lib\Antlr3.Runtime.dll</HintPath>
     </Reference>
+    <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.5.1\lib\net45\EntityFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.5.1\lib\net45\EntityFramework.SqlServer.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Start\BundleConfig.cs" />
@@ -135,7 +141,16 @@
     <Compile Include="Models\Entidades\Paciente.cs" />
     <Compile Include="Models\Entidades\TipoLesiones.cs" />
     <Compile Include="Models\Entidades\Tratamiento.cs" />
+    <Compile Include="Models\Entidades\DiagnosticoEntity.cs" />
+    <Compile Include="Models\Entidades\DetalleDiag.cs" />
+    <Compile Include="Models\Entidades\DetalleEjerDiag.cs" />
+    <Compile Include="Models\Entidades\DetalleCH.cs" />
+    <Compile Include="Models\Entidades\DetalleTrata.cs" />
+    <Compile Include="Models\Entidades\EscalaDolor.cs" />
+    <Compile Include="Models\Entidades\Consultorio.cs" />
+    <Compile Include="Models\FisioCRAFTContext.cs" />
     <Compile Include="Models\Services\CitaService.cs" />
+    <Compile Include="Models\Services\DiagnosticoService.cs" />
     <Compile Include="Models\Services\EjercicioService.cs" />
     <Compile Include="Models\Services\EmpleadoService.cs" />
     <Compile Include="Models\Services\LesionService.cs" />

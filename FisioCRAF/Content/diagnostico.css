@@ -1,6 +1,6 @@
-﻿/* ═══════════════════════════════════════════
+﻿/* 
    RESET & VARIABLES
-════════════════════════════════════════════ */
+ */
 *, *::before, *::after {
     box-sizing: border-box;
     margin: 0;
@@ -32,11 +32,11 @@ body {
     min-height: 100vh;
 }
 
-/* ═══════════════════════════════════════════
+/* 
    HEADER
-════════════════════════════════════════════ */
+ */
 .header {
-    background: var(--surface);
+    background: #b4f6d6;
     border-bottom: 2px solid var(--teal);
     padding: 14px 28px;
     display: flex;
@@ -61,7 +61,10 @@ body {
 .search-wrap {
     flex: 1;
     position: relative;
-    max-width: 460px;
+    max-width: 520px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
 }
 
     .search-wrap input {
@@ -90,6 +93,48 @@ body {
         color: var(--muted);
         font-size: 1rem;
         pointer-events: none;
+    }
+
+.btn-buscar {
+    background: var(--teal);
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 50px;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 600;
+    font-size: .85rem;
+    cursor: pointer;
+    transition: background .2s, transform .1s;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+    .btn-buscar:hover {
+        background: var(--teal-dark);
+        transform: translateY(-1px);
+    }
+
+tbody tr.seleccionado {
+    background: var(--teal-soft) !important;
+    outline: 2px solid var(--teal);
+}
+
+.modal-input {
+    width: 100%;
+    padding: 10px 42px 10px 16px;
+    border: 1.5px solid var(--border);
+    border-radius: 50px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: .85rem;
+    outline: none;
+    transition: border-color .2s;
+    background: var(--bg);
+}
+
+    .modal-input:focus {
+        border-color: var(--teal);
+        background: #fff;
     }
 
 /* Sugerencias dropdown */
@@ -180,18 +225,18 @@ body {
     transform: translateY(0);
 }
 
-/* ═══════════════════════════════════════════
+/* 
    MAIN
-════════════════════════════════════════════ */
+ */
 .main {
     padding: 24px 28px;
     max-width: 1280px;
     margin: 0 auto;
 }
 
-/* ═══════════════════════════════════════════
+/* 
    CAMPOS SUPERIORES
-════════════════════════════════════════════ */
+ */
 .top-fields {
     background: var(--surface);
     border-radius: var(--radius);
@@ -267,9 +312,9 @@ body {
     margin-top: 2px;
 }
 
-/* ═══════════════════════════════════════════
+/* 
    PESTAÑAS
-════════════════════════════════════════════ */
+ */
 .tabs {
     display: flex;
     gap: 0;
@@ -302,9 +347,9 @@ body {
         color: var(--text);
     }
 
-/* ═══════════════════════════════════════════
+/* 
    PANELES
-════════════════════════════════════════════ */
+ */
 .tab-panel {
     display: none;
 }
@@ -313,9 +358,9 @@ body {
         display: block;
     }
 
-/* ═══════════════════════════════════════════
+/* 
    TAB 1 — DATOS GENERALES
-════════════════════════════════════════════ */
+ */
 .dg-top {
     background: var(--surface);
     border-radius: var(--radius);
@@ -503,9 +548,9 @@ body {
         background: transparent;
     }
 
-/* ═══════════════════════════════════════════
+/* 
    TABLA COMPARTIDA
-════════════════════════════════════════════ */
+ */
 .table-wrap {
     background: var(--surface);
     border-radius: var(--radius);
@@ -612,9 +657,9 @@ tbody td {
     color: var(--red);
 }
 
-/* ═══════════════════════════════════════════
+/* 
    TAB 2 — ASIGNACIÓN DE EJERCICIOS
-════════════════════════════════════════════ */
+ */
 .ej-top {
     background: var(--surface);
     border-radius: var(--radius);
@@ -683,9 +728,9 @@ tbody td {
     min-width: 80px !important;
 }
 
-/* ═══════════════════════════════════════════
+/* 
    TAB 3 — SELECCIÓN DE MÚSCULO
-════════════════════════════════════════════ */
+ */
 .musculo-layout {
     display: grid;
     grid-template-columns: 320px 1fr;
@@ -867,9 +912,9 @@ tbody td {
         transform: translateY(-1px);
     }
 
-/* ═══════════════════════════════════════════
+/* 
    MODALES
-════════════════════════════════════════════ */
+ */
 .modal-overlay {
     position: fixed;
     inset: 0;
@@ -1038,9 +1083,9 @@ tbody td {
             background: #fff;
         }
 
-/* ═══════════════════════════════════════════
+/* 
    RESPONSIVE
-════════════════════════════════════════════ */
+ */
 @media (max-width: 960px) {
     .top-fields {
         grid-template-columns: 1fr 1fr;
@@ -1097,3 +1142,4 @@ tbody td {
         font-size: .8rem;
     }
 }
+
