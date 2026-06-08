@@ -108,7 +108,7 @@ namespace FisioCRAF.Controllers
             }
             catch (Exception ex)
             {
-                return Json(new { respuesta = false, message = ex.Message });
+                return Json(new { respuesta = false, mensaje = ex.Message });
             }
 
         }

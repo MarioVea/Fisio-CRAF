@@ -9,9 +9,7 @@ input, textarea {
     padding: 5px;
 }
 
-/* =============================================
-   ENCABEZADO
-   ============================================= */
+/* ENCABEZADO */
 .encabezado {
     width:100%;
     display:flex;

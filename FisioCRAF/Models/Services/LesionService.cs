@@ -243,6 +243,7 @@ namespace FisioCRAF.Models.Services
                 //actualizar la lesión
                 string consulta = @"update Lesion.Lesiones set id_TipoLes = @TipoLes, Nom_Les = @Nombre, Grado = @Grado, Descrip_Les = @Descrip where id_Lesion = @idLesion";
                 cmd.CommandText = consulta;
+                cmd.Connection = con;
                 cmd.Parameters.Clear();
                 cmd.Parameters.AddWithValue("@idLesion", l.id_Lesion);
                 cmd.Parameters.AddWithValue("@TipoLes", l.id_TipoLes);
