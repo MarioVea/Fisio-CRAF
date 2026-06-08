@@ -37,7 +37,7 @@ body {
  */
 .header {
     background: #b4f6d6;
-    border-bottom: 2px solid var(--teal);
+    border-bottom: 1px solid black;
     padding: 14px 28px;
     display: flex;
     align-items: center;
