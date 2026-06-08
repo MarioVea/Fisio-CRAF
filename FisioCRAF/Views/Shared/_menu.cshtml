@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8" />
@@ -44,10 +44,6 @@
 
 <script>
 
-
-
-
-
     const boton = document.getElementById("cambiar");
     const botonClaro = document.getElementById("cambiar-claro");
     const menu = document.getElementById("menu");
@@ -57,21 +53,25 @@
     const encabezado = document.getElementById("encabezado");
     const estado = document.getElementById("check");
 
-
-
-
-
-
-    boton.addEventListener("click",function(){
-        if(estado.checked){
+    // --- Toggle button click ---
+    boton.addEventListener("click", function () {
+        if (estado.checked) {
             modoClaro();
             estado.checked = false;
+            localStorage.setItem("tema", "claro");
             return;
         }
         modoOscuro();
         estado.checked = true;
+        localStorage.setItem("tema", "oscuro");
     });
 
+    // --- Restore saved theme on page load ---
+    const temaGuardado = localStorage.getItem("tema");
+    if (temaGuardado === "oscuro") {
+        modoOscuro();
+        estado.checked = true;
+    }
 
     function modoOscuro(){
         menu.classList.add("transicion");

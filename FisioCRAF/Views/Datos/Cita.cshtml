@@ -42,7 +42,9 @@
                     </div>
                     <div class="dato">
                         <label for="Hora_Cita">Hora</label>
-                        <input id="Hora_Cita" type="time">
+                        <select id="Hora_Cita" required>
+                            <option value="">Seleccione fisioterapeuta y fecha</option>
+                        </select>
                     </div>
                     <div class="estado-opciones">
                         <label for="estado">Estado</label>
@@ -81,11 +83,11 @@
                 </div>
                 <div class="modal-cuerpo">
                     <div style="margin-bottom: 15px;">
-                        <label><input type="radio" name="tipoBusquedaCita" value="nombre" checked> Por Nombre</label>
+                        <label><input type="radio" name="tipoBusquedaCita" value="nombre" checked> Por paciente</label>
                         <label style="margin-left: 15px;"><input type="radio" name="tipoBusquedaCita" value="fecha"> Por Rango de Fechas</label>
                     </div>
                     <div id="contenedorBusquedaNombre">
-                        <input id="modalBuscador" type="text" placeholder="Buscar por nombre" class="modal-input" style="width: 50%;">
+                        <input id="modalBuscador" type="text" placeholder="Ingrese el nombre del paciente" class="modal-input" style="width: 50%;">
                     </div>
                     <div id="contenedorBusquedaFecha" class="oculto">
                         <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 15px;">
@@ -124,7 +126,7 @@
                     <button type="button" id="cerrarModalPaciente" class="btn-cerrar" aria-label="Cerrar">&times;</button>
                 </div>
                 <div class="modal-cuerpo">
-                    <input id="modalBuscadorPaciente" type="text" placeholder="Buscar por nombre" class="modal-input">
+                    <input id="modalBuscadorPaciente" type="text" placeholder="Ingrese el nombre del paciente" class="modal-input">
                     <div class="tabla-scroll">
                         <table class="tabla-resultados">
                             <thead>
@@ -200,6 +202,73 @@
             const dia = String(hoy.getDate()).padStart(2, "0");
             inputFecha.setAttribute("min", `${anio}-${mes}-${dia}`);
         });
+
+        comboFisio.addEventListener("change", function() {
+            cargarHorasDisponibles();
+        });
+
+        inputFecha.addEventListener("change", function() {
+            cargarHorasDisponibles();
+        });
+
+        async function cargarHorasDisponibles() {
+            const idEmp = comboFisio.value;
+            const fecha = inputFecha.value;
+
+            inputHora.innerHTML = '';
+
+            if (!idEmp || !fecha) {
+                const optDefault = document.createElement('option');
+                optDefault.value = '';
+                optDefault.textContent = 'Seleccione fisioterapeuta y fecha';
+                inputHora.appendChild(optDefault);
+                return;
+            }
+
+            const optCargando = document.createElement('option');
+            optCargando.value = '';
+            optCargando.textContent = 'Cargando horarios...';
+            inputHora.appendChild(optCargando);
+
+            try {
+                const response = await fetch(`/Datos/obtenerHorasOcupadas?idEmp=${idEmp}&fecha=${fecha}`);
+                const horasOcupadas = await response.json();
+
+                const todasLasHoras = ['14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00'];
+                const horasDisponibles = todasLasHoras.filter(h => !horasOcupadas.includes(h));
+
+                inputHora.innerHTML = '';
+
+                if (horasDisponibles.length === 0) {
+                    const optNone = document.createElement('option');
+                    optNone.value = '';
+                    optNone.textContent = 'No hay horarios disponibles';
+                    inputHora.appendChild(optNone);
+                    return;
+                }
+
+                const optSeleccione = document.createElement('option');
+                optSeleccione.value = '';
+                optSeleccione.textContent = 'Seleccione una hora';
+                inputHora.appendChild(optSeleccione);
+
+                horasDisponibles.forEach(h => {
+                    const opt = document.createElement('option');
+                    opt.value = h;
+                    const hora24 = parseInt(h.split(':')[0]);
+                    const hora12 = hora24 > 12 ? hora24 - 12 : hora24;
+                    const periodo = hora24 >= 12 ? 'PM' : 'AM';
+                    opt.textContent = `${hora12}:00 ${periodo}`;
+                    inputHora.appendChild(opt);
+                });
+            } catch (error) {
+                inputHora.innerHTML = '';
+                const optError = document.createElement('option');
+                optError.value = '';
+                optError.textContent = 'Error al cargar horarios';
+                inputHora.appendChild(optError);
+            }
+        }
 
         if (btnLimpiar) {
             btnLimpiar.addEventListener("click", function() {
@@ -458,7 +527,7 @@
                 const celdaFecha = document.createElement("td");
                 celdaFecha.textContent = formatearFecha(c.Fecha_Cita);
                 const celdaHora = document.createElement("td");
-                celdaHora.textContent = `${c.Hora_Cita.Hours}:${c.Hora_Cita.Minutes}`|| "";
+                celdaHora.textContent = formatearHora(c.Hora_Cita);
 
                 fila.appendChild(celdaFolio);
                 fila.appendChild(celdaNombre);
@@ -519,7 +588,7 @@
             nombrePaciente.value = "";
             inputMotivo.value = "";
             inputFecha.value = "";
-            inputHora.value = "";
+            inputHora.innerHTML = '<option value="">Seleccione fisioterapeuta y fecha</option>';
             comboFisio.value = "";
             radioAtendido.checked = false;
             radioPendiente.checked = false;
@@ -673,6 +742,7 @@
         function asignarPaciente(paciente) {
             inputPaciente.value = paciente.id_Pac || "";
             nombrePaciente.value = `${paciente.Nombre_Pac} ${paciente.ApellidoP_Pac} ${paciente.ApellidoM_Pac}`;
+            
 
         }
 
@@ -683,8 +753,30 @@
             nombrePaciente.value = cita.Nombre || "";
             inputMotivo.value = cita.Motivo_Cita || "";
             inputFecha.value = formatearFechaInput(cita.Fecha_Cita);
-            inputHora.value = formatearHora(cita.Hora_Cita);
             comboFisio.value = cita.id_Emp || "";
+
+            // Cargar las horas disponibles y luego seleccionar la hora de la cita
+            const horaFormateada = formatearHora(cita.Hora_Cita);
+            cargarHorasDisponibles().then(() => {
+                // Agregar la hora de la cita si no está disponible (ya está ocupada por esta misma cita)
+                let encontrada = false;
+                for (let i = 0; i < inputHora.options.length; i++) {
+                    if (inputHora.options[i].value === horaFormateada) {
+                        encontrada = true;
+                        break;
+                    }
+                }
+                if (!encontrada && horaFormateada) {
+                    const opt = document.createElement('option');
+                    opt.value = horaFormateada;
+                    const hora24 = parseInt(horaFormateada.split(':')[0]);
+                    const hora12 = hora24 > 12 ? hora24 - 12 : hora24;
+                    const periodo = hora24 >= 12 ? 'PM' : 'AM';
+                    opt.textContent = `${hora12}:00 ${periodo}`;
+                    inputHora.appendChild(opt);
+                }
+                inputHora.value = horaFormateada;
+            });
 
             const estatus = cita.Estatus_Cita;
             radioAtendido.checked = estatus === 1;
@@ -723,7 +815,7 @@
             fila.appendChild(celdaGenero);
 
             fila.addEventListener("click", function () {
-                Array.from(modalResultados.querySelectorAll("tr")).forEach(r => r.classList.remove("seleccionado"));
+                Array.from(modalResultadosPaciente.querySelectorAll("tr")).forEach(r => r.classList.remove("seleccionado"));
                 fila.classList.add("seleccionado");
                 pacienteSeleccionado = p;
             });

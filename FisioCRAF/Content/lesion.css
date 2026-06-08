@@ -1,4 +1,4 @@
-/* =============================================
+﻿/* =============================================
    lesion.css  — misma base que ejercicio.css
    ============================================= */
 
@@ -34,13 +34,14 @@ input, textarea {
         width: 100%;
         padding: 10px;
         position: relative;
+        align-items:center;
     }
 
         .encabezado .buscador input {
             width: 85%;
-            padding: 5px;
-            border-radius: 10px;
-            height: 15px;
+            padding: 10px;
+            border-radius: 20px;
+            height: 20px;
         }
 
         .encabezado .buscador button {
@@ -74,18 +75,34 @@ input, textarea {
 
 #btnGuardar {
     background-color: rgb(161, 231, 162);
+    &:hover{
+        transition:ease .2s ;
+        transform:scale(1.05);
+    }
 }
 
 #btn-actualizar {
     background-color: rgb(152, 227, 225);
+    &:hover{
+        transition:ease .2s ;
+        transform:scale(1.05);
+    }
 }
 
 #btn-Eliminar {
     background-color: rgb(237, 102, 87);
+    &:hover{
+        transition:ease .2s ;
+        transform:scale(1.05);
+    }
 }
 
 #btn-limpiar {
     background-color: white;
+    &:hover{
+        transition:ease .2s ;
+        transform:scale(1.05);
+    }
 }
 
 /* formulario principal */
@@ -407,3 +424,17 @@ form.form-Lesion {
     background-color: #b4f6d6;
     border-bottom: 1px solid black;
 }
+
+
+
+.agregar{
+    height:25px;
+    border-radius:5px;
+    border:1px solid black;
+    background-color:rgb(109, 196, 233);
+    &:hover{
+        transition:ease .2s ;
+        transform:scale(1.05);
+    }
+}
+/* transform:translateY(-5px); */

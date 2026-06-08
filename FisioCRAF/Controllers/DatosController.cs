@@ -121,6 +121,19 @@ namespace FisioCRAF.Controllers
             }
         }
 
+        [HttpGet]
+        public async Task<ActionResult> obtenerHorasOcupadas(int idEmp, DateTime fecha)
+        {
+            try
+            {
+                var horas = cs.obtenerHorasOcupadas(idEmp, fecha);
+                return Json(horas, JsonRequestBehavior.AllowGet);
+            }
+            catch
+            {
+                return Json(new List<string>(), JsonRequestBehavior.AllowGet);
+            }
+        }
 
 
     }

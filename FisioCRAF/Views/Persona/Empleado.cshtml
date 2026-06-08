@@ -1,4 +1,4 @@
-@{
+﻿@{
 
 	Layout = "~/Views/Shared/_menu.cshtml";
 }
@@ -124,7 +124,7 @@
 				<button type="button" id="cerrarModal" class="btn-cerrar" aria-label="Cerrar">&times;</button>
 			</div>
 			<div class="modal-cuerpo">
-				<input id="modalBuscador" type="text" placeholder="Buscar por nombre" class="modal-input">
+				<input id="modalBuscador" type="text" placeholder="Introduzca el nombre del empleado" class="modal-input">
                 <div class="tabla-scroll">
 					<table class="tabla-resultados">
 						<thead>
@@ -314,6 +314,8 @@
 		document.addEventListener("DOMContentLoaded", function () {
 			obtenerEspecialidades();
 
+			Clave.disabled = true;
+
 			const btnGuardar = document.getElementById("guardar");
 
 			if (btnGuardar) {
@@ -360,7 +362,7 @@
 			const cedula = document.getElementById("cedula").value.trim();
 			const id_Esp = document.getElementById("especialidades").value;
 
-			if (!clave || !nombre || !paterno || !materno || !password || !numero || !tipoEmp || !estatusEmp) {
+			if (!clave || !nombre || !paterno || !password || !numero || !tipoEmp || !estatusEmp) {
 				alert("Todos los campos son requeridos");
 				return false;
 			}

@@ -18,14 +18,15 @@ input{
     width:100%;
     padding:10px; 
     position:relative;
+    align-items: center;
 
 }
 
 .encabezado .buscador input{
     width:85%;
     padding:5px;
-    border-radius:10px;
-    height:15px;
+    border-radius:20px;
+    height:2rem;
 }
 
 .encabezado .buscador button{
@@ -187,16 +188,35 @@ th{
 
 .form-Cita .acciones :nth-child(1){
     background-color: rgb(161, 231, 162);
+    &:hover{
+        transition:ease .2s ;
+        transform:scale(1.05);
+    }
 }
 .form-Cita .acciones :nth-child(2){
     background-color: rgb(152, 227, 225);
+    &:hover{
+        transition:ease .2s ;
+        transform:scale(1.05);
+    }
 }
 .form-Cita .acciones :nth-child(3){
     background-color: rgb(237, 102, 87);
+    &:hover{
+        transition:ease .2s ;
+        transform:scale(1.05);
+    }
 }
 
 
 
 #abrirModal{
     margin-left:20px;
+}
+
+
+#Hora_Cita{
+
+    height:30px;
+    /* padding:20px; */
 }
