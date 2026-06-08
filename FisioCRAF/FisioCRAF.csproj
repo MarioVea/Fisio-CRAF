@@ -109,9 +109,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Start\BundleConfig.cs" />
+    <Compile Include="App_Start\BundleConfig2.cs" />
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="Controllers\DatosController.cs" />
+    <Compile Include="Controllers\DiagnosticoController.cs" />
     <Compile Include="Controllers\EjercicioController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\LesionController.cs" />
@@ -160,6 +162,8 @@
     <Content Include="Content\bootstrap.rtl.css" />
     <Content Include="Content\bootstrap.rtl.min.css" />
     <Content Include="Content\cita.css" />
+    <Content Include="Content\diagnostico.css" />
+    <Content Include="Content\diagnostico.js" />
     <Content Include="Content\ejercicio.css" />
     <Content Include="Content\empleados.css" />
     <Content Include="Content\estilos.css" />
@@ -214,9 +218,11 @@
     <Content Include="Views\Ejercicio\Index.cshtml" />
     <Content Include="Views\lesion\lesion.cshtml" />
     <Content Include="Views\Tratamiento\Index.cshtml" />
+    <Content Include="Views\Diagnostico\Diagnostico.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
+    <Folder Include="Data\" />
     <Folder Include="Models\DTOs\Cita\" />
   </ItemGroup>
   <ItemGroup>
