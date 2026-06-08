@@ -334,3 +334,16 @@ form.form-Ejercicio {
 .encabezado input{
     width:80% !important; 
 }
+
+
+
+
+#abrirModal, #btn-limpiar, .btn-cargar-imagen{
+    &:hover{
+        transition:ease .2s ;
+        transform:scale(1.05);
+    }
+}
+
+
+
