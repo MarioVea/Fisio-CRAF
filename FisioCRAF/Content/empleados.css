@@ -186,3 +186,11 @@ h1.encabezado-titulo{
     border-bottom: 1px solid black;
     
 }
+
+#abrirModal, #limpiar{
+    &:hover{
+        transition:ease .2s ;
+        transform:scale(1.05);
+    }
+}
+

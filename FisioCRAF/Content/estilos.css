@@ -430,3 +430,19 @@ h1{
     background-color: #b4f6d6;;
     border-bottom: 1px solid black;   
 }
+
+#abrirModal, #btn-limpiar{
+    &:hover{
+        transition:ease .2s ;
+        transform:scale(1.05);
+    }
+}
+
+
+
+#btnBuscarIcon, #btnLimpiar{
+    &:hover{
+        transition:ease .2s ;
+        transform:scale(1.05);
+    }
+}
