@@ -256,6 +256,36 @@ namespace FisioCRAF.Models.Services
         }
 
 
+        public List<string> obtenerHorasOcupadas(int idEmp, DateTime fecha)
+        {
+            var horas = new List<string>();
+            string query = $"select Hora_Cita from {tabla} where id_Emp = @idEmp and Fecha_Cita = @fecha and Estatus_Cita != 2";
+            SqlCommand cmdHoras = new SqlCommand(query, con);
+            cmdHoras.Parameters.AddWithValue("@idEmp", idEmp);
+            cmdHoras.Parameters.AddWithValue("@fecha", fecha);
+            try
+            {
+                con.Open();
+                using (SqlDataReader reader = cmdHoras.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        TimeSpan hora = TimeSpan.Parse(reader["Hora_Cita"].ToString());
+                        horas.Add(hora.Hours.ToString("D2") + ":00");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return horas;
+            }
+            finally
+            {
+                con.Close();
+            }
+            return horas;
+        }
+
         public List<Cita> obtenerCitasPorFecha(DateTime fechaInicio, DateTime fechaFin)
         {
             var citas = new List<Cita>();

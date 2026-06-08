@@ -136,12 +136,24 @@ div input,select{
 
 .form-empleado .acciones #guardar{
     background-color: rgb(161, 231, 162);
+    &:hover{
+        transition:ease .2s ;
+        transform:scale(1.05);
+    }
 }
 .form-empleado .acciones #actualizar{
     background-color: rgb(152, 227, 225);
+    &:hover{
+        transition:ease .2s ;
+        transform:scale(1.05);
+    }
 }
 .form-empleado .acciones #eliminar{
     background-color: rgb(237, 102, 87);
+    &:hover{
+        transition:ease .2s ;
+        transform:scale(1.05);
+    }
 }
 
 

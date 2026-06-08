@@ -27,13 +27,14 @@ input, textarea {
         width: 100%;
         padding: 10px;
         position: relative;
+        align-items: center;
     }
 
-        .encabezado .buscador input {
+        .encabezado .buscador {
             width: 85%;
             padding: 5px;
-            border-radius: 10px;
-            height: 15px;
+            border-radius: 20px;
+            height: 2rem;
         }
 
         .encabezado .buscador button {
@@ -195,18 +196,34 @@ form.form-Ejercicio {
 
 #btnGuardar {
     background-color: rgb(161, 231, 162);
+    &:hover{
+        transition:ease .2s ;
+        transform:scale(1.05);
+    }
 }
 
 #btn-actualizar {
     background-color: rgb(152, 227, 225);
+    &:hover{
+        transition:ease .2s ;
+        transform:scale(1.05);
+    }
 }
 
 #btn-Eliminar {
     background-color: rgb(237, 102, 87);
+    &:hover{
+        transition:ease .2s ;
+        transform:scale(1.05);
+    }
 }
 
 #btn-limpiar {
     background-color: white;
+    &:hover{
+        transition:ease .2s ;
+        transform:scale(1.05);
+    }
 }
 
 /* estilo del modal */
@@ -310,4 +327,10 @@ form.form-Ejercicio {
 .enc{
     background-color: #b4f6d6;
     border-bottom: 1px solid black;   
+}
+
+
+
+.encabezado input{
+    width:80% !important; 
 }
